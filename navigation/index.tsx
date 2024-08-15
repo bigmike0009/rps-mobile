@@ -3,11 +3,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { BackButton } from '../components/BackButton';
 import RockPaperScissors from '../screens/game';
-import Overview from '../screens/overview';
+import MainMenu from '../screens/mainMenu';
 
 export type RootStackParamList = {
-  Overview: undefined;
-  Details: { name: string };
+  MainMenu: undefined;
+  RockPaperScissors: { name: string };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -15,10 +15,10 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function RootStack() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Overview">
-        <Stack.Screen name="Overview" component={Overview} />
+      <Stack.Navigator initialRouteName="MainMenu" >
+        <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen
-          name="Details"
+          name="RockPaperScissors"
           component={RockPaperScissors}
           options={({ navigation }) => ({
             headerLeft: () => <BackButton onPress={navigation.goBack} />,
