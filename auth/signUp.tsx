@@ -4,9 +4,16 @@ import { TextInput, Button, Text, HelperText, useTheme } from 'react-native-pape
 import { CognitoUserPool, CognitoUserAttribute } from 'amazon-cognito-identity-js';
 import { COGNITO_CONFIG } from 'cognitoConfig';
 //import { createUserProfile } from './dynamoUtils';
-import { AuthStackScreenProps } from './navigationTypes';
+import { SignUpProps } from '../navigation/navigationTypes';
+import { StackScreenProps } from '@react-navigation/stack';
+import { DefaultStackParamList } from 'navigation/navigationTypes';
 
-const SignUp = ({ navigation }: AuthStackScreenProps<'SignUp'>) => {
+
+type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
+
+const SignUp: React.FC<AuthProps> = (props) => { 
+
+  const { navigation } = props;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,14 +32,14 @@ const SignUp = ({ navigation }: AuthStackScreenProps<'SignUp'>) => {
       }),
     ];
 
-    userPool.signUp(email, password, attributeList, null, (err, result) => {
+    userPool.signUp(email.split('@')[0], password, attributeList, [], (err, result) => {
       if (err) {
         setError(err.message || JSON.stringify(err));
         return;
       }
       const cognitoUser = result!.user;
       //createUserProfile(cognitoUser.getUsername());
-      navigation.navigate('ConfirmSignUp', { email });
+      //navigation.navigate('ConfirmSignUp', { email });
     });
   };
 
@@ -47,9 +54,6 @@ const SignUp = ({ navigation }: AuthStackScreenProps<'SignUp'>) => {
         mode="outlined"
         style={styles.input}
       />
-      <HelperText type="error" visible={!!error}>
-        {error}
-      </HelperText>
 
       <TextInput
         label="Password"

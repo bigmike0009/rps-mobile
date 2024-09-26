@@ -1,8 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { AuthContext } from 'auth/authProvider';
+import { SegmentedButtons, useTheme } from 'react-native-paper';
+import Login from 'auth/login'
+import SignUp from 'auth/signUp';
 
-const MainMenu = () => {
+
+
+import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { DefaultStackParamList } from 'navigation/navigationTypes';
+import LogoutButton from 'auth/logout';
+
+
+type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
+
+const MainMenu: React.FC<AuthProps> = (props) => { 
+
+  const { navigation } = props;
+
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
+  const [selected, setSelected] = useState<string>('login');
+  const theme = useTheme();
+
+  const authContext = useContext(AuthContext);
+  
+ 
+  const { email, isLoggedIn } = authContext!
+
+
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,11 +57,39 @@ const MainMenu = () => {
         <Text style={styles.countdownText}>Time until next game:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
       </View>
-      <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Sign in with Google</Text>
-        </TouchableOpacity>
-      </View>
+
+      {isLoggedIn ? 
+      <LogoutButton {...props}></LogoutButton> : 
+      (
+        <View style={styles.container}>
+          {/* Horizontal Toggle Button */}
+         
+    
+          {/* Conditionally render Login or SignUp based on toggle */}
+          <View style={styles.formContainer}>
+            {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}
+          </View>
+
+          <SegmentedButtons
+            value={selected}
+            onValueChange={setSelected}
+            buttons={[
+              {
+                value: 'login',
+                label: 'Login',
+                style: selected === 'login' ? styles.activeButton : {},
+              },
+              {
+                value: 'signup',
+                label: 'Sign Up',
+                style: selected === 'signup' ? styles.activeButton : {},
+              },
+            ]}
+            style={styles.toggleButtons}
+          />
+        </View>
+      )}
+      
     </View>
   );
 };
@@ -83,6 +136,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  toggleButtons: {
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
+  formContainer: {
+    marginTop: 20,
+  },
+  activeButton: {
+    backgroundColor: '#6200ee', // Customize active button color based on your theme
+  }
 });
 
 export default MainMenu;
