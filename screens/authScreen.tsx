@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 
-const MainMenu = () => {
+const AuthScreen = () => {
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
 
   useEffect(() => {
@@ -85,4 +85,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainMenu;
+export default AuthScreen;

@@ -3,6 +3,9 @@
     "name": "rps-mobile",
     "slug": "rps-mobile",
     "version": "1.0.0",
+    "extra": {
+      "facebookAppId": "365748306442104"
+    },
 
     "web": {
       "favicon": "./assets/favicon.png"
