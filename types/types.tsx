@@ -1,6 +1,6 @@
 // Player object type
 export interface Player {
-    playerID: string;
+    playerID: number;
     email: string;
     facebookID?: string;
     fname: string;
@@ -8,13 +8,13 @@ export interface Player {
     propic?: string;
     real: boolean;
     region: string;
-    tourneys: string[]; // Array of tournament IDs
-    wins: string[];     // Array of tournament IDs
+    tourneys: number[]; // Array of tournament IDs
+    wins: number[];     // Array of tournament IDs
   }
   
   // Tournament object type
   export interface Tournament {
-    TournamentID: string;
+    tournamentId: number;
     activeFlag: boolean;
     completeFlag: boolean;
     currentRoundEndTs: string; // Timestamp
@@ -24,6 +24,6 @@ export interface Player {
     playersRemaining: number;
     registrationCloseTs: string; // Timestamp
     registrationOpenTs: string;  // Timestamp
-    rounds: string[];            // Array of round IDs
+    rounds: number[];            // Array of round IDs
   }
   

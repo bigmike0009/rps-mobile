@@ -16,6 +16,7 @@ class TournamentService {
   // POST create a tournament (takes userID and region)
   async addPlayerToTournament(tourneyID: number, userID: number, region: string): Promise<ApiResponse<Tournament>> {
     const tournamentData = { tourneyID, userID, region };
+    console.log(tournamentData)
     return await apiService.post<Tournament>('/tournament', tournamentData);
   }
 }

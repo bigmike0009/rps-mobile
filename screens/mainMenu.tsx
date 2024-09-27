@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from 'auth/authProvider';
-import { SegmentedButtons, useTheme } from 'react-native-paper';
+import { Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
@@ -16,6 +16,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
+import { green100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
@@ -28,6 +29,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
+  const [registered, setRegistered] = useState(false);
   const theme = useTheme();
 
   const authContext = useContext(AuthContext);
@@ -42,6 +44,25 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     console.log(tournament)
 
     if (tournament.status == 200) setTournamentData(tournament.data);
+  };
+
+  const joinTournament = async () => {
+    const tourneyID = tournamentData?.tournamentId!
+    const response = await tournamentService.addPlayerToTournament(tourneyID, player?.playerID!, player?.region!);
+    console.log('Latest Tournament retrieved.')
+
+    console.log(response)
+
+    if (response.status == 200) {
+      setRegistered(true)
+    }
+    else if (response.status == 409){
+      console.log('Player is already registered for this tournament')
+      setRegistered(true)
+    }
+    else {
+      console.error('Unable to register player for tournament')
+    }
   };
 
   useEffect(() => {
@@ -79,6 +100,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
         }
     else {
       console.error('Cant find next tourney data. assuming next is 9pm.')
+      return ''
     }
   }
     
@@ -91,13 +113,23 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   return (
     <View style={styles.container}>
+      {timeUntilNextGame ? 
       <View style={styles.countdownContainer}>
         <Text style={styles.countdownText}>Time until next Tournament:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
-      </View>
+        {registered && <Text style = {{color: "green"}}>Player Registered!</Text>}
+      </View> :
+      <Text style={styles.countdownText}>There are currently no tournaments scheduled</Text>
+}
 
       {isLoggedIn ? 
-      <LogoutButton {...props}></LogoutButton> : 
+      <View style={styles.container}>
+      <Button mode="contained" onPress={joinTournament} disabled={registered}>
+      Register for Tournament
+    </Button>
+    
+      <LogoutButton {...props}></LogoutButton>
+      </View> : 
       (
         <View style={styles.container}>
           {/* Horizontal Toggle Button */}
