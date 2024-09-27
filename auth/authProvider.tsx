@@ -26,7 +26,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchPlayer = async (email: string) => {
     const player = await playerService.getPlayer(email, 'email');
+    console.log(player)
     if (player) setPlayer(player);
+    console.log('Player Data has returned!')
+
   };
 
   const setUser = (email: string | null) => {
@@ -39,10 +42,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { email } = await getCurrentUserDetails();
     setEmail(email);
     setIsLoggedIn(!!email);
-    if (!!email){fetchPlayer(email!);}
+    if (!!email){
+      fetchPlayer(email!);
+    }
+    else {
+      setPlayer(null)
+    }
   };
 
   return (
+
     <AuthContext.Provider value={{ email, isLoggedIn, setUser, checkUser, player }}>
       {children}
     </AuthContext.Provider>

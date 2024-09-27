@@ -17,7 +17,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 export default function RootStack() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="MainMenu" >
+      <Stack.Navigator initialRouteName="MainMenu" screenOptions={{headerShown: false}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />
 

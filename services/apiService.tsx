@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 
-const BASE_URL = 'https://your-api-endpoint.com';
+const BASE_URL = 'https://42xma8wsoj.execute-api.us-east-1.amazonaws.com';
 
 class ApiService {
   async get<T>(endpoint: string): Promise<T | null> {

@@ -6,6 +6,8 @@ import SignUp from 'auth/signUp';
 
 import { playerService,tournamentService } from 'services/playerService';
 import { Player, Tournament } from 'types/types';
+import { DateTime } from 'luxon';
+
 
 
 
@@ -35,6 +37,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   const fetchTournament = async () => {
     const tournament = await tournamentService.getLatestTournament();
+    console.log('Latest Tournament retrieved.')
+
     console.log(tournament)
 
     if (tournament) setTournamentData(tournament);
@@ -56,24 +60,28 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   function getTimeUntilNextGame() {
     const now = new Date();
-    let nextGameTime = now
-    if (tournamentData){
-      const regCloseTs = tournamentData?.registrationCloseTs
-      let formattedTimestamp = regCloseTs.replace(/-/g, '/');
-
-      // Step 2: Create a Date object as if the time was in UTC
-      // Use "America/New_York" to indicate Eastern Time
-      const easternDate = new Date(`${formattedTimestamp} GMT-0400`); // Eastern Daylight Time (EDT) is UTC-4
-
-      // Step 3: Convert that date to the local machine's time zone
-      nextGameTime = new Date(easternDate.getTime());
-    }
-    else {
-      nextGameTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0); // 9pm
-    }
+    let nextGameTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0); // 9pm
     if (now.getHours() >= 21) {
       nextGameTime.setDate(nextGameTime.getDate() + 1);
     }
+
+    if (tournamentData){
+      const regCloseTs = tournamentData?.registrationCloseTs
+  
+      // Step 2: Create a Date object as if the time was in UTC
+      // Use "America/New_York" to indicate Eastern Time
+      const easternDate = DateTime.fromFormat(regCloseTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
+
+    // Check if the parsing was successful
+    if (easternDate.isValid) {
+        // Step 2: Convert the parsed Eastern DateTime to local time
+        nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
+        }
+    else {
+      console.error('Cant find next tourney data. assuming next is 9pm.')
+    }
+  }
+    
     const diff = nextGameTime.valueOf() - now.valueOf();
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -83,9 +91,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Rock Paper Scissors</Text>
       <View style={styles.countdownContainer}>
-        <Text style={styles.countdownText}>Time until next game:</Text>
+        <Text style={styles.countdownText}>Time until next Tournament:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
       </View>
 
