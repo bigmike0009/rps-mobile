@@ -41,7 +41,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
     console.log(tournament)
 
-    if (tournament) setTournamentData(tournament);
+    if (tournament.status == 200) setTournamentData(tournament.data);
   };
 
   useEffect(() => {

@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchPlayer = async (email: string) => {
     const player = await playerService.getPlayer(email, 'email');
     console.log(player)
-    if (player) setPlayer(player);
+    if (player.status == 200) setPlayer(player.data);
     console.log('Player Data has returned!')
 
   };
