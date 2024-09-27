@@ -20,6 +20,7 @@
     "@react-navigation/stack": "^6.4.1",
     "amazon-cognito-identity-js": "^6.3.12",
     "aws-sdk": "^2.1691.0",
+    "axios": "^1.7.7",
     "expo": "^51.0.28",
     "expo-auth-session": "~5.5.2",
     "expo-dev-client": "~4.0.14",

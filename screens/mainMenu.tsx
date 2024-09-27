@@ -4,6 +4,10 @@ import { SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
+import { playerService,tournamentService } from 'services/playerService';
+import { Player, Tournament } from 'types/types';
+
+
 
 
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
@@ -18,6 +22,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   const { navigation } = props;
 
+  const [tournamentData, setTournamentData] = useState<Tournament | null>(null);
+
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
   const theme = useTheme();
@@ -25,21 +31,46 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const authContext = useContext(AuthContext);
   
  
-  const { email, isLoggedIn } = authContext!
+  const { email, isLoggedIn, player } = authContext!
 
+  const fetchTournament = async () => {
+    const tournament = await tournamentService.getLatestTournament();
+    console.log(tournament)
 
+    if (tournament) setTournamentData(tournament);
+  };
 
   useEffect(() => {
+    
+    fetchTournament();
     const interval = setInterval(() => {
       setTimeUntilNextGame(getTimeUntilNextGame());
     }, 1000);
 
     return () => clearInterval(interval);
+    
   }, []);
+
+
+
 
   function getTimeUntilNextGame() {
     const now = new Date();
-    const nextGameTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0); // 9pm
+    let nextGameTime = now
+    if (tournamentData){
+      const regCloseTs = tournamentData?.registrationCloseTs
+      let formattedTimestamp = regCloseTs.replace(/-/g, '/');
+
+      // Step 2: Create a Date object as if the time was in UTC
+      // Use "America/New_York" to indicate Eastern Time
+      const easternDate = new Date(`${formattedTimestamp} GMT-0400`); // Eastern Daylight Time (EDT) is UTC-4
+
+      // Step 3: Convert that date to the local machine's time zone
+      nextGameTime = new Date(easternDate.getTime());
+    }
+    else {
+      nextGameTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0); // 9pm
+    }
     if (now.getHours() >= 21) {
       nextGameTime.setDate(nextGameTime.getDate() + 1);
     }
