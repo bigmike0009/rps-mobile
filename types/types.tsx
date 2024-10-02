@@ -25,5 +25,7 @@ export interface Player {
     registrationCloseTs: string; // Timestamp
     registrationOpenTs: string;  // Timestamp
     rounds: number[];            // Array of round IDs
+    roundActiveFlag: boolean
+    matchupTables: string[];
   }
   

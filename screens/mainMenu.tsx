@@ -26,6 +26,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const { navigation } = props;
 
   const [tournamentData, setTournamentData] = useState<Tournament | null>(null);
+  const [tournamentStarted, setTournamentStarted] = useState(false)
 
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
@@ -69,6 +70,9 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     
     fetchTournament();
     const interval = setInterval(() => {
+      if (tournamentStarted && isLoggedIn){
+        navigation.navigate('WaitingScreen')
+      }
       setTimeUntilNextGame(getTimeUntilNextGame());
     }, 1000);
 
@@ -87,27 +91,55 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     }
 
     if (tournamentData){
+      console.log('we have tournament data')
       const regCloseTs = tournamentData?.registrationCloseTs
   
       // Step 2: Create a Date object as if the time was in UTC
       // Use "America/New_York" to indicate Eastern Time
       const easternDate = DateTime.fromFormat(regCloseTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
 
+
     // Check if the parsing was successful
-    if (easternDate.isValid) {
-        // Step 2: Convert the parsed Eastern DateTime to local time
-        nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
-        }
-    else {
-      console.error('Cant find next tourney data. assuming next is 9pm.')
-      return ''
-    }
+      if (easternDate.isValid) {
+        //console.log('we have valid date')
+        //console.log(easternDate)
+
+          // Step 2: Convert the parsed Eastern DateTime to local time
+          nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
+          }
+      else {
+        console.error('Cant find next tourney data. assuming next is 9pm.')
+        return ''
+      }
   }
-    
+  //console.log('Next Game')
+  //console.log(nextGameTime)
+  //console.log(nextGameTime.valueOf())
+
+  //console.log('Now')
+  //console.log(now)
+  //console.log(now.valueOf())
+  
     const diff = nextGameTime.valueOf() - now.valueOf();
+    
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    //console.log('diff')
+    //console.log(diff)
+
+    //console.log('hours')
+    // console.log(hours)
+
+    // console.log('minutes')
+    // console.log(minutes)
+
+    // console.log('seconds')
+    // console.log(seconds)
+
+    if (hours <= 0 && minutes <= 0 && seconds <= 0 ){
+      setTournamentStarted(true)
+    }
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
 

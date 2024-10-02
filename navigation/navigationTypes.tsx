@@ -6,7 +6,11 @@ export type DefaultStackParamList = {
   Login: undefined;
   SignUp: undefined;
   Logout: undefined;
+  AuthScreen: undefined;
+  RockPaperScissors: undefined;
+
   MainMenu: undefined;
+  WaitingScreen: undefined
   ConfirmSignUp: { email: string }; // If you have a confirmation screen
   Home: undefined;
 };

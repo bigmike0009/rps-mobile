@@ -5,14 +5,10 @@ import { BackButton } from '../components/BackButton';
 import RockPaperScissors from '../screens/game';
 import MainMenu from '../screens/mainMenu';
 import AuthScreen from 'screens/authScreen';
+import WaitingScreen from 'screens/loading';
+import { DefaultStackParamList } from './navigationTypes';
 
-export type RootStackParamList = {
-  MainMenu: undefined;
-  AuthScreen: undefined;
-  RockPaperScissors: { name: string };
-};
-
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator<DefaultStackParamList>();
 
 export default function RootStack() {
   return (
@@ -20,6 +16,8 @@ export default function RootStack() {
       <Stack.Navigator initialRouteName="MainMenu" screenOptions={{headerShown: false}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />
+        <Stack.Screen name="WaitingScreen" component={WaitingScreen} />
+        
 
         <Stack.Screen
           name="RockPaperScissors"

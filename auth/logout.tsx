@@ -29,9 +29,7 @@ const LogoutButton: React.FC<AuthProps> = (props) => {
     await AsyncStorage.removeItem('email');
         if (authContext) 
           {
-            if (authContext){
             checkUser()
-            }
           };
   };
 
