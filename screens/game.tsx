@@ -7,6 +7,7 @@ import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContex
 import { playerService, matchupService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
 import { Avatar, Button } from 'react-native-paper';
+import { DateTime } from 'luxon';
  // Assuming API functions are available
 
 
@@ -30,7 +31,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [opponent, setOpponent] = useState<Player | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(60);
+  const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
   const [selectionAnimation, setSelectionAnimation] = useState(new Animated.Value(0));
 
   // Fetch the current matchup when component mounts
@@ -74,6 +75,30 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     return () => clearInterval(interval);
   }, [timer, result]);
 
+  function getSecondsUntilRoundEnd(ts: string) {
+    let now = DateTime.now()
+    // Step 2: Create a Date object as if the time was in UTC
+    // Use "America/New_York" to indicate Eastern Time
+    const easternDate = DateTime.fromFormat(ts, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
+
+
+  // Check if the parsing was successful
+    if (easternDate.isValid) {
+
+        // Step 2: Convert the parsed Eastern DateTime to local time
+        let nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
+
+
+        const diff = nextGameTime.valueOf() - now.valueOf();
+        
+        const seconds = Math.floor(diff / 1000);
+
+        return seconds
+        
+      }
+      return 0
+  }
+
   const playSelectionAnimation = () => {
     Animated.loop(
       Animated.sequence([
@@ -94,6 +119,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   // Handle player selection
   const handlePlayerChoice = async (choice: string) => {
     setPlayerChoice(choice);
+    setResult(null);
     setWaiting(true);
     playSelectionAnimation();
 
@@ -110,6 +136,16 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           if (refreshedMatchup.data){
           console.log(updatedMatchup.data)
           setMatchup(refreshedMatchup.data);
+
+          if ((player1or2 === 1 && !refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice) || (player1or2 === 2 && !refreshedMatchup.data!.player_2_choice && refreshedMatchup.data!.player_1_choice )){
+            //since the player has last refreshed the matchup, the other player has given there selection, tied, and put in another selection
+            clearInterval(interval);
+            setWaiting(false);
+            setResult('tie')
+            setTieChoice(refreshedMatchup.data!.player_2_choice)
+            setPlayerChoice(null)
+          }
+
           if (refreshedMatchup.data!.winner === -1 || (refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice)) {
             clearInterval(interval);
             setWaiting(false);
@@ -164,9 +200,12 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { minHeight: 60 }]} >
       {/* Player and Opponent Info */}
-      <View style={styles.matchupContainer}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Round: {tournament.currentRoundId}</Text>
+      </View>
+      <View style={[styles.matchupContainer, { minHeight: 80 }]}>
         {matchup && (
           <>
             <View style={styles.playerInfo}>
@@ -208,11 +247,11 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       </View>
 
       {/* Choices */}
-      <View style={styles.choicesContainer}>
+      <View style={[styles.choicesContainer, { minHeight: 100 }]}>
         {choices.map((choice) => (
-          <TouchableHighlight  disabled={playerChoice !== null} key={choice} onPress={() => handlePlayerChoice(choice)} style={styles.choiceButton}>
+          <TouchableHighlight  disabled={playerChoice !== null || timer <= 0} key={choice} onPress={() => handlePlayerChoice(choice)} style={styles.choiceButton}>
             <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice === null ? choice : choice + '-gray'}.png` }} 
+            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice === null && timer > 0 ? choice : choice + '-gray'}.png` }} 
             style={styles.choiceImage  }// Apply gray tint if disabled
            />
           </TouchableHighlight>
@@ -241,6 +280,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           <Text>Waiting for the other player...</Text>
           </View>
         }
+        
 
   <View style={styles.resultContainer}>
         {(timer > 0 && result !== 'tie') &&  
@@ -254,7 +294,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       </View>
 
       <View style={styles.resultContainer}>
-        {(timer >= 0 && result === 'tie') &&  
+        {(timer > 0 && result === 'tie') &&  
         result && <View>
           <Text style={{textAlign:'center'}}>{getResultText()}</Text>
           <View style={{flexDirection:'row'}}>
@@ -267,9 +307,10 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
 
       {/* Display result */}
       <View style={styles.resultContainer}>
-        {(timer <= 0 || result === 'tie') &&  
+        {(timer <= 0) &&  
         result && <View>
           <Text style={{textAlign:'center'}}>{getResultText()}</Text>
+          {!playerChoice && <Text style={{textAlign:'center'}}>You did not submit an answer in time. Idiot!</Text>}
           <View style={{flexDirection:'row'}}>
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} style={styles.resImage} />
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_2_choice}.png` }} style={styles.resImage} />
@@ -285,9 +326,19 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f0f5', // Light background for better contrast
+    backgroundColor: '#f0f0f5', // Light background for better contrast,
+    justifyContent: 'space-around', // Ensures elements are spaced evenly
+
+  },
+  
+  headerContainer: {
+    paddingVertical: 20,
+  },
+  headerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   timerContainer: {
     position: 'absolute',
@@ -295,9 +346,9 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 100,
-    height: 100,
-    backgroundColor: '#333', // Dark circle behind the timer
+    width: 50,
+    height: 50,
+    //backgroundColor: '#333', // Dark circle behind the timer
     borderRadius: 50, // Circular timer
     borderWidth: 2,
     borderColor: '#fff',
@@ -311,7 +362,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: 'white',
+    color: 'black',
   },
   title: {
     fontSize: 30,
