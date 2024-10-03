@@ -41,6 +41,22 @@ class ApiService {
     }
   }
 
+  async put<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
+    try {
+      const response: AxiosResponse<T> = await axios.put(`${BASE_URL}${endpoint}`, data);
+      return {
+        status: response.status,
+        data: response.status >= 200 && response.status < 300 ? response.data : null,
+      };
+    } catch (error: any) {
+      this.handleError(error);
+      return {
+        status: error.response?.status || 500,
+        data: null,
+      };
+    }
+  }
+
   private handleError(error: any): void {
     // Handle errors here, logging or showing alerts
     console.error('API call failed:', error);

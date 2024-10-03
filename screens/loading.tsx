@@ -4,20 +4,31 @@ import { useNavigation } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
 import { Tournament } from 'types/types';
+import { DefaultStackParamList } from 'navigation/navigationTypes';
+import { StackScreenProps } from '@react-navigation/stack';
 
 
 // Clever phrases for the waiting screen
 const cleverPhrases = [
   "Polishing the rocks",
+  "Picking him up at Kevin Hart's house",
   "Sharpening the scissors",
   "Stealing paper from the library printer",
+  "Taking the safety off (the scissors)",
+  "Getting this paper"
+
+  
 ];
 
-const WaitingScreen: React.FC = () => {
+type GameProps = StackScreenProps<DefaultStackParamList, 'WaitingScreen'>;
+
+
+const WaitingScreen: React.FC<GameProps> = (props) => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [currentPhrase, setCurrentPhrase] = useState<string>(cleverPhrases[0]);
   const [dots, setDots] = useState<string>('');
-  const navigation = useNavigation();
+  
+  const { navigation } = props;
 
   useEffect(() => {
     // Mock API call for fetching tournament data
@@ -27,7 +38,7 @@ const WaitingScreen: React.FC = () => {
             if (response.data){
                 setTournament(response.data)
                 if (response.data.roundActiveFlag) {
-                    //navigation.navigate('RockPaperScissors');  // Adjust to your actual screen name
+                    navigation.navigate('RockPaperScissors', {tournament: response.data});  // Adjust to your actual screen name
                   }
             }
       
@@ -71,11 +82,10 @@ const WaitingScreen: React.FC = () => {
       {/* Top Right Corner */}
       {tournament ? 
       <View style={styles.topRight}>
-        <Text>Round: {tournament.currentRoundId!}</Text>
-        <Text>{tournament.playersRemaining!} players remaining</Text>
+        <Text>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
+        <Text>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
       </View> :
       <View style={styles.topRight}>
-        <Text>Fetching Tournament Data...</Text>
         <Text>Fetching Tournament Data...</Text>
     </View>
       }

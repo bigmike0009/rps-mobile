@@ -28,4 +28,14 @@ export interface Player {
     roundActiveFlag: boolean
     matchupTables: string[];
   }
-  
+
+  export interface Matchup {
+    matchupID: number;
+    player_1_choice:string;
+    player_1_id:number;
+    player_2_choice:string;
+    player_2_id:number;
+    winner:number;
+    table:string;
+    
+  }

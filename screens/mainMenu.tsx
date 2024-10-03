@@ -4,8 +4,8 @@ import { Button, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
-import { playerService,tournamentService } from 'services/playerService';
-import { Player, Tournament } from 'types/types';
+import { tournamentService } from 'services/playerService';
+import { Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 
 
@@ -16,7 +16,6 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
-import { green100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
@@ -44,7 +43,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
     console.log(tournament)
 
-    if (tournament.status == 200) setTournamentData(tournament.data);
+    if (tournament.status == 200) {setTournamentData(tournament.data); return tournament.data};
+    return null
   };
 
   const joinTournament = async () => {
@@ -68,31 +68,41 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   useEffect(() => {
     
-    fetchTournament();
-    const interval = setInterval(() => {
-      if (tournamentStarted && isLoggedIn){
-        navigation.navigate('WaitingScreen')
-      }
-      setTimeUntilNextGame(getTimeUntilNextGame());
-    }, 1000);
+    let tourneyData = fetchTournament();
+    tourneyData.then((tourney)=>{
+      if (tourney) {
+      const interval = setInterval(() => {
+        let countdown = getTimeUntilNextGame(tourney=tourney)
 
-    return () => clearInterval(interval);
+        if (countdown === '00:00:00'){
+          console.log('tourney TIME')
+          if (isLoggedIn) {navigation.navigate('WaitingScreen')}
+          setTournamentStarted(true)
+          clearInterval(interval)
+        }
+        setTimeUntilNextGame(countdown)
+      
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }})
+    
     
   }, []);
 
 
 
 
-  function getTimeUntilNextGame() {
+  function getTimeUntilNextGame(tourney: Tournament|null = null) {
     const now = new Date();
-    let nextGameTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 0, 0); // 9pm
-    if (now.getHours() >= 21) {
-      nextGameTime.setDate(nextGameTime.getDate() + 1);
+
+    if (!tourney){
+      if (!tournamentData) { return '00:00:00'}
+      tourney = tournamentData
     }
 
-    if (tournamentData){
-      console.log('we have tournament data')
-      const regCloseTs = tournamentData?.registrationCloseTs
+    
+    const regCloseTs = tourney?.registrationCloseTs
   
       // Step 2: Create a Date object as if the time was in UTC
       // Use "America/New_York" to indicate Eastern Time
@@ -101,58 +111,49 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
     // Check if the parsing was successful
       if (easternDate.isValid) {
-        //console.log('we have valid date')
-        //console.log(easternDate)
 
           // Step 2: Convert the parsed Eastern DateTime to local time
-          nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
-          }
-      else {
-        console.error('Cant find next tourney data. assuming next is 9pm.')
-        return ''
-      }
-  }
-  //console.log('Next Game')
-  //console.log(nextGameTime)
-  //console.log(nextGameTime.valueOf())
+          let nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
 
-  //console.log('Now')
-  //console.log(now)
-  //console.log(now.valueOf())
   
-    const diff = nextGameTime.valueOf() - now.valueOf();
-    
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    //console.log('diff')
-    //console.log(diff)
+          const diff = nextGameTime.valueOf() - now.valueOf();
+          
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          //console.log(`Hours: ${hours} Min: ${minutes} Sec: ${seconds}`)
 
-    //console.log('hours')
-    // console.log(hours)
-
-    // console.log('minutes')
-    // console.log(minutes)
-
-    // console.log('seconds')
-    // console.log(seconds)
-
-    if (hours <= 0 && minutes <= 0 && seconds <= 0 ){
-      setTournamentStarted(true)
-    }
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  }
+          if (diff <= 0 ){
+            return '00:00:00'
+          }
+          else {
+          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+          }
+                  }
+              
+          console.error('Cant find next tourney data. assuming next is 9pm.')
+          return '00:00:00'
+          
+        }
 
   return (
     <View style={styles.container}>
-      {timeUntilNextGame ? 
+      {(tournamentData && timeUntilNextGame && !tournamentStarted) && 
       <View style={styles.countdownContainer}>
         <Text style={styles.countdownText}>Time until next Tournament:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
         {registered && <Text style = {{color: "green"}}>Player Registered!</Text>}
-      </View> :
-      <Text style={styles.countdownText}>There are currently no tournaments scheduled</Text>
-}
+        
+      </View>
+      }
+      {tournamentStarted && <View style={styles.container}>
+        <Text style={styles.countdownTimer}>Tournament in progress</Text>
+        <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.navigate('WaitingScreen')}>
+        {registered ? "Join Tournament" : "View Tournament"}
+      </Button>
+      </View>} 
+      {!tournamentData && <Text style={styles.countdownTimer}>No tournaments scheduled</Text>}
+
 
       {isLoggedIn ? 
       <View style={styles.container}>
@@ -161,6 +162,10 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     </Button>
     
       <LogoutButton {...props}></LogoutButton>
+      <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.navigate('RockPaperScissors', {tournament: tournamentData!})}>
+        Test the Rock Paper Scissors Game
+      </Button>
+      
       </View> : 
       (
         <View style={styles.container}>
@@ -220,6 +225,7 @@ const styles = StyleSheet.create({
   countdownTimer: {
     fontSize: 20,
     fontWeight: 'bold',
+    padding: 5
   },
   buttonsContainer: {
     alignItems: 'center',

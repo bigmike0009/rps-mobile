@@ -1,5 +1,5 @@
 import { apiService } from './apiService';
-import { Player } from 'types/types';
+import { Matchup, Player } from 'types/types';
 import { Tournament } from 'types/types';
 
 interface ApiResponse<T> {
@@ -39,3 +39,26 @@ class PlayerService {
 }
 
 export const playerService = new PlayerService();
+
+class MatchupService {
+  // GET player by userID or email
+  async getMatchup(tableName: string, matchupID: number): Promise<ApiResponse<Matchup>> {
+    const endpoint = `/matchup?tableName=${tableName}&matchupID=${matchupID}`;
+    return await apiService.get<Matchup>(endpoint);
+    
+  }
+
+  async getMatchupFromPlayer(playerID: number, tournamentID: number): Promise<ApiResponse<Matchup>> {
+    const endpoint = `/matchup?playerID=${playerID}&tournamentID=${tournamentID}`;
+    return await apiService.get<Matchup>(endpoint);
+    
+  }
+
+  // POST create player (takes email, first name, last name)
+   updateMatchup(tableName: string, matchupID: number, selection: string, player: number):Promise<ApiResponse<Matchup>> {
+    const playerData = { tableName, matchupID, player, selection };
+    return apiService.put<Matchup>('/matchup', playerData);
+  }
+}
+
+export const matchupService = new MatchupService();

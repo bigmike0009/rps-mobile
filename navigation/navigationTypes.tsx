@@ -1,5 +1,6 @@
 // navigationTypes.ts
 import { StackScreenProps } from '@react-navigation/stack';
+import { Tournament } from 'types/types';
 
 
 export type DefaultStackParamList = {
@@ -7,7 +8,7 @@ export type DefaultStackParamList = {
   SignUp: undefined;
   Logout: undefined;
   AuthScreen: undefined;
-  RockPaperScissors: undefined;
+  RockPaperScissors: {tournament: Tournament};
 
   MainMenu: undefined;
   WaitingScreen: undefined
