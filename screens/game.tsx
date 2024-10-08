@@ -31,19 +31,22 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [opponent, setOpponent] = useState<Player | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
+  //const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
+  const [timer, setTimer] = useState<number>(30);
+
   const [selectionAnimation, setSelectionAnimation] = useState(new Animated.Value(0));
 
   // Fetch the current matchup when component mounts
   useEffect(() => {
     const fetchMatchup = async () => {
-      console.log('fetching matchup data for...')
+      
+      console.log(`fetching matchup data for player ${player?.playerID} in tourney ${tournament.tournamentId}`)
       const fetchedMatchup = await matchupService.getMatchupFromPlayer(player?.playerID!, tournament.tournamentId!);
       console.log('fetched matchup succesfully')
 
       setMatchup(fetchedMatchup.data);
       // Determine opponent ID and fetch their data
-      //setplayer1or2(fetchedMatchup.data!.player_1_id === player?.playerID ? 1 : 2)
+      setplayer1or2(fetchedMatchup.data!.player_1_id === player?.playerID ? 1 : 2)
       const opponentID = fetchedMatchup.data!.player_1_id === player?.playerID ? fetchedMatchup.data!.player_2_id : fetchedMatchup.data!.player_1_id;
       console.log(`opponent ID is ${opponentID}`)
       console.log(`fetching opponent data`)
@@ -67,13 +70,50 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prevTimer) => prevTimer - 1);
+
+        if (waiting && timer > 0 && timer % 7 === 0 && matchup){
+          refreshMatchupWaiting(matchup)
+        }
+
+        if ( timer <= 0 || result === 'win' || result === 'loss'){
+          setWaiting(false);
+
+          clearInterval(interval)
+        }
       }, 1000);
     }
     else {
-      
+      calculateResult(matchup!)
+      clearInterval(interval);
     }
     return () => clearInterval(interval);
   }, [timer, result]);
+
+  const refreshMatchupWaiting = async(match: Matchup) => {
+    const refreshedMatchup = await matchupService.getMatchup(match.table, match.matchupID);
+    if (refreshedMatchup.data){
+    console.log(refreshedMatchup.data)
+    console.log('balloons2')
+
+    setMatchup(refreshedMatchup.data);
+
+    if ((player1or2 === 1 && !refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice) || (player1or2 === 2 && !refreshedMatchup.data!.player_2_choice && refreshedMatchup.data!.player_1_choice )){
+      //since the player has last refreshed the matchup, the other player has given there selection, tied, and put in another selection
+      setWaiting(false);
+      setResult('tie')
+      setTieChoice(refreshedMatchup.data!.player_2_choice)
+      setPlayerChoice(null)
+    }
+
+    if (refreshedMatchup.data!.winner === -1 || (refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice)) {
+      setWaiting(false);
+      calculateResult(refreshedMatchup.data);
+    }
+
+    
+  
+  }
+  }
 
   function getSecondsUntilRoundEnd(ts: string) {
     let now = DateTime.now()
@@ -123,42 +163,23 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     setWaiting(true);
     playSelectionAnimation();
 
-    const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player?.playerID!);
+    const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2);
     if (updatedMatchup.data){
+      console.log('balloons1')
       console.log(updatedMatchup.data)
       setMatchup(updatedMatchup.data);
 
       if (!updatedMatchup.data.player_1_choice || !updatedMatchup.data.player_2_choice) {
         // Waiting for the other player to respond
         setWaiting(true);
-        const interval = setInterval(async () => {
-          const refreshedMatchup = await matchupService.getMatchup(matchup!.table, matchup!.matchupID);
-          if (refreshedMatchup.data){
-          console.log(updatedMatchup.data)
-          setMatchup(refreshedMatchup.data);
-
-          if ((player1or2 === 1 && !refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice) || (player1or2 === 2 && !refreshedMatchup.data!.player_2_choice && refreshedMatchup.data!.player_1_choice )){
-            //since the player has last refreshed the matchup, the other player has given there selection, tied, and put in another selection
-            clearInterval(interval);
-            setWaiting(false);
-            setResult('tie')
-            setTieChoice(refreshedMatchup.data!.player_2_choice)
-            setPlayerChoice(null)
-          }
-
-          if (refreshedMatchup.data!.winner === -1 || (refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice)) {
-            clearInterval(interval);
-            setWaiting(false);
-            calculateResult(refreshedMatchup.data);
-          }
-        
-        }
-        }, 10000); // Poll every 3 seconds
+         // Poll every 3 seconds
     }
     else {
       console.log(updatedMatchup)
+      console.log('balloons4')
+
       setWaiting(false)
-        calculateResult(updatedMatchup.data!);
+      calculateResult(updatedMatchup.data!);
       }
   } 
   else {
@@ -171,13 +192,17 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     const ourChoice = matchup.player_1_id === player?.playerID ? matchup.player_1_choice : matchup.player_2_choice;
     const opponentChoice = matchup.player_1_id === player?.playerID ? matchup.player_2_choice : matchup.player_1_choice;
 
+    console.log('player choice & opponent choice')
+    console.log(ourChoice)
+    console.log(opponentChoice)
+
     if (matchup.winner === -1) {
       console.log('TIE')
       setTieChoice(ourChoice)
       setResult('tie');
       setPlayerChoice(null)
     } else if (
-      (!opponentChoice && ourChoice) ||
+      (opponentChoice === null && ourChoice) ||
       (ourChoice === 'rock' && opponentChoice === 'scissors') ||
       (ourChoice === 'paper' && opponentChoice === 'rock') ||
       (ourChoice === 'scissors' && opponentChoice === 'paper')
@@ -313,9 +338,9 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           {!playerChoice && <Text style={{textAlign:'center'}}>You did not submit an answer in time. Idiot!</Text>}
           <View style={{flexDirection:'row'}}>
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} style={styles.resImage} />
-          <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_2_choice}.png` }} style={styles.resImage} />
+          <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_1_choice}.png` }} style={styles.resImage} />
           </View>
-          <Button mode="contained" onPress={() => navigation.navigate('MainMenu')}>
+          <Button mode="contained" onPress={() => navigation.navigate('ResultsScreen', {tournament:tournament, matchup: matchup!, opponent: opponent!, isPlayer1: player1or2 === 1})}>
         Test again
       </Button>
           </View>}

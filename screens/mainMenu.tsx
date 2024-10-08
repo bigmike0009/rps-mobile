@@ -8,10 +8,6 @@ import { tournamentService } from 'services/playerService';
 import { Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 
-
-
-
-
 import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
@@ -33,7 +29,6 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const theme = useTheme();
 
   const authContext = useContext(AuthContext);
-  
  
   const { email, isLoggedIn, player } = authContext!
 
@@ -94,47 +89,40 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
 
   function getTimeUntilNextGame(tourney: Tournament|null = null) {
-    const now = new Date();
+    const now = DateTime.local().setZone('America/New_York'); // Get the current time in the machine's local time, but set it to Eastern Time
 
-    if (!tourney){
-      if (!tournamentData) { return '00:00:00'}
-      tourney = tournamentData
+    if (!tourney) {
+        if (!tournamentData) {
+            return '00:00:00';
+        }
+        tourney = tournamentData;
     }
 
-    
-    const regCloseTs = tourney?.registrationCloseTs
-  
-      // Step 2: Create a Date object as if the time was in UTC
-      // Use "America/New_York" to indicate Eastern Time
-      const easternDate = DateTime.fromFormat(regCloseTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
+    const regCloseTs = tourney?.registrationCloseTs;
 
+    // Step 1: Create a DateTime object using the input timestamp, assuming it's in Eastern Time
+    const easternDate = DateTime.fromFormat(regCloseTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
 
-    // Check if the parsing was successful
-      if (easternDate.isValid) {
+    // Step 2: Check if the parsing was successful
+    if (easternDate.isValid) {
+        // Now that both timestamps are in Eastern Time, calculate the difference
+        const diff = easternDate.diff(now, ['hours', 'minutes', 'seconds']).toObject();
 
-          // Step 2: Convert the parsed Eastern DateTime to local time
-          let nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
-
-  
-          const diff = nextGameTime.valueOf() - now.valueOf();
-          
-          const hours = Math.floor(diff / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-          //console.log(`Hours: ${hours} Min: ${minutes} Sec: ${seconds}`)
-
-          if (diff <= 0 ){
-            return '00:00:00'
-          }
-          else {
-          return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-          }
-                  }
-              
-          console.error('Cant find next tourney data. assuming next is 9pm.')
-          return '00:00:00'
-          
+        if (easternDate <= now) {
+            return '00:00:00'; // If the registration has already closed
         }
+
+        // Format hours, minutes, and seconds with leading zeros
+        const hours = Math.floor(diff.hours || 0).toString().padStart(2, '0');
+        const minutes = Math.floor(diff.minutes || 0).toString().padStart(2, '0');
+        const seconds = Math.floor(diff.seconds || 0).toString().padStart(2, '0');
+
+        return `${hours}:${minutes}:${seconds}`;
+    }
+
+    console.error('Cannot parse next tournament registration close timestamp. Assuming next is 9 PM.');
+    return '00:00:00';
+}
 
   return (
     <View style={styles.container}>

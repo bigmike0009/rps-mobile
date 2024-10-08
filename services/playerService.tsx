@@ -10,7 +10,11 @@ interface ApiResponse<T> {
 class TournamentService {
   // GET latest tournament
   async getLatestTournament(): Promise<ApiResponse<Tournament>> {
-    return await apiService.get<Tournament>('/tournament');
+    return await apiService.get<Tournament>('/next_tournament');
+  }
+
+  async getTournament(tournamentID: number): Promise<ApiResponse<Tournament>> {
+    return await apiService.get<Tournament>(`/tournament?tournamentID=${tournamentID}`);
   }
 
   // POST create a tournament (takes userID and region)
