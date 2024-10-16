@@ -6,7 +6,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
 import { playerService, matchupService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
-import { Avatar, Button } from 'react-native-paper';
+import { Avatar, Button, FAB } from 'react-native-paper';
 import { DateTime } from 'luxon';
  // Assuming API functions are available
 
@@ -50,10 +50,13 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       const opponentID = fetchedMatchup.data!.player_1_id === player?.playerID ? fetchedMatchup.data!.player_2_id : fetchedMatchup.data!.player_1_id;
       console.log(`opponent ID is ${opponentID}`)
       console.log(`fetching opponent data`)
-      const fetchedOpponent = await playerService.getPlayer(opponentID.toString(), "userID");
-      if (fetchedOpponent.data){
-        console.log(fetchedOpponent.data)
-        setOpponent(fetchedOpponent.data);
+
+      if (opponentID){
+        const fetchedOpponent = await playerService.getPlayer(opponentID.toString(), "userID");
+        if (fetchedOpponent.data){
+          console.log(fetchedOpponent.data)
+          setOpponent(fetchedOpponent.data);
+        }
       }
       else {
         // TODO - Handle random name & propic
@@ -69,6 +72,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     let interval: any;
     if (timer > 0) {
       interval = setInterval(() => {
+        console.log('happening')
         setTimer((prevTimer) => prevTimer - 1);
 
         if (waiting && timer > 0 && timer % 7 === 0 && matchup){
@@ -90,12 +94,19 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   }, [timer, result]);
 
   const refreshMatchupWaiting = async(match: Matchup) => {
+    console.log(match.table, match.matchupID)
+    console.log('balloons2')
+
     const refreshedMatchup = await matchupService.getMatchup(match.table, match.matchupID);
     if (refreshedMatchup.data){
     console.log(refreshedMatchup.data)
-    console.log('balloons2')
 
-    setMatchup(refreshedMatchup.data);
+    match.player_1_choice = refreshedMatchup.data.player_1_choice
+    match.player_2_choice = refreshedMatchup.data.player_2_choice
+    match.winner = refreshedMatchup.data.winner
+
+
+    setMatchup(match);
 
     if ((player1or2 === 1 && !refreshedMatchup.data!.player_1_choice && refreshedMatchup.data!.player_2_choice) || (player1or2 === 2 && !refreshedMatchup.data!.player_2_choice && refreshedMatchup.data!.player_1_choice )){
       //since the player has last refreshed the matchup, the other player has given there selection, tied, and put in another selection
@@ -160,14 +171,19 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const handlePlayerChoice = async (choice: string) => {
     setPlayerChoice(choice);
     setResult(null);
-    setWaiting(true);
     playSelectionAnimation();
 
     const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2);
     if (updatedMatchup.data){
       console.log('balloons1')
       console.log(updatedMatchup.data)
-      setMatchup(updatedMatchup.data);
+
+      let match = matchup!
+      match.player_1_choice = updatedMatchup.data.player_1_choice
+      match.player_2_choice = updatedMatchup.data.player_2_choice
+      match.winner = updatedMatchup.data.winner
+
+      setMatchup(match);
 
       if (!updatedMatchup.data.player_1_choice || !updatedMatchup.data.player_2_choice) {
         // Waiting for the other player to respond
@@ -280,6 +296,15 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             style={styles.choiceImage  }// Apply gray tint if disabled
            />
           </TouchableHighlight>
+          //Could be cool
+        //   <FAB
+        //   icon={() => <Image 
+        //    source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice === null && timer > 0 ? choice : choice + '-gray'}.png` }} 
+        //    style={styles.choiceImage  }// Apply gray tint if disabled
+        //   />}
+        //   disabled={playerChoice !== null || timer <= 0} key={choice} 
+        //   onPress={() => handlePlayerChoice(choice)} style={styles.choiceButton}
+        // />
         ))}
       </View>
 
@@ -340,9 +365,10 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} style={styles.resImage} />
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_1_choice}.png` }} style={styles.resImage} />
           </View>
-          <Button mode="contained" onPress={() => navigation.navigate('ResultsScreen', {tournament:tournament, matchup: matchup!, opponent: opponent!, isPlayer1: player1or2 === 1})}>
-        Test again
-      </Button>
+          <FAB 
+          label="Results" 
+          onPress={() => {console.log('HEY');navigation.replace('ResultsScreen', {tournament:tournament, matchup: matchup!, opponent: opponent!, isPlayer1: player1or2 === 1})}}>
+      </FAB>
           </View>}
       </View>
     </View>

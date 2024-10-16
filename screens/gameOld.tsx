@@ -7,7 +7,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 
 
 type RpsSreenRouteProp = RouteProp<DefaultStackParamList, 'RockPaperScissors'>;
-export default function RockPaperScissors() {
+ function RockPaperScissors() {
   const router = useRoute<RpsSreenRouteProp>();
 
   const [playerChoice, setPlayerChoice] = useState<string | null>(null);

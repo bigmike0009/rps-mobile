@@ -59,7 +59,7 @@ const Login: React.FC<AuthProps> = (props) => {
 
         
 
-        //navigation.navigate('MainMenu');
+        //navigation.replace('MainMenu');
       },
       onFailure: (err) => {
         setError(err.message || JSON.stringify(err));

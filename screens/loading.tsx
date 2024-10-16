@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Card } from 'react-native-paper';
+
 import { useNavigation } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
@@ -15,9 +17,13 @@ const cleverPhrases = [
   "Sharpening the scissors",
   "Stealing paper from the library printer",
   "Taking the safety off (the scissors)",
-  "Getting this paper"
-
-  
+  "Getting this paper",
+  "Chopping it up",
+  "Switching from Alternative to Classic",
+  "Simone Biles wants a picture with Rocco",
+  "Having a Scissophrenic episode",
+  "Contacting David Wallace",
+  "Signing a supermax with Staples"
 ];
 
 type GameProps = StackScreenProps<DefaultStackParamList, 'WaitingScreen'>;
@@ -30,6 +36,10 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
   
   const { navigation } = props;
 
+  function getRandomInt(max: number) {
+    return Math.floor(Math.random() * max);
+  }
+
   useEffect(() => {
     // Mock API call for fetching tournament data
     const fetchTournament = async () => {
@@ -38,7 +48,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
             if (response.data){
                 setTournament(response.data)
                 if (response.data.roundActiveFlag) {
-                    navigation.navigate('RockPaperScissors', {tournament: response.data});  // Adjust to your actual screen name
+                    navigation.replace('RockPaperScissors', {tournament: response.data});  // Adjust to your actual screen name
                   }
             }
       
@@ -59,11 +69,9 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
     // Rotate phrases every 3 seconds
     const phraseInterval = setInterval(() => {
       setCurrentPhrase(prevPhrase => {
-        const currentIndex = cleverPhrases.indexOf(prevPhrase);
-        const nextIndex = (currentIndex + 1) % cleverPhrases.length;
-        return cleverPhrases[nextIndex];
+        return cleverPhrases[getRandomInt(cleverPhrases.length)];
       });
-    }, 3000);
+    }, 3001);
 
     return () => clearInterval(phraseInterval);  // Clean up the interval on unmount
   }, []);
@@ -81,13 +89,13 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
     <View style={styles.container}>
       {/* Top Right Corner */}
       {tournament ? 
-      <View style={styles.topRight}>
+      <Card style={styles.topRight}>
         <Text>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
         <Text>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
-      </View> :
-      <View style={styles.topRight}>
+      </Card> :
+      <Card style={styles.topRight}>
         <Text>Fetching Tournament Data...</Text>
-    </View>
+    </Card>
       }
 
       {/* Clever Phrase with Dot Animation */}
@@ -110,6 +118,7 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     alignItems: 'flex-end',
+    padding: 10
   },
   center: {
     justifyContent: 'center',

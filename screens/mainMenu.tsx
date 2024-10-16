@@ -71,7 +71,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
         if (countdown === '00:00:00'){
           console.log('tourney TIME')
-          if (isLoggedIn) {navigation.navigate('WaitingScreen')}
+          if (isLoggedIn) {navigation.replace('WaitingScreen')}
           setTournamentStarted(true)
           clearInterval(interval)
         }
@@ -136,7 +136,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
       }
       {tournamentStarted && <View style={styles.container}>
         <Text style={styles.countdownTimer}>Tournament in progress</Text>
-        <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.navigate('WaitingScreen')}>
+        <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('WaitingScreen')}>
         {registered ? "Join Tournament" : "View Tournament"}
       </Button>
       </View>} 
@@ -150,7 +150,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     </Button>
     
       <LogoutButton {...props}></LogoutButton>
-      <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.navigate('RockPaperScissors', {tournament: tournamentData!})}>
+      <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('RockPaperScissors', {tournament: tournamentData!})}>
         Test the Rock Paper Scissors Game
       </Button>
       

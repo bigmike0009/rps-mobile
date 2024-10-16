@@ -14,7 +14,7 @@ const Stack = createStackNavigator<DefaultStackParamList>();
 export default function RootStack() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="MainMenu" screenOptions={{headerShown: false}}>
+      <Stack.Navigator initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />
         <Stack.Screen name="WaitingScreen" component={WaitingScreen} />
@@ -24,9 +24,6 @@ export default function RootStack() {
         <Stack.Screen
           name="RockPaperScissors"
           component={RockPaperScissors}
-          options={({ navigation }) => ({
-            headerLeft: () => <BackButton onPress={navigation.goBack} />,
-          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

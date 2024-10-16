@@ -2,8 +2,10 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useNavigationState } from '@react-navigation/native';
+
 import { View, Text, Image, Animated, StyleSheet } from 'react-native';
-import { Avatar } from 'react-native-paper';
+import { Avatar, Button, Card } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
 
@@ -16,37 +18,63 @@ const playerNames = ["Alice A.", "Bob B.", "Cindy C.", "David D.", "Eva E."];
 const ResultsScreen: React.FC<ResultProps> = (props) => {
   const [winner, setWinner] = useState<string | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [roundsOver, setRoundsOver] = useState(false)
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateAnim = useRef(new Animated.Value(0)).current;
 
   const authContext = useContext(AuthContext);
   const { player } = authContext!
+  //const navigation = props.navigation
 
   const {tournament, matchup, opponent, isPlayer1} = props.route.params  
+  const navigation = props.navigation
+
+  if (matchup.winner === 1) {
+    setWinner(isPlayer1 ? 'player1' : 'player2');
+  } else if (matchup.winner === 2) {
+    setWinner(isPlayer1 ? 'player2' : 'player1');
+  }
  
-  
+  const currentNavState = useNavigationState(state => state);
 
   useEffect(() => {
-    // Determine the winner based on the matchup
-    if (matchup.winner === 1) {
-      setWinner(isPlayer1 ? 'player1' : 'player2');
-    } else if (matchup.winner === 2) {
-      setWinner(isPlayer1 ? 'player2' : 'player1');
+    console.log("Navigation state updated:", currentNavState);
+    const currentRoute = currentNavState.routes[currentNavState.index];
+    console.log("Current Route:", currentRoute.name);
+
+    if (currentRoute.name !== 'ResultsScreen') {
+      console.log("Navigating away unexpectedly from ResultsScreen.");
     }
-  }, [matchup, isPlayer1]);
+  }, [currentNavState]);
+
+  // useEffect(() => {
+  //   const fetchUpdatedTourney = async (tourneyID: number) => {
+  //       const interval = setInterval(async () => {
+  //         console.log('fetching')
+  //           let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
+  //           if (updated_tourney.data){
+  //             console.log(updated_tourney.data)
+
+  //               if (!updated_tourney.data.roundActiveFlag){
+  //                 console.log('its over!')
+
+  //                 setRoundsOver(true)
+  //                 clearInterval(interval)
+  //               }
+                
+  //           }
+  //       }, 10000)
+  //       return () => clearInterval(interval);
+  //   }
+
+  //   fetchUpdatedTourney(tournament.tournamentId)
+  // }, [])
 
   useEffect(() => {
-    const fetchUpdatedTourney = async (tourneyID: number) => {
-        const interval = setInterval(async () => {
-            let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
-            if (updated_tourney.data){
-                if (!updated_tourney.data.roundActiveFlag){
-                    
-                }
-            }
-}, 10000)
-    }
-  }, [])
+    console.log('MISCHIEF')
+    console.log('Tournament:', tournament);
+    console.log('Matchup:', matchup);
+  }, [tournament, matchup]);
 
   useEffect(() => {
     // Animation loop for the player name change
@@ -67,7 +95,6 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       });
     }, 3000);
 
-    
 
     return () => clearInterval(interval);
   }, [fadeAnim, translateAnim]);
@@ -88,7 +115,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       </Text>
 
       {/* Player profiles */}
-      <View style={styles.playersContainer}>
+      <Card style={styles.playersContainer}>
+        <Card.Content>
         {/* Our profile */}
         <View style={styles.player}>
           <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
@@ -106,12 +134,24 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
         </View>
-      </View>
+        </Card.Content>
+      </Card>
 
       {/* Consolidating remaining players... */}
-      <Text style={styles.redText}>Pour one out for the fallen players...</Text>
+      
 
       {/* Animated player names */}
+      {roundsOver ? 
+      <View>
+        <Text> All players have completed the round.</Text>
+        <Button mode="contained" onPress={() => navigation.replace('WaitingScreen')}>
+            Advance to next round
+         </Button>
+
+      </View>
+      :
+      <View>
+        <Text style={styles.redText}>Pour one out for the fallen players...</Text>
       <Animated.View
         style={[
           styles.playerName,
@@ -123,6 +163,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       >
         <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
       </Animated.View>
+      </View>
+}
     </View>
   );
 };
