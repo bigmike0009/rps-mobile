@@ -22,6 +22,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   const [tournamentData, setTournamentData] = useState<Tournament | null>(null);
   const [tournamentStarted, setTournamentStarted] = useState(false)
+  const [tournamentCleanup, setTournamentCleanup] = useState(false)
+
 
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
@@ -66,6 +68,10 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     let tourneyData = fetchTournament();
     tourneyData.then((tourney)=>{
       if (tourney) {
+        if (tourney.completeFlag){
+          setTournamentCleanup(true)
+        }
+        else {
       const interval = setInterval(() => {
         let countdown = getTimeUntilNextGame(tourney=tourney)
 
@@ -80,7 +86,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
       }, 1000);
   
       return () => clearInterval(interval);
-    }})
+    }}})
     
     
   }, []);
@@ -126,7 +132,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   return (
     <View style={styles.container}>
-      {(tournamentData && timeUntilNextGame && !tournamentStarted) && 
+      {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
       <View style={styles.countdownContainer}>
         <Text style={styles.countdownText}>Time until next Tournament:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
@@ -134,25 +140,26 @@ const MainMenu: React.FC<AuthProps> = (props) => {
         
       </View>
       }
-      {tournamentStarted && <View style={styles.container}>
+      {tournamentStarted && !tournamentCleanup && <View style={styles.container}>
         <Text style={styles.countdownTimer}>Tournament in progress</Text>
         <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('WaitingScreen')}>
         {registered ? "Join Tournament" : "View Tournament"}
       </Button>
       </View>} 
+      {tournamentCleanup && <Text style={styles.countdownTimer}>Updating record books from today's tournament...</Text>}
       {!tournamentData && <Text style={styles.countdownTimer}>No tournaments scheduled</Text>}
 
 
       {isLoggedIn ? 
       <View style={styles.container}>
-      <Button mode="contained" onPress={joinTournament} disabled={registered}>
+      <Button mode="contained" onPress={joinTournament} disabled={registered || tournamentStarted || tournamentCleanup}>
       Register for Tournament
     </Button>
     
       <LogoutButton {...props}></LogoutButton>
-      <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('RockPaperScissors', {tournament: tournamentData!})}>
+      {/* <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('RockPaperScissors', {tournament: tournamentData!, matchup: null})}>
         Test the Rock Paper Scissors Game
-      </Button>
+      </Button> */}
       
       </View> : 
       (

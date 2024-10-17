@@ -16,7 +16,6 @@ export interface Player {
   export interface Tournament {
     tournamentId: number;
     activeFlag: boolean;
-    completeFlag: boolean;
     currentRoundEndTs: string; // Timestamp
     currentRoundId: string;
     currentRoundStartTs: string; // Timestamp
@@ -27,6 +26,7 @@ export interface Player {
     rounds: number[];            // Array of round IDs
     roundActiveFlag: boolean
     matchupTables: string[];
+    completeFlag: boolean;
   }
 
   export interface Matchup {

@@ -18,6 +18,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   let {player} = authContext!
 
   const tournament = props.route.params.tournament
+  
   const navigation = props.navigation
 
   const choices = ['rock', 'paper', 'scissors'];
@@ -27,7 +28,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [tieChoice, setTieChoice] = useState<string | null>(null);
 
   const [player1or2, setplayer1or2] = useState<1|2>(1);
-  const [matchup, setMatchup] = useState<Matchup | null>(null);
+  const [matchup, setMatchup] = useState<Matchup | null>(props.route.params.matchup);
   const [opponent, setOpponent] = useState<Player | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
@@ -72,7 +73,6 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     let interval: any;
     if (timer > 0) {
       interval = setInterval(() => {
-        console.log('happening')
         setTimer((prevTimer) => prevTimer - 1);
 
         if (waiting && timer > 0 && timer % 7 === 0 && matchup){
@@ -95,7 +95,6 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
 
   const refreshMatchupWaiting = async(match: Matchup) => {
     console.log(match.table, match.matchupID)
-    console.log('balloons2')
 
     const refreshedMatchup = await matchupService.getMatchup(match.table, match.matchupID);
     if (refreshedMatchup.data){
@@ -175,7 +174,6 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
 
     const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2);
     if (updatedMatchup.data){
-      console.log('balloons1')
       console.log(updatedMatchup.data)
 
       let match = matchup!
@@ -192,7 +190,6 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     }
     else {
       console.log(updatedMatchup)
-      console.log('balloons4')
 
       setWaiting(false)
       calculateResult(updatedMatchup.data!);
@@ -367,7 +364,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           </View>
           <FAB 
           label="Results" 
-          onPress={() => {console.log('HEY');navigation.replace('ResultsScreen', {tournament:tournament, matchup: matchup!, opponent: opponent!, isPlayer1: player1or2 === 1})}}>
+          onPress={() => navigation.replace(tournament.playersRemaining <= 2 ? 'FinalResultsScreen' : 'ResultsScreen', {tournament:tournament, matchup: matchup!, opponent: opponent!, player1or2: player1or2 })}>
       </FAB>
           </View>}
       </View>

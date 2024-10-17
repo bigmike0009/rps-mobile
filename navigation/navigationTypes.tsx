@@ -8,8 +8,12 @@ export type DefaultStackParamList = {
   SignUp: undefined;
   Logout: undefined;
   AuthScreen: undefined;
-  RockPaperScissors: {tournament: Tournament};
-  ResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, isPlayer1: boolean};
+  RockPaperScissors: {tournament: Tournament, matchup: Matchup};
+  ResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, player1or2: number};
+  FinalResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, player1or2: number};
+  SpectatorScreen: {tournament: Tournament};
+
+
 
 
   MainMenu: undefined;

@@ -5,9 +5,9 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigationState } from '@react-navigation/native';
 
 import { View, Text, Image, Animated, StyleSheet } from 'react-native';
-import { Avatar, Button, Card } from 'react-native-paper';
+import { Avatar, Button } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
-import { Matchup, Player, Tournament } from 'types/types';
+import { Matchup, Player } from 'types/types';
 
 
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>
@@ -16,26 +16,61 @@ type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>
 const playerNames = ["Alice A.", "Bob B.", "Cindy C.", "David D.", "Eva E."];
 
 const ResultsScreen: React.FC<ResultProps> = (props) => {
-  const [winner, setWinner] = useState<string | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [roundsOver, setRoundsOver] = useState(false)
+  const [roundsOver, setRoundsOver] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateAnim = useRef(new Animated.Value(0)).current;
 
   const authContext = useContext(AuthContext);
-  const { player } = authContext!
-  //const navigation = props.navigation
+  const { player } = authContext!;
+  
+  const { tournament, matchup, opponent } = props.route.params;
+  const navigation = props.navigation;
 
-  const {tournament, matchup, opponent, isPlayer1} = props.route.params  
-  const navigation = props.navigation
-
-  if (matchup.winner === 1) {
-    setWinner(isPlayer1 ? 'player1' : 'player2');
-  } else if (matchup.winner === 2) {
-    setWinner(isPlayer1 ? 'player2' : 'player1');
-  }
- 
   const currentNavState = useNavigationState(state => state);
+
+  const calculateResult = (matchup: Matchup) => {
+    const ourChoice = matchup.player_1_id === player?.playerID ? matchup.player_1_choice : matchup.player_2_choice;
+    const opponentChoice = matchup.player_1_id === player?.playerID ? matchup.player_2_choice : matchup.player_1_choice;
+
+    if (matchup.winner === -1) {
+      return 'n';
+    } else if (
+      (opponentChoice === null && ourChoice) ||
+      (ourChoice === 'rock' && opponentChoice === 'scissors') ||
+      (ourChoice === 'paper' && opponentChoice === 'rock') ||
+      (ourChoice === 'scissors' && opponentChoice === 'paper')
+    ) {
+      return 'p';
+    } else {
+      return 'o';
+    }
+  };
+
+  let winner = calculateResult(matchup);
+
+   useEffect(() => {
+    const fetchUpdatedTourney = async (tourneyID: number) => {
+        const interval = setInterval(async () => {
+          console.log('fetching')
+            let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
+            if (updated_tourney.data){
+              console.log(updated_tourney.data)
+
+                if (!updated_tourney.data.roundActiveFlag){
+                  console.log('its over!')
+
+                  setRoundsOver(true)
+                  clearInterval(interval)
+                }
+                
+            }
+        }, 10000)
+        return () => clearInterval(interval);
+    }
+
+    fetchUpdatedTourney(tournament.tournamentId)
+  }, [])
 
   useEffect(() => {
     console.log("Navigation state updated:", currentNavState);
@@ -47,31 +82,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
     }
   }, [currentNavState]);
 
-  // useEffect(() => {
-  //   const fetchUpdatedTourney = async (tourneyID: number) => {
-  //       const interval = setInterval(async () => {
-  //         console.log('fetching')
-  //           let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
-  //           if (updated_tourney.data){
-  //             console.log(updated_tourney.data)
-
-  //               if (!updated_tourney.data.roundActiveFlag){
-  //                 console.log('its over!')
-
-  //                 setRoundsOver(true)
-  //                 clearInterval(interval)
-  //               }
-                
-  //           }
-  //       }, 10000)
-  //       return () => clearInterval(interval);
-  //   }
-
-  //   fetchUpdatedTourney(tournament.tournamentId)
-  // }, [])
-
   useEffect(() => {
-    console.log('MISCHIEF')
     console.log('Tournament:', tournament);
     console.log('Matchup:', matchup);
   }, [tournament, matchup]);
@@ -95,33 +106,27 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       });
     }, 3000);
 
-
     return () => clearInterval(interval);
   }, [fadeAnim, translateAnim]);
 
-  function get_image_url(player: Player | null){
-    if (player && player.propic){
-    return player.propic
-    }
-    return "https://zak-rentals.s3.amazonaws.com/Question.png"
-    
-}
+  function get_image_url(player: Player | null) {
+    return player && player.propic ? player.propic : "https://zak-rentals.s3.amazonaws.com/Question.png";
+  }
 
   return (
     <View style={styles.container}>
       {/* Result text */}
       <Text style={styles.resultText}>
-        {winner === 'player1' ? 'You Won!' : 'You Lost!'}
+        {winner === 'p' ? 'You Won!' : 'You Lost!'}
       </Text>
 
       {/* Player profiles */}
-      <Card style={styles.playersContainer}>
-        <Card.Content>
+      <View style={styles.playersContainer}>
         {/* Our profile */}
         <View style={styles.player}>
           <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
           <Text>{player?.fname}</Text>
-          {(((matchup.winner === 1) && isPlayer1) || ((matchup.winner === 2)) && !isPlayer1) && (
+          {winner === 'p' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
         </View>
@@ -130,41 +135,36 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
         <View style={styles.player}>
           <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
           <Text>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
-          {(((matchup.winner === 1) && !isPlayer1) || ((matchup.winner === 2) && isPlayer1)) && (
+          {winner === 'o' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
         </View>
-        </Card.Content>
-      </Card>
-
-      {/* Consolidating remaining players... */}
-      
+      </View>
 
       {/* Animated player names */}
-      {roundsOver ? 
-      <View>
-        <Text> All players have completed the round.</Text>
-        <Button mode="contained" onPress={() => navigation.replace('WaitingScreen')}>
+      {roundsOver ? (
+        <View>
+          <Text>All players have completed the round.</Text>
+          <Button mode="contained" onPress={() => navigation.replace('WaitingScreen')}>
             Advance to next round
-         </Button>
-
-      </View>
-      :
-      <View>
-        <Text style={styles.redText}>Pour one out for the fallen players...</Text>
-      <Animated.View
-        style={[
-          styles.playerName,
-          {
-            opacity: fadeAnim,
-            transform: [{ translateY: translateAnim }],
-          },
-        ]}
-      >
-        <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
-      </Animated.View>
-      </View>
-}
+          </Button>
+        </View>
+      ) : (
+        <View style={styles.bottomContainer}>
+          <Text style={styles.redText}>Pour one out for the fallen players...</Text>
+          <Animated.View
+            style={[
+              styles.playerName,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: translateAnim }],
+              },
+            ]}
+          >
+            <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
+          </Animated.View>
+        </View>
+      )}
     </View>
   );
 };
@@ -172,9 +172,10 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'white',
+    paddingVertical: 20,
   },
   resultText: {
     fontSize: 24,
@@ -185,7 +186,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
-    marginBottom: 60,
+    marginBottom: 40,
   },
   player: {
     alignItems: 'center',
@@ -201,19 +202,19 @@ const styles = StyleSheet.create({
   lightText: {
     color: 'lightgray',
     marginBottom: 10,
-    fontSize: 18
+    fontSize: 18,
   },
   redText: {
     color: 'red',
     marginBottom: 10,
   },
-  playerName: {
-    position: 'absolute',
-    bottom: 100,
+  bottomContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
-  playerNameText: {
-    fontSize: 18,
-    color: 'black',
+  playerName: {
+    marginTop: 10,
   },
 });
 
