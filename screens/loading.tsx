@@ -18,7 +18,7 @@ const cleverPhrases = [
   "Polishing the rocks",
   "Picking him up at Kevin Hart's house",
   "Sharpening the scissors",
-  "Stealing paper from the library printer",
+  "Stealing from the library printer",
   "Taking the safety off (the scissors)",
   "Getting this paper",
   "Chopping it up",
@@ -110,6 +110,10 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
             const response = await tournamentService.getLatestTournament();  // Call to the actual API
             if (response.data){
                 setTournament(response.data)
+                if (response.data.completeFlag) {
+                  console.log('Tournament Complete')
+                  navigation.navigate('SpectatorScreen', {tournament: response.data})  // Start matchup if exists for player
+                }
                 if (response.data.roundActiveFlag) {
                     checkMatchup(response.data)  // Start matchup if exists for player
                   }

@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Animated, StyleSheet, Dimensions } from 'react-native';
-import { Avatar, Card, Button } from 'react-native-paper';
+import { Avatar, Card, Button, FAB } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
@@ -11,7 +11,7 @@ import { DateTime } from 'luxon';
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>;
 
 const FinalResultsScreen: React.FC<ResultProps> = (props) => {
-  const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [cleanupComplete, setCleanupComplete] = useState(false)
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
   
@@ -65,6 +65,27 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
   let winner = calculateResult(matchup);
 
+  useEffect(() => {
+    const fetchUpdatedTourney = async (tourneyID: number) => {
+        const interval = setInterval(async () => {
+          console.log('fetching')
+            let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
+            if (updated_tourney.data){
+              console.log(updated_tourney.data)
+
+                if (updated_tourney.data.completeFlag){
+                  setCleanupComplete(true)
+                  clearInterval(interval)
+                }
+                
+            }
+        }, 50000)
+        return () => clearInterval(interval);
+    }
+
+    fetchUpdatedTourney(tournament.tournamentId)
+  }, [])
+
   function get_image_url(player: Player | null) {
     return player && player.propic ? player.propic : "https://zak-rentals.s3.amazonaws.com/Question.png";
   }
@@ -77,9 +98,18 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       </Text>
 
       {/* Trophy with player's name and date */}
-      {(winner === 'p' || winner === 'o') && (
+      {winner === 'p' && (
         <View style={styles.trophyContainer}>
           <Image source={require('../assets/gold.png')} style={[styles.trophyImage, { width: width * 0.8 }]} />
+          <View style={styles.trophyOverlay}>
+            <Text style={styles.trophyText}>{player?.fname}</Text>
+            <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
+          </View>
+        </View>
+      )}
+      {winner === 'o' && (
+        <View style={styles.trophyContainer}>
+          <Image source={require('../assets/silver.png')} style={[styles.trophyImage, { width: width * 0.8 }]} />
           <View style={styles.trophyOverlay}>
             <Text style={styles.trophyText}>{player?.fname}</Text>
             <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
@@ -89,18 +119,24 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
       {/* Player profiles */}
       <View style={styles.playersContainer}>
-        {winner === 'p' && (
+        
           <View style={styles.player}>
             <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
             <Text>{player?.fname}</Text>
+            {winner === 'p' && (
+            <Image source={require('../assets/crown.png')} style={styles.crown} />
+          )}
           </View>
-        )}
-        {winner === 'o' && (
+        
+        
           <View style={styles.player}>
             <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
             <Text>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
+            {winner === 'o' && (
+            <Image source={require('../assets/crown.png')} style={styles.crown} />
+          )}
           </View>
-        )}
+        
       </View>
 
       {/* Stats card */}
@@ -115,9 +151,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       </Card>
 
       {/* Go to Home button */}
-      <Button mode="contained" onPress={() => props.navigation.navigate('MainMenu')}>
-        Return to Menu
-      </Button>
+      <FAB label="Return to Menu" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('MainMenu')} loading={!cleanupComplete} disabled={!cleanupComplete}/>
     </View>
   );
 };
@@ -152,7 +186,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     top: '50%',
     left: '50%',
-    transform: [{ translateX: -75 }, { translateY: 68 }],
+    transform: [{ translateX: -95 }, { translateY: 68 }],
   },
   trophyText: {
     fontSize: 7,
@@ -173,6 +207,7 @@ const styles = StyleSheet.create({
   player: {
     alignItems: 'center',
     position: 'relative',
+    marginHorizontal: 60
   },
   statsCard: {
     width: '90%',
@@ -182,6 +217,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  crown: {
+    position: 'absolute',
+    top: -45,
+    left: 10,
+    width: 60,
+    height: 60,
   },
 });
 

@@ -25,6 +25,22 @@ class ApiService {
     }
   }
 
+  async getBase<T>(url: string): Promise<ApiResponse<T>> {
+    try {
+      const response: AxiosResponse<T> = await axios.get(`${url}`);
+      return {
+        status: response.status,
+        data: response.status >= 200 && response.status < 300 ? response.data : null,
+      };
+    } catch (error: any) {
+      this.handleError(error);
+      return {
+        status: error.response?.status || 500,
+        data: null,
+      };
+    }
+  }
+
   async post<T>(endpoint: string, data: any): Promise<ApiResponse<T>> {
     try {
       const response: AxiosResponse<T> = await axios.post(`${BASE_URL}${endpoint}`, data);

@@ -1,74 +1,154 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Button, Card } from 'react-native-paper';
-import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
-
-
-import { useNavigation } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native-paper';
-import { tournamentService, matchupService } from 'services/playerService';
-import { Matchup, Tournament } from 'types/types';
-import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { StackScreenProps } from '@react-navigation/stack';
+import { DefaultStackParamList } from 'navigation/navigationTypes';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { FAB, Card } from 'react-native-paper';
+import { tournamentService } from 'services/playerService';
+import { Matchup } from 'types/types';
 
-type GameProps = StackScreenProps<DefaultStackParamList, 'WaitingScreen'>;
+type GameProps = StackScreenProps<DefaultStackParamList, 'SpectatorScreen'>;
 
 
 const SpectatorScreen: React.FC<GameProps> = (props) => {
-  const [tournament, setTournament] = useState<Tournament | null>(null);
-  
-  const { navigation } = props;
+  const { tournament } = props.route.params;  // Props passed to screen
 
-  function getRandomInt(max: number) {
-    return Math.floor(Math.random() * max);
-  }
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [matchups, setMatchups] = useState<Matchup[]>([]);
+  const [loadingMatchups, setLoadingMatchups] = useState(false);
 
-  const authContext = useContext(AuthContext);
-  let {player} = authContext!
+  // Fetch matchups when a table is selected
+  const selectTable = async (tableName: string) => {
+    if (selectedTable === tableName) return; // If already selected, do nothing
 
+    setLoadingMatchups(true);
+    setSelectedTable(tableName);
 
+    try {
+      const response = await tournamentService.getMatchups(tableName);
+      if (response.success) {
+        setMatchups(response.data);
+      } else {
+        console.error('Failed to load matchups');
+      }
+    } catch (error) {
+      console.error('Error fetching matchups:', error);
+    } finally {
+      setLoadingMatchups(false);
+    }
+  };
+
+  // Render the players in a matchup, crossed out if they lost
+  const renderMatchup = (matchup: Matchup) => {
+    const { player_1_id, player_2_id, winner } = matchup;
+    return (
+      <View style={styles.matchupContainer}>
+        {/* Player 1 */}
+        <Text style={[styles.playerName, winner !== player_1 && styles.loserText]}>
+          {player_1.fname} {player_1.lname[0]}.
+        </Text>
+
+        <Text style={styles.vsText}>VS</Text>
+
+        {/* Player 2 */}
+        <Text style={[styles.playerName, winner !== player_2 && styles.loserText]}>
+          {player_2.fname} {player_2.lname[0]}.
+        </Text>
+      </View>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      {/* Top Right Corner */}
-      
-      <Card style={styles.topRight}>
-        <Text>Spectator screen...</Text>
-        <Text>Mike still needs to build this...</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      {/* Tournament Info */}
+      <Text style={styles.title}>Tournament #{tournament.tournamentId}</Text>
+      <Text style={styles.subTitle}>Round {tournament.currentRoundId}</Text>
+      <Text style={styles.subTitle}>Remaining Players: {tournament.playersRemaining}</Text>
 
-    </Card>
+      {/* Matchup Tables */}
+      <View style={styles.fabContainer}>
+        {tournament.matchupTables.map((tableName: string) => (
+          <FAB
+            key={tableName}
+            label={tableName}
+            style={styles.fab}
+            onPress={() => selectTable(tableName)}
+            color={selectedTable === tableName ? 'white' : 'black'}
+            icon="trophy-outline"
+          />
+        ))}
+      </View>
 
-    <Button mode="contained" onPress={() => props.navigation.navigate('MainMenu')}>
-        Return to Menu
-      </Button>
-
-
-    </View>
+      {/* Bracket Display */}
+      {loadingMatchups ? (
+        <Text>Loading matchups...</Text>
+      ) : (
+        <View style={styles.bracketContainer}>
+          {matchups.length > 0 ? (
+            matchups.map((matchup: Matchup, idx: number) => (
+              <View key={idx} style={styles.roundContainer}>
+                {renderMatchup(matchup)}
+              </View>
+            ))
+          ) : (
+            <Text>No matchups available for this table</Text>
+          )}
+        </View>
+      )}
+    </ScrollView>
   );
 };
 
-// Define styles for the component
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: 'white',
   },
-  topRight: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
-    alignItems: 'flex-end',
-    padding: 10
-  },
-  center: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  lightText: {
-    color: 'lightgray',
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 10,
-    fontSize: 12,
+  },
+  subTitle: {
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 5,
+  },
+  fabContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginVertical: 20,
+  },
+  fab: {
+    margin: 10,
+    backgroundColor: '#6200ee',
+  },
+  bracketContainer: {
+    marginVertical: 20,
+  },
+  roundContainer: {
+    marginBottom: 20,
+  },
+  matchupContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    paddingHorizontal: 20,
+  },
+  playerName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loserText: {
+    textDecorationLine: 'line-through',
+    color: 'red',
+  },
+  vsText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

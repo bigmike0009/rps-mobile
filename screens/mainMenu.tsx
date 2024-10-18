@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from 'auth/authProvider';
-import { Button, SegmentedButtons, useTheme } from 'react-native-paper';
+import { Button, FAB, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
@@ -28,6 +28,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
   const [registered, setRegistered] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const theme = useTheme();
 
   const authContext = useContext(AuthContext);
@@ -35,36 +36,18 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const { email, isLoggedIn, player } = authContext!
 
   const fetchTournament = async () => {
+    setRefreshing(true)
     const tournament = await tournamentService.getLatestTournament();
     console.log('Latest Tournament retrieved.')
 
     console.log(tournament)
+    setRefreshing(false)
 
     if (tournament.status == 200) {setTournamentData(tournament.data); return tournament.data};
     return null
   };
 
-  const joinTournament = async () => {
-    const tourneyID = tournamentData?.tournamentId!
-    const response = await tournamentService.addPlayerToTournament(tourneyID, player?.playerID!, player?.region!);
-    console.log('Latest Tournament retrieved.')
-
-    console.log(response)
-
-    if (response.status == 200) {
-      setRegistered(true)
-    }
-    else if (response.status == 409){
-      console.log('Player is already registered for this tournament')
-      setRegistered(true)
-    }
-    else {
-      console.error('Unable to register player for tournament')
-    }
-  };
-
-  useEffect(() => {
-    
+  const updatePageWithTournament = async () => {
     let tourneyData = fetchTournament();
     tourneyData.then((tourney)=>{
       if (tourney) {
@@ -86,8 +69,39 @@ const MainMenu: React.FC<AuthProps> = (props) => {
       }, 1000);
   
       return () => clearInterval(interval);
-    }}})
+    }}
+  else {
+    setTournamentData(null)
+    setRegistered(false)
+    setTournamentCleanup(false)
+    setTournamentStarted(false)
+  }})
+  }
+
+  const joinTournament = async () => {
+    const tourneyID = tournamentData?.tournamentId!
+    const response = await tournamentService.addPlayerToTournament(tourneyID, player?.playerID!, player?.region!);
+    console.log('Latest Tournament retrieved.')
+
+    console.log(response)
+
+    if (response.status == 200) {
+      setRegistered(true)
+    }
+    else if (response.status == 409){
+      console.log('Player is already registered for this tournament')
+      setRegistered(true)
+    }
+    else {
+      console.error('Unable to register player for tournament')
+    }
+  };
+
+
+
+  useEffect(() => {
     
+    updatePageWithTournament()
     
   }, []);
 
@@ -151,10 +165,20 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
 
       {isLoggedIn ? 
+      
       <View style={styles.container}>
-      <Button mode="contained" onPress={joinTournament} disabled={registered || tournamentStarted || tournamentCleanup}>
-      Register for Tournament
-    </Button>
+        <FAB style ={{padding: 0, margin: 10}}
+          icon="refresh" 
+          loading={refreshing}
+          disabled={refreshing}
+          onPress={() =>{updatePageWithTournament()}}>
+      </FAB>
+      <FAB style ={{padding: 0, margin: 10}}
+          label="Register for Tournament" 
+          onPress={() =>{joinTournament()}}
+          disabled={!tournamentData || registered || tournamentStarted || tournamentCleanup}>
+      </FAB>
+      
     
       <LogoutButton {...props}></LogoutButton>
       {/* <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('RockPaperScissors', {tournament: tournamentData!, matchup: null})}>

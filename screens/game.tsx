@@ -32,8 +32,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [opponent, setOpponent] = useState<Player | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
-  //const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
-  const [timer, setTimer] = useState<number>(30);
+  const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
+  //const [timer, setTimer] = useState<number>(30);
 
   const [selectionAnimation, setSelectionAnimation] = useState(new Animated.Value(0));
 
@@ -61,6 +61,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       }
       else {
         // TODO - Handle random name & propic
+        let res = playerService.getRandomPlayer()
+        res.then((value) => {setOpponent(value)})
       }
       
     };
@@ -111,7 +113,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       //since the player has last refreshed the matchup, the other player has given there selection, tied, and put in another selection
       setWaiting(false);
       setResult('tie')
-      setTieChoice(refreshedMatchup.data!.player_2_choice)
+      setTieChoice(playerChoice)
       setPlayerChoice(null)
     }
 
@@ -205,13 +207,14 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     const ourChoice = matchup.player_1_id === player?.playerID ? matchup.player_1_choice : matchup.player_2_choice;
     const opponentChoice = matchup.player_1_id === player?.playerID ? matchup.player_2_choice : matchup.player_1_choice;
 
+    //these will both be null in a tie
     console.log('player choice & opponent choice')
     console.log(ourChoice)
     console.log(opponentChoice)
 
     if (matchup.winner === -1) {
       console.log('TIE')
-      setTieChoice(ourChoice)
+      setTieChoice(playerChoice)
       setResult('tie');
       setPlayerChoice(null)
     } else if (

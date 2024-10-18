@@ -40,6 +40,24 @@ class PlayerService {
     const playerData = { email, fname, lname };
     return apiService.post<Player>('/player', playerData);
   }
+
+  async getRandomPlayer():Promise<Player>{
+    let res = await apiService.getBase<any>('https://randomuser.me/api/');
+
+    return {
+      playerID: -1,
+      email: res.data.results[0].email,
+      facebookID: "",
+      fname: res.data.results[0].first,
+      lname: res.data.results[0].last,
+      propic: res.data.results[0].picture,
+      real: false,
+      region: 'us-east-1',
+      tourneys: [], // Array of tournament IDs
+      wins: [],     // Array of tournament IDs
+    }
+
+  }
 }
 
 export const playerService = new PlayerService();

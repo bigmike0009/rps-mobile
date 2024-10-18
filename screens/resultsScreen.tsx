@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigationState } from '@react-navigation/native';
 
 import { View, Text, Image, Animated, StyleSheet } from 'react-native';
-import { Avatar, Button } from 'react-native-paper';
+import { Avatar, Button, FAB } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
 import { Matchup, Player } from 'types/types';
 
@@ -65,7 +65,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
                 }
                 
             }
-        }, 10000)
+        }, 20000)
         return () => clearInterval(interval);
     }
 
@@ -145,13 +145,11 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       {roundsOver ? (
         <View>
           <Text>All players have completed the round.</Text>
-          <Button mode="contained" onPress={() => navigation.replace('WaitingScreen')}>
-            Advance to next round
-          </Button>
+          <FAB label={winner === 'p' ? "Advance to next round" : "Return to Main Menu"} style={{margin: 10, padding: 0}} onPress={() => navigation.replace(winner === 'p' ? 'WaitingScreen' : 'MainMenu')}/>
         </View>
       ) : (
         <View style={styles.bottomContainer}>
-          <Text style={styles.redText}>Pour one out for the fallen players...</Text>
+          <Text style={styles.redText}>Pour one out for the fallen players</Text>
           <Animated.View
             style={[
               styles.playerName,
@@ -163,6 +161,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
           >
             <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
           </Animated.View>
+          <Text style={styles.lightTextSmall}>Waiting for all players to finish...</Text>
+
         </View>
       )}
     </View>
@@ -202,6 +202,11 @@ const styles = StyleSheet.create({
   lightText: {
     color: 'lightgray',
     marginBottom: 10,
+    fontSize: 18,
+  },
+  lightTextSmall: {
+    color: 'black',
+    marginTop: 80,
     fontSize: 18,
   },
   redText: {

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Button } from 'react-native-paper';
+import { Button, FAB } from 'react-native-paper';
 import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COGNITO_CONFIG } from 'cognitoConfig';import { StackScreenProps } from '@react-navigation/stack';
@@ -34,9 +34,12 @@ const LogoutButton: React.FC<AuthProps> = (props) => {
   };
 
   return (
-    <Button mode="contained" onPress={handleLogout} style={{ margin: 10 }}>
-      Logout
-    </Button>
+    <FAB style ={{padding: 0, margin: 10}}
+          label="Logout" 
+          onPress={() =>{handleLogout()}}
+          >
+    </FAB>
+
   );
 };
 
