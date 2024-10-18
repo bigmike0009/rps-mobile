@@ -1,5 +1,5 @@
 import { apiService } from './apiService';
-import { Matchup, Player } from 'types/types';
+import { Matchup, MatchupDetail, Player } from 'types/types';
 import { Tournament } from 'types/types';
 
 interface ApiResponse<T> {
@@ -15,6 +15,12 @@ class TournamentService {
 
   async getTournament(tournamentID: number): Promise<ApiResponse<Tournament>> {
     return await apiService.get<Tournament>(`/tournament?tournamentID=${tournamentID}`);
+  }
+
+  async getAllMatchups(tableName: string): Promise<ApiResponse<MatchupDetail[]>> {
+    const endpoint = `/bracket?matchupTable=${tableName}`;
+    return await apiService.get<MatchupDetail[]>(endpoint);
+    
   }
 
   // POST create a tournament (takes userID and region)
@@ -69,6 +75,7 @@ class MatchupService {
     return await apiService.get<Matchup>(endpoint);
     
   }
+
 
   async getMatchupFromPlayer(playerID: number, tournamentID: number): Promise<ApiResponse<Matchup>> {
     const endpoint = `/matchup?playerID=${playerID}&tournamentID=${tournamentID}`;

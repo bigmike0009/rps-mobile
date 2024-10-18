@@ -39,3 +39,16 @@ export interface Player {
     table:string;
     
   }
+
+  export interface MatchupDetail {
+    matchupID: number;
+    player_1_choice:string;
+    player_1_id:number;
+    player_2_choice:string;
+    player_2_id:number;
+    winner:number;
+    table:string;
+    player_1_data:Player;
+    player_2_data:Player;
+    
+  }
