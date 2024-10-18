@@ -1,122 +1,101 @@
 import { StackScreenProps } from '@react-navigation/stack';
+import MatchupComponent from 'components/Brackets';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
-import { FAB, Card } from 'react-native-paper';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { FAB } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
-import { Matchup, MatchupDetail } from 'types/types';
+import { MatchupDetail } from 'types/types';
 
 type GameProps = StackScreenProps<DefaultStackParamList, 'SpectatorScreen'>;
 
 const SpectatorScreen: React.FC<GameProps> = (props) => {
-  const { tournament } = props.route.params; // Props passed to screen
-
-  const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const { tournament } = props.route.params;
   const [matchups, setMatchups] = useState<MatchupDetail[]>([]);
-  const [loadingMatchups, setLoadingMatchups] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
 
-  // Helper function to extract AWS region (e.g., "us-east-1") from table name
+  // Function to extract the region from the full table name
   const extractRegion = (tableName: string) => {
-    const match = tableName.match(/(us|eu|ap|sa|ca|af)-[a-z]+-\d+/);
-    return match ? match[0] : tableName;
+    const parts = tableName.split('_');
+    return parts[parts.length - 2]; // Extracts the region part
   };
 
-  // Fetch matchups when a table is selected
-  const selectTable = async (tableName: string) => {
-    // If the same table is selected again, deselect it
-    if (selectedTable === tableName) {
-      setSelectedTable(null);
-      setMatchups([]); // Reset matchups when deselected
-      return;
+  // Function to select or deselect a matchup table
+  const selectTable = (tableName: string) => {
+    // Deselect if the current table is clicked again
+    setSelectedTable((prevTable) => (prevTable === tableName ? null : tableName));
+  };
+
+  // Fetch matchups when a new table is selected
+  useEffect(() => {
+    if (selectedTable) {
+      const fetchMatchups = async () => {
+        setLoading(true)
+        try {
+          const response = await tournamentService.getAllMatchups(selectedTable);
+          if (response.status === 200 && response.data) {
+            setMatchups(response.data);
+          } else {
+            console.error('Failed to load matchups');
+          }
+        } catch (error) {
+          console.error('Error fetching matchups:', error);
+        }
+        setLoading(false)
+      };
+      fetchMatchups();
+    } else {
+      setMatchups([]); // Clear matchups if no table is selected
     }
-
-    setLoadingMatchups(true);
-    setSelectedTable(tableName);
-
-    try {
-      const response = await tournamentService.getAllMatchups(tableName);
-      if (response.status === 200 && response.data) {
-        setMatchups(response.data);
-      } else {
-        console.error('Failed to load matchups');
-      }
-    } catch (error) {
-      console.error('Error fetching matchups:', error);
-    } finally {
-      setLoadingMatchups(false);
-    }
-  };
-
-  // Render the players in a matchup, crossed out if they lost
-  const renderMatchup = (matchup: MatchupDetail) => {
-    const { player_1_data, player_2_data, winner } = matchup;
-    return (
-      <View style={styles.matchupContainer}>
-        {/* Player 1 */}
-        <Text style={[styles.playerName, winner !== 1 && styles.loserText]}>
-          {player_1_data.fname} {player_1_data.lname[0]}.
-        </Text>
-
-        <Text style={styles.vsText}>VS</Text>
-
-        {/* Player 2 */}
-        <Text style={[styles.playerName, winner !== 2 && styles.loserText]}>
-          {player_2_data.fname} {player_2_data.lname[0]}.
-        </Text>
-      </View>
-    );
-  };
+  }, [selectedTable]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Tournament Info */}
+    <View style={styles.screenContainer}>
       <Text style={styles.title}>Tournament #{tournament.tournamentId}</Text>
       <Text style={styles.subTitle}>Round {tournament.currentRoundId}</Text>
       <Text style={styles.subTitle}>Remaining Players: {tournament.playersRemaining}</Text>
 
       {/* Matchup Tables */}
       <View style={styles.fabContainer}>
+        {/* Render each region table as a FAB button */}
         {tournament.matchupTables.map((tableName: string) => (
           <FAB
             key={tableName}
-            label={extractRegion(tableName)} // Only show the region part of the table name
+            label={extractRegion(tableName)} // Display the extracted region
+            loading={loading}
             style={[
               styles.fab,
-              selectedTable === tableName && styles.selectedFab, // Change style when selected
+              selectedTable === tableName ? styles.selectedFab : styles.unselectedFab,
             ]}
-            onPress={() => selectTable(tableName)}
-            color={selectedTable === tableName ? 'white' : 'black'} // Change text color when selected
+            onPress={() => selectTable(tableName)} // Toggle selection
+            color={selectedTable === tableName ? 'white' : 'black'}
             icon="trophy-outline"
           />
         ))}
       </View>
 
-      {/* Bracket Display */}
-      {loadingMatchups ? (
-        <Text>Loading matchups...</Text>
-      ) : (
-        <View style={styles.bracketContainer}>
-          {matchups.length > 0 ? (
-            matchups.map((matchup: MatchupDetail, idx: number) => (
-              <View key={idx} style={styles.roundContainer}>
-                {renderMatchup(matchup)}
-              </View>
-            ))
-          ) : (
-            <Text>Select a region to see more details</Text>
-          )}
-        </View>
-      )}
-    </ScrollView>
+      {/* Display matchups for the selected table */}
+      <ScrollView contentContainerStyle={styles.matchupContainer}>
+        {selectedTable && matchups.length > 0 ? (
+          matchups.map((matchup, index) => (
+            <MatchupComponent
+              key={index}
+              player1={`${matchup.player_1_data.fname} ${matchup.player_1_data.lname[0]}.`}
+              player2={`${matchup.player_2_data.fname} ${matchup.player_2_data.lname[0]}.`}
+              winner={matchup.winner}
+              flipped={index % 2 !== 0}
+            />
+          ))
+        ) : (
+          <Text>{selectedTable ? 'Loading matchups...' : 'Select a region.'}</Text>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: 'white',
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -128,43 +107,29 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 5,
   },
+  screenContainer: {
+    flex: 1,
+    backgroundColor: 'white',
+  },
   fabContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    flexWrap: 'wrap',
-    marginVertical: 20,
+    padding: 10,
+    marginBottom: 10,
   },
   fab: {
-    margin: 10,
-    backgroundColor: '#6200ee',
+    marginHorizontal: 5,
+    marginBottom: 5,
   },
   selectedFab: {
-    backgroundColor: '#03dac6', // Highlight selected table with a different color
+    backgroundColor: 'blue', // Highlighted button
   },
-  bracketContainer: {
-    marginVertical: 20,
-  },
-  roundContainer: {
-    marginBottom: 20,
+  unselectedFab: {
+    backgroundColor: 'gray', // Normal button
   },
   matchupContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 20,
-  },
-  playerName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  loserText: {
-    textDecorationLine: 'line-through',
-    color: 'red',
-  },
-  vsText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    padding: 20,
+    flexGrow: 1,
   },
 });
 
