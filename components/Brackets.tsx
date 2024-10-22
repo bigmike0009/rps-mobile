@@ -1,14 +1,28 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet } from 'react-native';
+import { Player } from 'types/types';
 
 interface BracketProps {
-  player1: string;
-  player2: string;
+  player1: Player;
+  player2: Player;
   winner?: number; // Optional winner
   flipped: boolean;
+  timeExpired:boolean;
 }
 
-const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, flipped }) => {
+const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, flipped, timeExpired }) => {
+  const [dots, setDots] = useState<string>('');
+
+  useEffect(() => {
+    // Dot animation updating every 500ms
+    const dotInterval = setInterval(() => {
+      setDots(prevDots => (prevDots.length < 3 ? prevDots + '.' : '.'));
+    }, 1000);
+
+    return () => clearInterval(dotInterval);  // Clean up the interval on unmount
+  }, []);
+
+
   return (
     <View style={styles.container}>
       <ImageBackground
@@ -21,27 +35,29 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
           style={[
             styles.playerText,
             styles.player1,
-            winner === 2 && winner ? styles.loserText : {}, // Loser style if player1 isn't the winner
+            (winner === 2) || (timeExpired && winner !== 1) ? styles.loserText : {}, // Loser style if player1 isn't the winner
           ]}
         >
-          {player1}
+          {player1.fname} {player1.lname[0]}.
         </Text>
+        
 
         {/* Overlay Player 2 - Determine if player 2 is the loser */}
         <Text
           style={[
             styles.playerText,
             styles.player2,
-            winner === 1 && winner ? styles.loserText : {}, // Loser style if player2 isn't the winner
+            (winner === 1) || (timeExpired && winner !== 2) ? styles.loserText : {}, // Loser style if player2 isn't the winner
           ]}
         >
-          {player2}
+          {player2.fname} {player2.lname[0]}.
         </Text>
 
         {/* Overlay Winner (optional) */}
-        {winner && (
-          <Text style={[styles.playerText, styles.winner]}>{winner === 1 ? player1:player2}</Text>
-        )}
+        {winner ? (
+          <Text style={[styles.playerText, styles.winner]}>{winner === 1 ? `${player1.fname} ${player1.lname[0]}.`:`${player2.fname} ${player2.lname[0]}.`}</Text>
+        ) :
+        <Text style={[styles.playerText, styles.dots]}>{timeExpired ? 'TIE': dots}</Text>}
       </ImageBackground>
     </View>
   );
@@ -80,6 +96,10 @@ const styles = StyleSheet.create({
     left: 220, // Adjust to center for winner
     top: 45,   // Centered between the two players
     color: 'green', // Winner's text in green
+  },
+  dots: {
+    left: 220, // Adjust to center for winner
+    top: 45,   // Centered between the two players
   },
   loserText: {
     color: 'red', // Loser's text in red

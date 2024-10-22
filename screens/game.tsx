@@ -8,6 +8,8 @@ import { playerService, matchupService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
 import { Avatar, Button, FAB } from 'react-native-paper';
 import { DateTime } from 'luxon';
+import TimerComponent from 'components/timer';
+import getSecondsUntilRoundEnd from 'utilities/common';
  // Assuming API functions are available
 
 
@@ -32,7 +34,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [opponent, setOpponent] = useState<Player | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
+  const [timeExpired, setTimeExpired] = useState<boolean>(false)
+  //const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
   //const [timer, setTimer] = useState<number>(30);
 
   const [selectionAnimation, setSelectionAnimation] = useState(new Animated.Value(0));
@@ -70,30 +73,36 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     if (player && tournament) {fetchMatchup()};
   }, [player?.playerID]);
 
-  // Timer logic
   useEffect(() => {
     let interval: any;
-    if (timer > 0) {
+    if (waiting && player?.playerID) {
       interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
 
-        if (waiting && timer > 0 && timer % 7 === 0 && matchup){
+        if (waiting && matchup){
           refreshMatchupWaiting(matchup)
         }
 
-        if ( timer <= 0 || result === 'win' || result === 'loss'){
+        if (result === 'win' || result === 'loss'){
           setWaiting(false);
-
           clearInterval(interval)
         }
-      }, 1000);
+      }, 7000 + (player.playerID % 11 * 100));
     }
     else {
       calculateResult(matchup!)
       clearInterval(interval);
     }
     return () => clearInterval(interval);
-  }, [timer, result]);
+  }, [waiting]);
+
+  const timeExpires = () => {
+    console.log('TIME HAS EXPIRED')
+    setTimeExpired(true)
+    if (matchup){
+    calculateResult(matchup!);
+    }
+    setWaiting(false);
+  }
 
   const refreshMatchupWaiting = async(match: Matchup) => {
     console.log(match.table, match.matchupID)
@@ -125,30 +134,6 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     
   
   }
-  }
-
-  function getSecondsUntilRoundEnd(ts: string) {
-    let now = DateTime.now()
-    // Step 2: Create a Date object as if the time was in UTC
-    // Use "America/New_York" to indicate Eastern Time
-    const easternDate = DateTime.fromFormat(ts, 'MM-dd-yyyy:HH:mm:ss', { zone: 'America/New_York' });
-
-
-  // Check if the parsing was successful
-    if (easternDate.isValid) {
-
-        // Step 2: Convert the parsed Eastern DateTime to local time
-        let nextGameTime = easternDate.setZone(DateTime.local().zoneName).toJSDate();
-
-
-        const diff = nextGameTime.valueOf() - now.valueOf();
-        
-        const seconds = Math.floor(diff / 1000);
-
-        return seconds
-        
-      }
-      return 0
   }
 
   const playSelectionAnimation = () => {
@@ -281,18 +266,24 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       </View>
 
       {/* Game Timer */}
-      <View style={styles.timerContainer}>
+      {/* <View style={styles.timerContainer}>
         <ImageBackground source={{ uri: `https://zak-rentals.s3.amazonaws.com/alarm_clock_icon.png` }} style={styles.timerBackground} resizeMode="contain">
           <Text style={styles.timerText}>{timer}</Text>
         </ImageBackground>
+      </View> */}
+       {
+       tournament && tournament.currentRoundEndTs && 
+       <View style={styles.timerContainer}>
+      <TimerComponent initialTime={getSecondsUntilRoundEnd(tournament.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
       </View>
+    }
 
       {/* Choices */}
       <View style={[styles.choicesContainer, { minHeight: 100 }]}>
         {choices.map((choice) => (
-          <TouchableHighlight  disabled={playerChoice !== null || timer <= 0} key={choice} onPress={() => handlePlayerChoice(choice)} style={styles.choiceButton}>
+          <TouchableHighlight  disabled={playerChoice !== null || timeExpired} key={choice} onPress={() => handlePlayerChoice(choice)} style={styles.choiceButton}>
             <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice === null && timer > 0 ? choice : choice + '-gray'}.png` }} 
+            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice === null && !timeExpired ? choice : choice + '-gray'}.png` }} 
             style={styles.choiceImage  }// Apply gray tint if disabled
            />
           </TouchableHighlight>
@@ -308,7 +299,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
         ))}
       </View>
 
-      {(result !== 'tie' && waiting && timer > 0) && 
+      {(result !== 'tie' && waiting && !timeExpired) && 
           <View>
             <Animated.Image
             source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} // Replace with your own image URLs
@@ -333,7 +324,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
         
 
   <View style={styles.resultContainer}>
-        {(timer > 0 && result !== 'tie') &&  
+        {(playerChoice && !timeExpired && result !== 'tie') &&  
         result && <View>
           <Text style={{textAlign:'center'}}>The results are in...</Text>
           <View style={{flexDirection:'row'}}>
@@ -344,7 +335,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       </View>
 
       <View style={styles.resultContainer}>
-        {(timer > 0 && result === 'tie') &&  
+        {(!timeExpired && result === 'tie') &&  
         result && <View>
           <Text style={{textAlign:'center'}}>{getResultText()}</Text>
           <View style={{flexDirection:'row'}}>
@@ -357,7 +348,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
 
       {/* Display result */}
       <View style={styles.resultContainer}>
-        {(timer <= 0) &&  
+        {timeExpired &&  
         result && <View>
           <Text style={{textAlign:'center'}}>{getResultText()}</Text>
           {!playerChoice && <Text style={{textAlign:'center'}}>You did not submit an answer in time. Idiot!</Text>}

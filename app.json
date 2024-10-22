@@ -4,17 +4,17 @@
     "slug": "rps-mobile",
     "version": "1.0.0",
     "extra": {
-      "facebookAppId": "365748306442104"
+      "facebookAppId": "365748306442104",
+      "eas": {
+        "projectId": "e0591b53-9d4b-4521-a771-2f1012acb80a"
+      }
     },
-
     "web": {
       "favicon": "./assets/favicon.png"
     },
-
     "experiments": {
       "tsconfigPaths": true
     },
-
     "plugins": [
       [
         "expo-dev-launcher",
@@ -23,26 +23,27 @@
         }
       ]
     ],
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.bigmike0009.rpsmobile"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.bigmike0009.rpsmobile"
     }
   }
 }

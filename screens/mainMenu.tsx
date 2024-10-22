@@ -151,6 +151,11 @@ const MainMenu: React.FC<AuthProps> = (props) => {
         <Text style={styles.countdownText}>Time until next Tournament:</Text>
         <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
         {registered && <Text style = {{color: "green"}}>Player Registered!</Text>}
+        <Text style={styles.countdownText}># Players: {tournamentData.numPlayersRegistered}</Text>
+        <Text style={{marginTop:25}}>Cash Prize:</Text>
+
+        <Text style = {{color: "green", fontSize:48}}>$0</Text>
+
         
       </View>
       }
@@ -181,7 +186,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
       
     
       <LogoutButton {...props}></LogoutButton>
-      <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournamentData!})}>
+      <Button mode="contained" disabled={!isLoggedIn || !tournamentData} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournamentData!})}>
         Test the Spectator Screen
       </Button>
       

@@ -1,5 +1,5 @@
 import { CognitoUserPool, CognitoUserSession } from 'amazon-cognito-identity-js';
-import { COGNITO_CONFIG } from 'cognitoConfig';
+import { COGNITO_CONFIG } from '../cognitoConfig';
 
 export const getCurrentUser = () => {
   const userPool = new CognitoUserPool({
@@ -33,4 +33,6 @@ export const getCurrentUserDetails = (): Promise<{ email: string | null }> => {
     }
   });
 };
+
+
 

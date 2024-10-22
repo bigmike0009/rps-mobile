@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Card } from 'react-native-paper';
+import { Card, FAB } from 'react-native-paper';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
 
 
@@ -36,11 +36,38 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [currentPhrase, setCurrentPhrase] = useState<string>(cleverPhrases[0]);
   const [dots, setDots] = useState<string>('');
+  const [playerEliminated, setPlayerEliminated] = useState(false)
   
   const { navigation } = props;
 
   function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
+  }
+
+  function getRoundStatus(){
+    if (tournament){
+      if (tournament.roundActiveFlag){
+        if (isRoundExpired(tournament)){
+          if (tournament.playersRemaining > 2){
+          return 'preparing for next round...'
+          }
+          else{
+            return 'crowning the champion...'
+          }
+        }
+        else {
+          return 'in progress!'
+        }
+      }
+      else
+      {
+        return 'generating matchups...'
+      }
+
+    }
+    else {
+      return 'loading...'
+    }
   }
 
   const authContext = useContext(AuthContext);
@@ -75,29 +102,27 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
 
   useEffect(() => {
 
-    const checkMatchup = async (tournament: Tournament) => {
+    const checkMatchup = async (tourney: Tournament) => {
       
-      console.log(`fetching matchup data for player ${player?.playerID} in tourney ${tournament.tournamentId}`)
-      const fetchedMatchup = await matchupService.getMatchupFromPlayer(player?.playerID!, tournament.tournamentId!);
+      console.log(`fetching matchup data for player ${player?.playerID} in tourney ${tourney.tournamentId}`)
+      const fetchedMatchup = await matchupService.getMatchupFromPlayer(player?.playerID!, tourney.tournamentId!);
       console.log('fetched matchup succesfully')
 
       if (fetchedMatchup.data){
-        if (isRoundExpired(tournament)){
+        if (isRoundExpired(tourney)){
           //navigation.replace('ResultsScreen', {tournament: tournament, matchup: fetchedMatchup.data});
           console.log('This round has expired. Too late')
-          navigation.replace('SpectatorScreen', {tournament: tournament});
 
         }
         
         else {
-          navigation.replace('RockPaperScissors', {tournament: tournament, matchup: fetchedMatchup.data});
+          navigation.replace('RockPaperScissors', {tournament: tourney, matchup: fetchedMatchup.data});
       }
     }
       
       else{
         console.log('You are no longer active in this tournament. Have fun spectating')
-
-        navigation.replace('SpectatorScreen', {tournament: tournament});
+        setPlayerEliminated(true)
 
       }
       // Determine opponent ID and fetch their data
@@ -114,7 +139,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
                   console.log('Tournament Complete')
                   navigation.navigate('SpectatorScreen', {tournament: response.data})  // Start matchup if exists for player
                 }
-                if (response.data.roundActiveFlag) {
+                if (response.data.roundActiveFlag && !isRoundExpired(response.data)) {
                     checkMatchup(response.data)  // Start matchup if exists for player
                   }
             }
@@ -159,6 +184,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       <Card style={styles.topRight}>
         <Text>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
         <Text>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
+        <Text style={styles.lightText}>{getRoundStatus()}</Text>
       </Card> :
       <Card style={styles.topRight}>
         <Text>Fetching Tournament Data...</Text>
@@ -171,7 +197,15 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
         <Text style={styles.lightText}>Generating bracket</Text>
 
       </View>
+
+      {playerEliminated && tournament && 
+      <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
+        <FAB icon="trophy" label="Spectate Bracket" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('SpectatorScreen', {tournament: tournament})}/>
+      </View>
+      } 
     </View>
+
+    
   );
 };
 

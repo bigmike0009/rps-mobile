@@ -15,8 +15,8 @@ const Stack = createStackNavigator<DefaultStackParamList>();
 
 export default function RootStack() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
+    <NavigationContainer >
+      <Stack.Navigator  initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />
         <Stack.Screen name="WaitingScreen" component={WaitingScreen} />
