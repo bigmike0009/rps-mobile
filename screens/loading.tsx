@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Card, FAB } from 'react-native-paper';
+import { Card, FAB, useTheme } from 'react-native-paper';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
 
 
@@ -39,6 +39,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
   const [playerEliminated, setPlayerEliminated] = useState(false)
   
   const { navigation } = props;
+  const theme = useTheme()
 
   function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
@@ -182,18 +183,18 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       {/* Top Right Corner */}
       {tournament ? 
       <Card style={styles.topRight}>
-        <Text>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
-        <Text>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
+        <Text style={{color:theme.colors.outline}}>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
+        <Text style={{color:theme.colors.tertiary}}>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
         <Text style={styles.lightText}>{getRoundStatus()}</Text>
       </Card> :
-      <Card style={styles.topRight}>
-        <Text>Fetching Tournament Data...</Text>
-    </Card>
+      
+        <Text style={{color:theme.colors.primary}}>Fetching Tournament Data...</Text>
+    
       }
 
       {/* Clever Phrase with Dot Animation */}
       <View style={styles.center}>
-        <Text>{currentPhrase}{dots}</Text>
+        <Text style={{color:theme.colors.primary}}>{currentPhrase}{dots}</Text>
         <Text style={styles.lightText}>Generating bracket</Text>
 
       </View>
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     top: 20,
     right: 20,
     alignItems: 'flex-end',
-    padding: 10
+    padding: 15
   },
   center: {
     justifyContent: 'center',

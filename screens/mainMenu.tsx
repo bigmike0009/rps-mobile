@@ -148,28 +148,40 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 return (
   <View style={[styles.container, { backgroundColor: theme.colors.backdrop, padding: 10 }]}>
     <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
-    {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
-    <View style={[styles.countdownContainer, { backgroundColor: theme.colors.surface }]}>
+    
+    
+      { (tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
+    <Card style={{padding: 10, margin: 10, width: 300, justifyContent: 'center', alignItems: 'center'}}>
+      {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
+    <View style={[styles.countdownContainer]}>
       <Text style={[styles.countdownText, { color: theme.colors.outline }]}>Time until next Tournament:</Text>
       <Text style={[styles.countdownTimer, { color: theme.colors.primary }]}>{timeUntilNextGame}</Text>
-      {registered && <Text style={{ color: 'light-green' }}>Player Registered!</Text>}
-      <Text style={[styles.countdownText, { color: theme.colors.outline }]}># Players: {tournamentData.numPlayersRegistered}</Text>
+      {registered && <Text style={{ color: 'green' }}>Player Registered!</Text>}
+
+      
       
     </View>}
+    {isLoggedIn &&
+    <View>
+      <Text style={[styles.countdownText, { color: theme.colors.outline }]}># Players: {tournamentData.numPlayersRegistered}</Text>
+    <Text style={{marginTop:25, color: theme.colors.onSurface}}>Cash Prize:</Text>
+    <Text style = {{color: "green", fontSize:48}}>$--</Text>
     <FAB
-          style={[styles.fabButton]}
+          style={[styles.fabButton, {position: 'absolute', bottom: 0, right: 0}]}
           icon="refresh"
           loading={refreshing}
           disabled={refreshing || !isLoggedIn}
           onPress={fetchTournament}
         />
-      { isLoggedIn && 
-    <Card style={{paddingHorizontal: 10, paddingBottom: 10, margin: 10, width: 200, justifyContent: 'center', alignItems: 'center'}}>
-    <Text style={{marginTop:25, color: theme.colors.onSurface}}>Cash Prize:</Text>
-    <Text style = {{color: "green", fontSize:48}}>$--</Text>
+        </View>
+}
     </Card>
 }
-
+{tournamentStarted && !tournamentCleanup && <View style={[styles.container, {backgroundColor: theme.colors.surface}]}>
+        <Text style={[styles.countdownTimer, {color: theme.colors.onSurface}]}>Tournament in progress</Text>
+        <FAB style={styles.fabButton} disabled={!isLoggedIn} onPress={() => navigation.replace('WaitingScreen')}
+        label={registered ? "Join Tournament" : "View Tournament"}/>
+      </View>} 
     {tournamentCleanup && <Text style={[styles.countdownTimer, { color: theme.colors.primary }]}>Updating record books from today's tournament...</Text>}
       {!tournamentData && <Text style={[styles.countdownTimer, { color: theme.colors.onBackground }]}>No tournaments scheduled</Text>}
     
