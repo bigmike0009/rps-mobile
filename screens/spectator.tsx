@@ -1,5 +1,6 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import MatchupComponent from 'components/Brackets';
+import { theme } from 'components/theme';
 import TimerComponent from 'components/timer';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import React, { useEffect, useState } from 'react';
@@ -77,9 +78,32 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
     }
       
       <View style={{flexDirection: 'column', justifyContent: 'center', alignItems:'center', marginLeft: 20}}>
-      <Text style={styles.title}>Tournament #{tournament.tournamentId}</Text>
-      <Text style={styles.subTitle}>Round {tournament.currentRoundId}</Text>
-      <Text style={styles.subTitle}>Remaining Players: {tournament.playersRemaining}</Text>
+      <Text style={styles.title}>
+  <Text style={{ color: theme.colors.outline }}>Tournament </Text>
+  <Text style={{ color: theme.colors.primary }}>
+  #{tournament.tournamentId}
+  </Text>
+</Text>
+
+<Text style={styles.subTitle}>
+  <Text style={{ color: theme.colors.outline }}>Round: </Text>
+  <Text style={{ color: theme.colors.primary }}>
+    {tournament.currentRoundId}
+  </Text>
+</Text>
+
+{tournament.playersRemaining <= 2 ?
+  <Text style={{ color: theme.colors.primary }}>
+    { tournament.completeFlag ? "Tournament has concluded" : "FINAL ROUND" }
+  </Text>
+: 
+<Text style={styles.subTitle}>
+  <Text style={{ color: theme.colors.outline }}>Remaining Players: </Text>
+  <Text style={{ color: theme.colors.primary }}>
+    {tournament.playersRemaining}
+  </Text>
+</Text>}
+
     </View>
 
       {/* Matchup Tables */}
@@ -102,7 +126,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       </View>
 
       {/* Display matchups for the selected table */}
-      <ScrollView contentContainerStyle={styles.matchupContainer}>
+      <ScrollView contentContainerStyle={[styles.matchupContainer, {backgroundColor: theme.colors.surface, borderRadius: theme.roundness}]}>
         {selectedTable && matchups.length > 0 ? (
           matchups.map((matchup, index) => (
             <MatchupComponent
@@ -141,16 +165,14 @@ const styles = StyleSheet.create({
   },
   timerContainer: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: 10,
+    right: 10,
     alignItems: 'center',
     justifyContent: 'center',
     width: 50,
     height: 50,
     //backgroundColor: '#333', // Dark circle behind the timer
-    borderRadius: 50, // Circular timer
-    borderWidth: 2,
-    borderColor: '#fff',
+    borderRadius: 50
   },
   subTitle: {
     fontSize: 18,
@@ -159,7 +181,6 @@ const styles = StyleSheet.create({
   },
   screenContainer: {
     flex: 1,
-    backgroundColor: 'white',
   },
   fabContainer: {
     flexDirection: 'row',
@@ -172,7 +193,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   selectedFab: {
-    backgroundColor: 'blue', // Highlighted button
+     // Highlighted button
   },
   unselectedFab: {
     backgroundColor: 'gray', // Normal button

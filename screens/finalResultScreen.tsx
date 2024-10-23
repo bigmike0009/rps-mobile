@@ -1,22 +1,31 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Animated, StyleSheet, Dimensions } from 'react-native';
-import { Avatar, Card, Button, FAB } from 'react-native-paper';
+import { Avatar, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { tournamentService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
 import { DateTime } from 'luxon';
+import ConfettiCannon from 'react-native-confetti-cannon';
+
 
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>;
 
 const FinalResultsScreen: React.FC<ResultProps> = (props) => {
   const [cleanupComplete, setCleanupComplete] = useState(false)
+
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
   
   const { tournament, matchup, opponent } = props.route.params;
   const { width } = Dimensions.get('window');
+  const explosion = useRef<ConfettiCannon | null>(null); // Create a ref for the confetti
+
+  const theme = useTheme()
+  const timeoutId = useRef<NodeJS.Timeout | null>(null); // To store timeout ID
+
+
 
   // Helper function to calculate total elapsed time
 const calculateElapsedTime = (tournament: Tournament) => {
@@ -67,24 +76,58 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
   useEffect(() => {
     const fetchUpdatedTourney = async (tourneyID: number) => {
-        const interval = setInterval(async () => {
-          console.log('fetching')
-            let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
-            if (updated_tourney.data){
-              console.log(updated_tourney.data)
+      let delay = 50000; // Start with 50 seconds (in milliseconds)
 
-                if (updated_tourney.data.completeFlag){
-                  setCleanupComplete(true)
-                  clearInterval(interval)
-                }
-                
+      const fetchData = async () => {
+        console.log('fetching');
+        let updated_tourney = await tournamentService.getTournament(tourneyID);
+
+        if (updated_tourney.data) {
+          console.log(updated_tourney.data);
+
+          // If tournament is complete, stop fetching and clear timeout
+          if (updated_tourney.data.completeFlag) {
+            setCleanupComplete(true);
+
+            if (timeoutId.current) {
+              clearTimeout(timeoutId.current);
             }
-        }, 50000)
-        return () => clearInterval(interval);
-    }
+            return;
+          }
+        }
 
-    fetchUpdatedTourney(tournament.tournamentId)
-  }, [])
+        // Halve the delay but ensure it doesn't go below 10 seconds (10000 ms)
+        delay = Math.max(10000, delay / 2);
+
+        // Add random variance of ±5 seconds (5000 ms)
+        const variance = Math.floor(Math.random() * 10000) - 5000;
+        const nextDelay = delay + variance;
+
+        console.log(`Next fetch in ${Math.max(nextDelay, 10000) / 1000} seconds`);
+
+        // Set up the next fetch with the new delay and variance
+        timeoutId.current = setTimeout(fetchData, Math.max(nextDelay, 10000));
+      };
+
+      // Initial fetch with a delay
+      timeoutId.current = setTimeout(fetchData, delay);
+    };
+
+    fetchUpdatedTourney(tournament.tournamentId);
+
+    // Clean up the timeout if the component unmounts
+    return () => {
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+    };
+  }, [tournament.tournamentId, winner]);
+
+  useEffect(()=>{
+    if (winner === 'p') {
+      explosion.current?.start();
+    }
+  },[])
 
   function get_image_url(player: Player | null) {
     return player && player.propic ? player.propic : "https://zak-rentals.s3.amazonaws.com/Question.png";
@@ -92,8 +135,9 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
   return (
     <View style={styles.container}>
+      
       {/* Result text */}
-      <Text style={styles.resultText}>
+      <Text style={[styles.resultText, {color:theme.colors.primary}]}>
         {winner === 'p' ? 'You Are the Champion!' : 'You are the first loser!'}
       </Text>
 
@@ -122,7 +166,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
         
           <View style={styles.player}>
             <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
-            <Text>{player?.fname}</Text>
+            <Text style={{color:theme.colors.onBackground}}>{player?.fname}</Text>
             {winner === 'p' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
@@ -131,7 +175,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
         
           <View style={styles.player}>
             <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
-            <Text>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
+            <Text style={{color:theme.colors.onBackground}}>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
             {winner === 'o' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
@@ -141,17 +185,50 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
       {/* Stats card */}
       <Card style={styles.statsCard}>
-        <Card.Content>
-          <Text style={styles.statsTitle}>Tournament Stats</Text>
-          <Text>Date: {tournament.registrationCloseTs.split(':')[0]}</Text>
-          <Text>Total Players: {tournament.numPlayersRegistered}</Text>
-          <Text>Total Rounds: {tournament.rounds.length}</Text>
-          <Text>Total Elapsed Time: {calculateElapsedTime(tournament)}</Text>
-        </Card.Content>
+      <Card.Content> 
+  <Text style={[styles.statsTitle, { color: theme.colors.tertiary }]}>Tournament Stats</Text>
+
+  <Text>
+    <Text style={{ color: theme.colors.onBackground }}>Date: </Text>
+    <Text style={{ color: theme.colors.primary }}>
+      {tournament.registrationCloseTs.split(':')[0]}
+    </Text>
+  </Text>
+
+  <Text>
+    <Text style={{ color: theme.colors.onBackground }}>Total Players: </Text>
+    <Text style={{ color: theme.colors.primary }}>
+      {tournament.numPlayersRegistered}
+    </Text>
+  </Text>
+
+  <Text>
+    <Text style={{ color: theme.colors.onBackground }}>Total Rounds: </Text>
+    <Text style={{ color: theme.colors.primary }}>
+      {tournament.rounds.length}
+    </Text>
+  </Text>
+
+  <Text>
+    <Text style={{ color: theme.colors.onBackground }}>Total Elapsed Time: </Text>
+    <Text style={{ color: theme.colors.primary }}>
+      {calculateElapsedTime(tournament)}
+    </Text>
+  </Text>
+</Card.Content>
       </Card>
 
       {/* Go to Home button */}
       <FAB label="Return to Menu" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('MainMenu')} loading={!cleanupComplete} disabled={!cleanupComplete}/>
+      <ConfettiCannon
+        count={500}
+        origin={{ x: -10, y: 0 }}
+        autoStart={false} // Don't start automatically
+        ref={explosion}   // Attach the ref to the confetti cannon
+        fallSpeed={5000}
+        colors={[theme.colors.primary, theme.colors.tertiary, "#FFBF00"]}
+
+      />
     </View>
   );
 };
@@ -163,7 +240,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
     paddingVertical: 20,
   },
   resultText: {

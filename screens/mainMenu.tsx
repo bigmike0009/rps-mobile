@@ -166,17 +166,19 @@ return (
       <Text style={[styles.countdownText, { color: theme.colors.outline }]}># Players: {tournamentData.numPlayersRegistered}</Text>
     <Text style={{marginTop:25, color: theme.colors.onSurface}}>Cash Prize:</Text>
     <Text style = {{color: "green", fontSize:48}}>$--</Text>
-    <FAB
-          style={[styles.fabButton, {position: 'absolute', bottom: 0, right: 0}]}
+    
+        </View>
+}
+    </Card>
+    
+}
+{isLoggedIn && <FAB
+          style={[styles.fabButton]}
           icon="refresh"
           loading={refreshing}
           disabled={refreshing || !isLoggedIn}
           onPress={fetchTournament}
-        />
-        </View>
-}
-    </Card>
-}
+        />}
 {tournamentStarted && !tournamentCleanup && <View style={[styles.container, {backgroundColor: theme.colors.surface}]}>
         <Text style={[styles.countdownTimer, {color: theme.colors.onSurface}]}>Tournament in progress</Text>
         <FAB style={styles.fabButton} disabled={!isLoggedIn} onPress={() => navigation.replace('WaitingScreen')}

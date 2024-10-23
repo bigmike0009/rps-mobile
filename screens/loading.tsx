@@ -183,13 +183,28 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       {/* Top Right Corner */}
       {tournament ? 
       <Card style={styles.topRight}>
-        <Text style={{color:theme.colors.outline}}>Round: {tournament.currentRoundId ? tournament.currentRoundId : 1}</Text>
-        <Text style={{color:theme.colors.tertiary}}>{(tournament.playersRemaining && tournament.playersRemaining) > 0 ? tournament.playersRemaining : tournament.numPlayersRegistered!} players remaining</Text>
-        <Text style={styles.lightText}>{getRoundStatus()}</Text>
-      </Card> :
+      <Text>
+        <Text style={{ color: theme.colors.outline }}>Round: </Text>
+        <Text style={{ color: theme.colors.primary }}>
+          {tournament.currentRoundId ? tournament.currentRoundId : 1}
+        </Text>
+      </Text>
       
+      <Text>
+        <Text style={{ color: theme.colors.outline }}>Players: </Text>
+        <Text style={{ color: theme.colors.primary }}>
+          {(tournament.playersRemaining && tournament.playersRemaining) > 0
+            ? tournament.playersRemaining
+            : tournament.numPlayersRegistered!}
+        </Text>
+      </Text>
+      
+      <Text style={styles.lightText}>{getRoundStatus()}</Text>
+    </Card>
+     :
+      <Card style={styles.topRight}>
         <Text style={{color:theme.colors.primary}}>Fetching Tournament Data...</Text>
-    
+      </Card>
       }
 
       {/* Clever Phrase with Dot Animation */}
@@ -223,14 +238,13 @@ const styles = StyleSheet.create({
     right: 20,
     alignItems: 'flex-end',
     padding: 15
-  },
+    },
   center: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   lightText: {
     color: 'lightgray',
-    marginBottom: 10,
     fontSize: 12,
   },
 });

@@ -5,9 +5,11 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigationState } from '@react-navigation/native';
 
 import { View, Text, Image, Animated, StyleSheet } from 'react-native';
-import { Avatar, Button, FAB } from 'react-native-paper';
+import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
 import { Matchup, Player } from 'types/types';
+import ConfettiCannon from 'react-native-confetti-cannon';
+
 
 
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>
@@ -23,11 +25,16 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
+  const theme = useTheme();
   
   const { tournament, matchup, opponent } = props.route.params;
   const navigation = props.navigation;
 
   const currentNavState = useNavigationState(state => state);
+  const explosion = useRef<ConfettiCannon | null>(null); // Create a ref for the confetti
+  const timeoutId = useRef<NodeJS.Timeout | null>(null); // Store the timeout ID
+
+
 
   const calculateResult = (matchup: Matchup) => {
     const ourChoice = matchup.player_1_id === player?.playerID ? matchup.player_1_choice : matchup.player_2_choice;
@@ -49,27 +56,57 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 
   let winner = calculateResult(matchup);
 
-   useEffect(() => {
+  useEffect(() => {
     const fetchUpdatedTourney = async (tourneyID: number) => {
-        const interval = setInterval(async () => {
-          console.log('fetching')
-            let updated_tourney = await tournamentService.getTournament(tournament.tournamentId)
-            if (updated_tourney.data){
-              console.log(updated_tourney.data)
+      let delay = 30000; // Start with 30 seconds (in milliseconds)
 
-                if (!updated_tourney.data.roundActiveFlag){
-                  console.log('its over!')
+      const fetchData = async () => {
+        console.log('fetching');
+        let updated_tourney = await tournamentService.getTournament(tourneyID);
 
-                  setRoundsOver(true)
-                  clearInterval(interval)
-                }
-                
-            }
-        }, 20000)
-        return () => clearInterval(interval);
+        if (updated_tourney.data) {
+          console.log(updated_tourney.data);
+
+          if (!updated_tourney.data.roundActiveFlag) {
+            console.log('its over!');
+            setRoundsOver(true);
+
+            // Clear any existing timeout since the round is over
+            if (timeoutId.current) clearTimeout(timeoutId.current);
+            return;
+          }
+        }
+
+        // Halve the delay but ensure it doesn't go below 10 seconds (10000 ms)
+        delay = Math.max(10000, delay / 2);
+
+        // Add random variance of ±5 seconds (5000 ms)
+        const variance = Math.floor(Math.random() * 10000) - 5000;
+        const nextDelay = delay + variance;
+
+        console.log(`Next fetch in ${Math.max(nextDelay, 10000) / 1000} seconds`);
+
+        // Set up the next fetch with the new delay and variance
+        timeoutId.current = setTimeout(fetchData, Math.max(nextDelay, 10000)); // Store the timeout ID
+      };
+
+      // Initial fetch with a delay
+      timeoutId.current = setTimeout(fetchData, delay); // Store the timeout ID
+    };
+
+    fetchUpdatedTourney(tournament.tournamentId);
+
+    // Clean up the timeout if the component unmounts or the round ends
+    return () => {
+      if (timeoutId.current) clearTimeout(timeoutId.current); // Clear the timeout on cleanup
+    };
+  }, [tournament.tournamentId, winner]);
+
+  useEffect(() => {
+    // Only fetch if the winner is 'p'
+    if (winner === 'p') {
+      explosion.current?.start();
     }
-
-    fetchUpdatedTourney(tournament.tournamentId)
   }, [])
 
   useEffect(() => {
@@ -114,9 +151,16 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
+      <ConfettiCannon
+        count={200}
+        origin={{ x: -10, y: 0 }}
+        autoStart={false} // Don't start automatically
+        ref={explosion}   // Attach the ref to the confetti cannon
+        fadeOut={true}
+      />
       {/* Result text */}
-      <Text style={styles.resultText}>
+      <Text style={[styles.resultText, {color: theme.colors.primary}]}>
         {winner === 'p' ? 'You Won!' : 'You Lost!'}
       </Text>
 
@@ -125,7 +169,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
         {/* Our profile */}
         <View style={styles.player}>
           <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
-          <Text>{player?.fname}</Text>
+          <Text style={{color: theme.colors.onBackground}}>{player?.fname}</Text>
           {winner === 'p' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
@@ -134,7 +178,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
         {/* Opponent profile */}
         <View style={styles.player}>
           <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
-          <Text>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
+          <Text style={{color: theme.colors.onBackground}}>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
           {winner === 'o' && (
             <Image source={require('../assets/crown.png')} style={styles.crown} />
           )}
@@ -174,7 +218,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'white',
     paddingVertical: 20,
   },
   resultText: {
@@ -205,9 +248,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   lightTextSmall: {
-    color: 'black',
+    color: 'lightgray',
     marginTop: 80,
-    fontSize: 18,
+    fontSize: 11,
   },
   redText: {
     color: 'red',

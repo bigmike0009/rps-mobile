@@ -1,6 +1,7 @@
 // TimerComponent.tsx
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, Text, StyleSheet } from 'react-native';
+import { useTheme } from 'react-native-paper';
 
 interface TimerProps {
   initialTime: number; // in seconds
@@ -11,6 +12,8 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
   const [timeLeft, setTimeLeft] = useState(initialTime);
   const [expired, setExpired] = useState(false);
 
+  const theme = useTheme()
+
 
   useEffect(() => {
 
@@ -20,7 +23,7 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
             setTimeLeft((prevTime) => prevTime - 1);
         }
         else{
-            console.log('HUH')
+            console.log('HUHH')
             setExpired(true)
             onClockExpires();
 
@@ -32,7 +35,7 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
 
 
 
-  }, []);
+  }, [timeLeft]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -42,22 +45,21 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
 
   
 
-  return <ImageBackground source={{ uri: `https://zak-rentals.s3.amazonaws.com/alarm_clock_icon.png` }} style={styles.timerBackground} resizeMode="contain">
-            <Text style={styles.timerText}>{timeLeft}</Text>
+  return <ImageBackground source={{ uri: `https://zak-rentals.s3.amazonaws.com/alarm_clock_icon_white.png` }} style={styles.timerBackground} resizeMode="contain">
+            <Text style={[styles.timerText, {color: timeLeft > 10 ? theme.colors.onBackground : theme.colors.error}]}>{timeLeft}</Text>
          </ImageBackground>;
 };
 const styles = StyleSheet.create({
 timerBackground: {
-    width: 80,
-    height: 80,
+    width: 70,
+    height: 70,
     justifyContent: 'center',
     alignItems: 'center',
     margin: 10
   },
   timerText: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: 'black',
   }
 })
 

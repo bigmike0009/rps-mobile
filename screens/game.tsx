@@ -6,7 +6,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
 import { playerService, matchupService } from 'services/playerService';
 import { Matchup, Player, Tournament } from 'types/types';
-import { Avatar, Button, FAB } from 'react-native-paper';
+import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
 import { DateTime } from 'luxon';
 import TimerComponent from 'components/timer';
 import getSecondsUntilRoundEnd from 'utilities/common';
@@ -22,6 +22,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const tournament = props.route.params.tournament
   
   const navigation = props.navigation
+  const theme = useTheme()
 
   const choices = ['rock', 'paper', 'scissors'];
 
@@ -226,15 +227,15 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   };
 
   return (
-    <View style={[styles.container, { minHeight: 60 }]} >
+    <View style={[styles.container, { minHeight: 60}]} >
       {/* Player and Opponent Info */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Round: {tournament.currentRoundId}</Text>
+      <View style={[styles.headerContainer]}>
+        <Text style={[styles.headerText, {color: theme.colors.onBackground}]}>{tournament.playersRemaining <= 2 ? 'Final Round!' : `Round: ${tournament.currentRoundId}`}</Text>
       </View>
-      <View style={[styles.matchupContainer, { minHeight: 80 }]}>
+      <View style={[styles.matchupContainer, { minHeight: 80, backgroundColor: theme.colors.surface, borderColor: theme.colors.outline }]}>
         {matchup && (
           <>
-            <View style={styles.playerInfo}>
+            <View style={[styles.playerInfo,]}>
               
               <Avatar.Image
                 size={40}
@@ -243,12 +244,12 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
                     ? { uri: player.propic }
                     : require('../assets/icon.png')  // Fallback to stock image
                 }
-                style={styles.avatar}
+                style={[styles.avatar, {borderColor: theme.colors.outline}]}
               /> 
               
-              <Text>{player ? player.fname : 'Loading Player Data...'}</Text>
+              <Text style={{color: theme.colors.onSurface}}>{player ? player.fname : 'Loading Player Data...'}</Text>
             </View>
-            <Text style={{fontSize:24}}>vs</Text>
+            <Text style={{fontSize:24, color: theme.colors.primary}}>vs</Text>
             <View style={styles.playerInfo}>
             <Avatar.Image
                 size={40}
@@ -259,7 +260,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
                 }
                 style={styles.avatar}
               /> 
-              <Text>{opponent ? opponent.fname + ' ' + opponent.lname[0] + '.' : 'Loading Opponent Data...'}</Text>
+              <Text style={{color: theme.colors.onSurface}}>{opponent ? opponent.fname + ' ' + opponent.lname[0] + '.' : 'Loading Opponent Data...'}</Text>
             </View>
           </>
         )}
@@ -318,7 +319,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
               },
             ]}
           />
-          <Text>Waiting for the other player...</Text>
+          <Text style={{color: theme.colors.onBackground}}>Waiting for the other player...</Text>
           </View>
         }
         
@@ -326,7 +327,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   <View style={styles.resultContainer}>
         {(playerChoice && !timeExpired && result !== 'tie') &&  
         result && <View>
-          <Text style={{textAlign:'center'}}>The results are in...</Text>
+          <Text style={{textAlign:'center', color: theme.colors.onBackground}}>The results are in...</Text>
           <View style={{flexDirection:'row'}}>
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} style={styles.resImage} />
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/Question.png` }} style={styles.resImage} />
@@ -337,7 +338,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       <View style={styles.resultContainer}>
         {(!timeExpired && result === 'tie') &&  
         result && <View>
-          <Text style={{textAlign:'center'}}>{getResultText()}</Text>
+          <Text style={{textAlign:'center', color:theme.colors.primary}}>{getResultText()}</Text>
           <View style={{flexDirection:'row'}}>
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${tieChoice}.png` }} style={styles.resImage} />
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${tieChoice}.png` }} style={styles.resImage} />
@@ -350,8 +351,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       <View style={styles.resultContainer}>
         {timeExpired &&  
         result && <View>
-          <Text style={{textAlign:'center'}}>{getResultText()}</Text>
-          {!playerChoice && <Text style={{textAlign:'center'}}>You did not submit an answer in time. Idiot!</Text>}
+          <Text style={{textAlign:'center', color: theme.colors.primary, fontSize: 24}}>{getResultText()}</Text>
+          {!playerChoice && <Text style={{textAlign:'center', color: theme.colors.onSurface}}>You did not submit an answer in time. Idiot!</Text>}
           <View style={{flexDirection:'row'}}>
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}.png` }} style={styles.resImage} />
           <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_1_choice}.png` }} style={styles.resImage} />
@@ -369,7 +370,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: '#f0f0f5', // Light background for better contrast,
+    //backgroundColor: '#f0f0f5', // Light background for better contrast,
     justifyContent: 'space-around', // Ensures elements are spaced evenly
 
   },
@@ -384,16 +385,14 @@ const styles = StyleSheet.create({
   },
   timerContainer: {
     position: 'absolute',
-    top: 20,
-    right: 20,
+    top: 15,
+    right: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    width: 50,
-    height: 50,
+    width: 45,
+    height: 45,
     //backgroundColor: '#333', // Dark circle behind the timer
     borderRadius: 50, // Circular timer
-    borderWidth: 2,
-    borderColor: '#fff',
   },
   timerBackground: {
     width: 90,

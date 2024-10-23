@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import { Player } from 'types/types';
 
 interface BracketProps {
@@ -13,6 +14,8 @@ interface BracketProps {
 const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, flipped, timeExpired }) => {
   const [dots, setDots] = useState<string>('');
 
+  const theme = useTheme()
+
   useEffect(() => {
     // Dot animation updating every 500ms
     const dotInterval = setInterval(() => {
@@ -24,7 +27,7 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
 
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container]}>
       <ImageBackground
         source={require('../assets/bracket.png')} // Single matchup background
         style={styles.background}
@@ -35,7 +38,7 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
           style={[
             styles.playerText,
             styles.player1,
-            (winner === 2) || (timeExpired && winner !== 1) ? styles.loserText : {}, // Loser style if player1 isn't the winner
+            (winner === 2) || (timeExpired && winner !== 1) ? styles.loserText : {color: theme.colors.onBackground}, // Loser style if player1 isn't the winner
           ]}
         >
           {player1.fname} {player1.lname[0]}.
@@ -47,7 +50,7 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
           style={[
             styles.playerText,
             styles.player2,
-            (winner === 1) || (timeExpired && winner !== 2) ? styles.loserText : {}, // Loser style if player2 isn't the winner
+            (winner === 1) || (timeExpired && winner !== 2) ? styles.loserText : {color: theme.colors.onBackground}, // Loser style if player2 isn't the winner
           ]}
         >
           {player2.fname} {player2.lname[0]}.
@@ -55,9 +58,9 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
 
         {/* Overlay Winner (optional) */}
         {winner ? (
-          <Text style={[styles.playerText, styles.winner]}>{winner === 1 ? `${player1.fname} ${player1.lname[0]}.`:`${player2.fname} ${player2.lname[0]}.`}</Text>
+          <Text style={[styles.playerText, styles.winner, {color: theme.colors.primary}]}>{winner === 1 ? `${player1.fname} ${player1.lname[0]}.`:`${player2.fname} ${player2.lname[0]}.`}</Text>
         ) :
-        <Text style={[styles.playerText, styles.dots]}>{timeExpired ? 'TIE': dots}</Text>}
+        <Text style={[styles.playerText, styles.dots, {color: theme.colors.onBackground}]}>{timeExpired ? 'TIE': dots}</Text>}
       </ImageBackground>
     </View>
   );
@@ -95,7 +98,6 @@ const styles = StyleSheet.create({
   winner: {
     left: 220, // Adjust to center for winner
     top: 45,   // Centered between the two players
-    color: 'green', // Winner's text in green
   },
   dots: {
     left: 220, // Adjust to center for winner
