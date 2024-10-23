@@ -4,6 +4,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Player } from 'types/types';
 import { AuthContext } from 'auth/authProvider';
+import { navigationTheme } from './theme';
 
 
 export const Header = () => {
@@ -17,11 +18,12 @@ export const Header = () => {
   return (
     <View>
         {player ? 
-    <Appbar.Header style={styles.header}>
+    <Appbar.Header style={styles.header} theme={navigationTheme}>
         
       <Appbar.Content
         title={`${player?.fname} ${player?.lname}`}
         titleStyle={styles.title}
+        theme={navigationTheme}
       />
       <TouchableOpacity >
         <Avatar.Image
@@ -51,7 +53,7 @@ export const Header = () => {
 
 const styles = StyleSheet.create({
   header: {
-    backgroundColor: '#fff', // Set a background color if needed
+    margin: 1 // Set a background color if needed
   },
   title: {
     fontSize: 18,

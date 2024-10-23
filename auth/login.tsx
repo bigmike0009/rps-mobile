@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { TextInput, Button, Text, HelperText, useTheme } from 'react-native-paper';
+import { View, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { TextInput, FAB, Text, HelperText, useTheme } from 'react-native-paper';
 import {
   CognitoUser,
   AuthenticationDetails,
@@ -12,17 +12,14 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from './authProvider';
 
-
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
 const Login: React.FC<AuthProps> = (props) => { 
-
   const authContext = useContext(AuthContext);
-  
-    let {checkUser} = authContext!
-    
-  
 
+
+  let { checkUser } = authContext!;
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -54,12 +51,11 @@ const Login: React.FC<AuthProps> = (props) => {
         await AsyncStorage.setItem('userId', userId);
         await AsyncStorage.setItem('email', email);
         
-        if (authContext)
-        {checkUser()}
+        if (authContext) {
+          checkUser();
+        }
 
-        
-
-        //navigation.replace('MainMenu');
+        // navigation.replace('MainMenu');
       },
       onFailure: (err) => {
         setError(err.message || JSON.stringify(err));
@@ -68,48 +64,60 @@ const Login: React.FC<AuthProps> = (props) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+    
+        <View style={styles.container}>
+          <Text style={styles.title}>Login</Text>
 
-      <TextInput
-        label="Email"
-        value={email}
-        onChangeText={setEmail}
-        mode="outlined"
-        style={styles.input}
-      />
+          <TextInput
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            mode="outlined"
+            style={styles.input}
+          />
 
-      <TextInput
-        label="Password"
-        value={password}
-        onChangeText={setPassword}
-        mode="outlined"
-        secureTextEntry
-        style={styles.input}
-      />
-      <HelperText type="error" visible={!!error}>
-        {error}
-      </HelperText>
+          <TextInput
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            mode="outlined"
+            secureTextEntry
+            style={styles.input}
+          />
+          <HelperText type="error" visible={!!error}>
+            {error}
+          </HelperText>
 
-      <Button mode="contained" onPress={handleLogin} style={styles.button}>
-        Login
-      </Button>
-    </View>
+          <FAB
+            style={styles.fab}
+            small
+            icon="login"
+            label="Login"
+            onPress={handleLogin}
+          />
+        </View>
+
   );
 };
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: 20,
   },
   input: {
     marginBottom: 10,
-    width: 300
+    width: 300,
   },
-  button: {
+  fab: {
     marginTop: 20,
+    backgroundColor: '#6200ee', // Or any color you prefer
   },
   title: {
     fontSize: 24,

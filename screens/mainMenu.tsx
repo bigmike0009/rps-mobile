@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from 'auth/authProvider';
-import { Button, FAB, SegmentedButtons, useTheme } from 'react-native-paper';
+import { Button, Card, FAB, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
@@ -8,10 +8,11 @@ import { tournamentService } from 'services/playerService';
 import { Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 
-import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
+import { ScrollView } from 'react-native-gesture-handler';
 
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
@@ -144,85 +145,71 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     return '00:00:00';
 }
 
-  return (
-    <View style={styles.container}>
-      {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
-      <View style={styles.countdownContainer}>
-        <Text style={styles.countdownText}>Time until next Tournament:</Text>
-        <Text style={styles.countdownTimer}>{timeUntilNextGame}</Text>
-        {registered && <Text style = {{color: "green"}}>Player Registered!</Text>}
-        <Text style={styles.countdownText}># Players: {tournamentData.numPlayersRegistered}</Text>
-        <Text style={{marginTop:25}}>Cash Prize:</Text>
-
-        <Text style = {{color: "green", fontSize:48}}>$0</Text>
-
-        
-      </View>
-      }
-      {tournamentStarted && !tournamentCleanup && <View style={styles.container}>
-        <Text style={styles.countdownTimer}>Tournament in progress</Text>
-        <Button mode="contained" disabled={!isLoggedIn} onPress={() => navigation.replace('WaitingScreen')}>
-        {registered ? "Join Tournament" : "View Tournament"}
-      </Button>
-      </View>} 
-      {tournamentCleanup && <Text style={styles.countdownTimer}>Updating record books from today's tournament...</Text>}
-      {!tournamentData && <Text style={styles.countdownTimer}>No tournaments scheduled</Text>}
-
-
-      {isLoggedIn ? 
+return (
+  <View style={[styles.container, { backgroundColor: theme.colors.backdrop, padding: 10 }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
+    {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && 
+    <View style={[styles.countdownContainer, { backgroundColor: theme.colors.surface }]}>
+      <Text style={[styles.countdownText, { color: theme.colors.outline }]}>Time until next Tournament:</Text>
+      <Text style={[styles.countdownTimer, { color: theme.colors.primary }]}>{timeUntilNextGame}</Text>
+      {registered && <Text style={{ color: 'light-green' }}>Player Registered!</Text>}
+      <Text style={[styles.countdownText, { color: theme.colors.outline }]}># Players: {tournamentData.numPlayersRegistered}</Text>
       
-      <View style={styles.container}>
-        <FAB style ={{padding: 0, margin: 10}}
-          icon="refresh" 
+    </View>}
+    <FAB
+          style={[styles.fabButton]}
+          icon="refresh"
           loading={refreshing}
-          disabled={refreshing}
-          onPress={() =>{updatePageWithTournament()}}>
-      </FAB>
-      <FAB style ={{padding: 0, margin: 10}}
-          label="Register for Tournament" 
-          onPress={() =>{joinTournament()}}
-          disabled={!tournamentData || registered || tournamentStarted || tournamentCleanup}>
-      </FAB>
-      
+          disabled={refreshing || !isLoggedIn}
+          onPress={fetchTournament}
+        />
+      { isLoggedIn && 
+    <Card style={{paddingHorizontal: 10, paddingBottom: 10, margin: 10, width: 200, justifyContent: 'center', alignItems: 'center'}}>
+    <Text style={{marginTop:25, color: theme.colors.onSurface}}>Cash Prize:</Text>
+    <Text style = {{color: "green", fontSize:48}}>$--</Text>
+    </Card>
+}
+
+    {tournamentCleanup && <Text style={[styles.countdownTimer, { color: theme.colors.primary }]}>Updating record books from today's tournament...</Text>}
+      {!tournamentData && <Text style={[styles.countdownTimer, { color: theme.colors.onBackground }]}>No tournaments scheduled</Text>}
     
-      <LogoutButton {...props}></LogoutButton>
-      <Button mode="contained" disabled={!isLoggedIn || !tournamentData} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournamentData!})}>
-        Test the Spectator Screen
-      </Button>
-      
-      </View> : 
-      (
-        <View style={styles.container}>
-          {/* Horizontal Toggle Button */}
-         
+    {isLoggedIn && (
+      <View style={[styles.buttonsContainer, { backgroundColor: theme.colors.surface }]}>
+        
+        <FAB
+          label="Register for Tournament"
+          onPress={joinTournament}
+          disabled={!tournamentData || registered || tournamentStarted || tournamentCleanup}
+          style={[styles.fabButton]}
+        />
+        <LogoutButton {...props} />
+      </View>
+    )}
     
-          {/* Conditionally render Login or SignUp based on toggle */}
+    {!isLoggedIn && (
+      <KeyboardAvoidingView
+        style={[styles.authContainer, {backgroundColor: theme.colors.backdrop}]}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.formContainer}>
             {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}
           </View>
-
-          <SegmentedButtons
-            value={selected}
-            onValueChange={setSelected}
-            buttons={[
-              {
-                value: 'login',
-                label: 'Login',
-                style: selected === 'login' ? styles.activeButton : {},
-              },
-              {
-                value: 'signup',
-                label: 'Sign Up',
-                style: selected === 'signup' ? styles.activeButton : {},
-              },
-            ]}
-            style={styles.toggleButtons}
-          />
-        </View>
-      )}
-      
-    </View>
-  );
+        </ScrollView>
+        <SegmentedButtons
+          value={selected}
+          onValueChange={setSelected}
+          buttons={[
+            { value: 'login', label: 'Login', style: selected === 'login' ? styles.activeButton : {} },
+            { value: 'signup', label: 'Sign Up', style: selected === 'signup' ? styles.activeButton : {} },
+          ]}
+          style={styles.toggleButtons}
+        />
+      </KeyboardAvoidingView>
+    )}
+  </View>
+  </View>
+);
 };
 
 const styles = StyleSheet.create({
@@ -232,6 +219,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#ffffff',
     padding: 20,
+  },
+  fabButton: {
+    margin: 10,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  tournamentContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    padding: 20,
+  },
+  authContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
   },
   header: {
     fontSize: 24,

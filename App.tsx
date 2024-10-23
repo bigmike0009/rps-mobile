@@ -6,6 +6,8 @@ import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets   } from 'react-nativ
 import { AuthProvider } from 'auth/authProvider';
 import Header from 'components/HeaderBar';
 import { View } from 'react-native';
+import { MD3DarkTheme, Provider as PaperProvider } from 'react-native-paper';
+import { theme } from 'components/theme';
 
 export default function App() {
   //const insets = useSafeAreaInsets();
@@ -14,8 +16,10 @@ export default function App() {
     <SafeAreaProvider >
       
       <AuthProvider>
+        <PaperProvider theme={theme}>
         <Header></Header>
         <RootStack />
+        </PaperProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

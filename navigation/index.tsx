@@ -10,12 +10,13 @@ import { DefaultStackParamList } from './navigationTypes';
 import ResultsScreen from 'screens/resultsScreen';
 import FinalResultsScreen from 'screens/finalResultScreen';
 import SpectatorScreen from 'screens/spectator';
+import { navigationTheme, theme } from 'components/theme';
 
 const Stack = createStackNavigator<DefaultStackParamList>();
 
 export default function RootStack() {
   return (
-    <NavigationContainer >
+    <NavigationContainer theme={navigationTheme} >
       <Stack.Navigator  initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />
