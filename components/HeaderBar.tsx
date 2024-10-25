@@ -1,10 +1,10 @@
 import React, {useContext} from 'react';
 import { Appbar, Avatar } from 'react-native-paper';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Player } from 'types/types';
 import { AuthContext } from 'auth/authProvider';
-import { navigationTheme } from './theme';
+import { navigationTheme, theme } from './theme';
 
 
 export const Header = () => {
@@ -19,7 +19,13 @@ export const Header = () => {
     <View>
         {player ? 
     <Appbar.Header style={styles.header} theme={navigationTheme}>
-        
+      <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/rps_shootout')}>
+      <Image
+          source={require('../assets/Title-logo.png')} // Your logo image
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
       <Appbar.Content
         title={`${player?.fname} ${player?.lname}`}
         titleStyle={styles.title}
@@ -29,9 +35,7 @@ export const Header = () => {
         <Avatar.Image
           size={40}
           source={
-            player?.propic
-              ? { uri: player.propic }
-              : require('../assets/icon.png')  // Fallback to stock image
+            require('../assets/Question.png')  // Fallback to stock image
           }
           style={styles.avatar}
         />
@@ -39,9 +43,16 @@ export const Header = () => {
     </Appbar.Header>
     : 
     <Appbar.Header style={styles.header}>
+      <TouchableOpacity onPress={() => Linking.openURL('https://google.com')}>
+      <Image
+          source={require('../assets/Title-logo.png')} // Your logo image
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
         
       <Appbar.Content
-        title={`Rock-etology`}
+        title={`Shootout!`}
         titleStyle={styles.title}
       />
       
@@ -61,6 +72,11 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginRight: 15,
+  },
+  logo: {
+    backgroundColor: theme.colors.surface,
+    width: 40,
+    height: 40
   },
 });
 

@@ -134,7 +134,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       
       {/* Result text */}
       <Text style={[styles.resultText, {color:theme.colors.primary}]}>

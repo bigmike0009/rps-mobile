@@ -27,6 +27,7 @@ export interface Player {
     roundActiveFlag: boolean
     matchupTables: string[];
     completeFlag: boolean;
+    cash: number;
   }
 
   export interface Matchup {

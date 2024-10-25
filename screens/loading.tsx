@@ -11,23 +11,11 @@ import { Matchup, Tournament } from 'types/types';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DateTime } from 'luxon';
+import { cleverPhrases } from 'utilities/common';
 
 
 // Clever phrases for the waiting screen
-const cleverPhrases = [
-  "Polishing the rocks",
-  "Picking him up at Kevin Hart's house",
-  "Sharpening the scissors",
-  "Stealing from the library printer",
-  "Taking the safety off (the scissors)",
-  "Getting this paper",
-  "Chopping it up",
-  "Switching from Alternative to Classic",
-  "Simone Biles wants a picture with Rocco",
-  "Having a Scissophrenic episode",
-  "Contacting David Wallace",
-  "Signing a supermax with Staples"
-];
+
 
 type GameProps = StackScreenProps<DefaultStackParamList, 'WaitingScreen'>;
 
@@ -179,10 +167,10 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       {/* Top Right Corner */}
       {tournament ? 
-      <Card style={styles.topRight}>
+      <Card style={[styles.topRight, {backgroundColor: theme.colors.surface, borderColor: theme.colors.outline, borderWidth: 1}]}>
       <Text>
         <Text style={{ color: theme.colors.outline }}>Round: </Text>
         <Text style={{ color: theme.colors.primary }}>
@@ -202,7 +190,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       <Text style={styles.lightText}>{getRoundStatus()}</Text>
     </Card>
      :
-      <Card style={styles.topRight}>
+      <Card style={[styles.topRight, {backgroundColor: theme.colors.surface}]}>
         <Text style={{color:theme.colors.primary}}>Fetching Tournament Data...</Text>
       </Card>
       }
@@ -214,7 +202,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
 
       </View>
 
-      {playerEliminated && tournament && 
+      {['in progress!', 'crowning the champion...', 'preparing for next round...'].includes(getRoundStatus()) && tournament && playerEliminated  && 
       <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
         <FAB icon="trophy" label="Spectate Bracket" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('SpectatorScreen', {tournament: tournament})}/>
       </View>

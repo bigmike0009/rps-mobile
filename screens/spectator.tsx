@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { FAB } from 'react-native-paper';
 import { tournamentService } from 'services/playerService';
-import { MatchupDetail } from 'types/types';
+import { MatchupDetail, Tournament } from 'types/types';
 import getSecondsUntilRoundEnd from 'utilities/common';
 
 type GameProps = StackScreenProps<DefaultStackParamList, 'SpectatorScreen'>;
@@ -18,6 +18,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
   const [loading, setLoading] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [timeExpired, setTimeExpired] = useState(false);
+  const [tourney, setTourney] = useState<Tournament>(tournament)
 
   // Function to extract the region from the full table name
   const extractRegion = (tableName: string) => {
@@ -69,38 +70,38 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
   }
 
   return (
-    <View style={styles.screenContainer}>
+    <View style={[styles.screenContainer, {backgroundColor: theme.colors.background}]}>
       {
-       tournament && tournament.currentRoundEndTs && !timeExpired && 
+       tourney && tourney.currentRoundEndTs && !timeExpired && 
        <View style={styles.timerContainer}>
-      <TimerComponent initialTime={getSecondsUntilRoundEnd(tournament.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
+      <TimerComponent initialTime={getSecondsUntilRoundEnd(tourney.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
       </View>
     }
       
       <View style={{flexDirection: 'column', justifyContent: 'center', alignItems:'center', marginLeft: 20}}>
       <Text style={styles.title}>
-  <Text style={{ color: theme.colors.outline }}>Tournament </Text>
+  <Text style={{ color: theme.colors.outline, marginTop: 10 }}>Tournament </Text>
   <Text style={{ color: theme.colors.primary }}>
-  #{tournament.tournamentId}
+  #{tourney.tournamentId}
   </Text>
 </Text>
 
 <Text style={styles.subTitle}>
   <Text style={{ color: theme.colors.outline }}>Round: </Text>
   <Text style={{ color: theme.colors.primary }}>
-    {tournament.currentRoundId}
+    {tourney.currentRoundId}
   </Text>
 </Text>
 
-{tournament.playersRemaining <= 2 ?
+{tourney.playersRemaining <= 2 ?
   <Text style={{ color: theme.colors.primary }}>
-    { tournament.completeFlag ? "Tournament has concluded" : "FINAL ROUND" }
+    { tourney.completeFlag ? "Tournament has concluded" : "FINAL ROUND" }
   </Text>
 : 
 <Text style={styles.subTitle}>
   <Text style={{ color: theme.colors.outline }}>Remaining Players: </Text>
   <Text style={{ color: theme.colors.primary }}>
-    {tournament.playersRemaining}
+    {tourney.playersRemaining}
   </Text>
 </Text>}
 
@@ -109,7 +110,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       {/* Matchup Tables */}
       <View style={styles.fabContainer}>
         {/* Render each region table as a FAB button */}
-        {tournament.matchupTables.map((tableName: string) => (
+        {tourney.matchupTables.map((tableName: string) => (
           <FAB
             key={tableName}
             label={extractRegion(tableName)} // Display the extracted region
@@ -139,16 +140,16 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
             />
           ))
         ) : (
-          <Text>{selectedTable ? 'Loading matchups...' : 'Select a region.'}</Text>
+          <Text style={{color:theme.colors.onSurface}}>{selectedTable ? 'Loading matchups...' : 'Select a region.'}</Text>
         )}
       </ScrollView>
 
       <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
-        <FAB icon="home" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('MainMenu')} disabled={loading}/>
+        <FAB icon="home" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('MainMenu')} disabled={loading}/>
       </View>
-      {timeExpired &&
+      {timeExpired && !tourney.roundActiveFlag && !tourney.completeFlag && tourney.playersRemaining > 2 &&
       <View style={{position:'absolute', bottom: 10, left:80, zIndex: 10}}>
-        <FAB icon="trophy" label="Next Round" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('WaitingScreen')} disabled={loading}/>
+        <FAB icon="trophy" label="Next Round" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('WaitingScreen')} disabled={loading}/>
       </View>
       }   
       
@@ -162,6 +163,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
+    marginTop: 10
   },
   timerContainer: {
     position: 'absolute',

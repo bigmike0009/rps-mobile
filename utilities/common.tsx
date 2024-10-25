@@ -25,3 +25,18 @@ export default function getSecondsUntilRoundEnd(ts: string) {
       }
       return 0
   }
+
+  export const cleverPhrases = [
+    "Polishing the rocks",
+    "Picking him up at Kevin Hart's house",
+    "Sharpening the scissors",
+    "Stealing from the library printer",
+    "Taking the safety off (the scissors)",
+    "Getting this paper",
+    "Chopping it up",
+    "Switching from Alternative to Classic",
+    "Simone Biles wants a picture with Rocco",
+    "Having a Scissophrenic episode",
+    "Contacting David Wallace",
+    "Signing a supermax with Staples"
+  ];

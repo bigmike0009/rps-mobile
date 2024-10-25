@@ -32,8 +32,8 @@ export const theme = {
     
     primary: '#00CFFF', // Light blue accent
     // accent: '#FF69B4',  // Light pink accent
-    // surface: '#212121', // Dark surface for depth
-    // background: '#121212', // Deep dark background
+    surface: '#002B36', // Dark surface for depth
+    background: '#00171F', // Deep dark background
     // text: '#E0E0E0', // Light grey text for contrast
     // error: '#FF4500', // Fluorescent orange for errors
     // onSurface: '#E0E0E0', // Text on dark surfaces

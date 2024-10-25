@@ -1,0 +1,12 @@
+rps improvements:
+
+backend:
+-add cash column to each tournament
+-add a winning playerID to each tournament
+
+-create a player dtl table
+(r/p/s % - tournaments played - tournaments won - ...)
+
+
+bugs:
+add player to tournament can take illegal player ids

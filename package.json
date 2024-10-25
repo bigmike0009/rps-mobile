@@ -25,6 +25,7 @@
     "expo-auth-session": "~5.5.2",
     "expo-dev-client": "~4.0.14",
     "expo-dev-launcher": "^4.0.22",
+    "expo-linear-gradient": "^13.0.2",
     "expo-random": "~14.0.1",
     "expo-status-bar": "~1.12.1",
     "expo-web-browser": "~13.0.3",

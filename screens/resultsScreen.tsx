@@ -151,7 +151,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
   }
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
       <ConfettiCannon
         count={200}
         origin={{ x: -10, y: 0 }}
@@ -188,8 +188,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
       {/* Animated player names */}
       {roundsOver ? (
         <View>
-          <Text>All players have completed the round.</Text>
-          <FAB label={winner === 'p' ? "Advance to next round" : "Return to Main Menu"} style={{margin: 10, padding: 0}} onPress={() => navigation.replace(winner === 'p' ? 'WaitingScreen' : 'MainMenu')}/>
+          <Text style={{color: theme.colors.onBackground}}>All players have completed the round.</Text>
+          <FAB label={winner === 'p' ? "Advance to next round" : "Return to Main Menu"} style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace(winner === 'p' ? 'WaitingScreen' : 'MainMenu')}/>
         </View>
       ) : (
         <View style={styles.bottomContainer}>
