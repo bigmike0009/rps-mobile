@@ -457,7 +457,9 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       position: 'absolute',
       top: '40%',
       flexDirection: 'row',
-      justifyContent: 'space-between',
+      justifyContent: 'space-evenly',
+      alignItems: 'center',           // Center items vertically
+      width: '100%',
       paddingHorizontal: 20,
     },
     choiceButton: {

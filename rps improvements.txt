@@ -10,3 +10,13 @@ backend:
 
 bugs:
 add player to tournament can take illegal player ids
+
+
+Front end:
+
+Facebook auth
+Google Auth
+
+bugs:
+the writing on trophy didn't line up on ipad
+the choices are not centered
