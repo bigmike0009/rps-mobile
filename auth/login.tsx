@@ -32,12 +32,12 @@ const Login: React.FC<AuthProps> = (props) => {
 
   const handleLogin = () => {
     const authenticationDetails = new AuthenticationDetails({
-      Username: email,
+      Username: email.toLowerCase(),
       Password: password,
     });
 
     const userData = {
-      Username: email,
+      Username: email.toLowerCase(),
       Pool: userPool,
     };
 

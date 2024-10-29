@@ -28,6 +28,11 @@ const SignUp: React.FC<AuthProps> = (props) => {
   const [success, setSuccess] = useState(false);
   const theme = useTheme();
 
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSymbol = /[!+@#$%^&*(),.?":{}|<>]/.test(password);
+  const isValid = hasUpperCase && hasNumber && hasSymbol && password.length >= 8;
+
   const userPool = new CognitoUserPool({
     UserPoolId: COGNITO_CONFIG.UserPoolId,
     ClientId: COGNITO_CONFIG.ClientId,
@@ -37,7 +42,7 @@ const SignUp: React.FC<AuthProps> = (props) => {
     const attributeList = [
       new CognitoUserAttribute({
         Name: 'email',
-        Value: email,
+        Value: email.toLowerCase(),
       }),
     ];
 
@@ -47,7 +52,7 @@ const SignUp: React.FC<AuthProps> = (props) => {
         return;
       }
 
-      const player = playerService.createPlayer(email, fname, lname);
+      const player = playerService.createPlayer(email.toLowerCase(), fname, lname);
       player
         .then((res) => {
           if (res.status == 409) {
@@ -109,6 +114,22 @@ const SignUp: React.FC<AuthProps> = (props) => {
                   secureTextEntry
                   style={styles.input}
                 />
+                <View style={styles.passwordRequirements}>
+                  <Text style={[styles.requirement, hasUpperCase && styles.requirementMet, password.length > 0 && !hasUpperCase && {color: 'red'}]}>
+                    • One uppercase letter
+                  </Text>
+                  <Text style={[styles.requirement, hasNumber && styles.requirementMet, password.length > 0 && !hasNumber && {color: 'red'}]}>
+                    • One number
+                  </Text>
+                  <Text style={[styles.requirement, hasSymbol && styles.requirementMet, password.length > 0 && !hasSymbol && {color: 'red'}]}>
+                    • One special character
+                  </Text>
+                  <Text style={[styles.requirement, password.length >= 8 && styles.requirementMet, password.length > 0 && password.length < 8 && {color: 'red'}]}>
+                    • Minimum 8 characters
+                  </Text>
+                </View>
+
+                
                 <HelperText type="error" visible={!!error}>
                   {error}
                 </HelperText>
@@ -153,6 +174,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 20,
     textAlign: 'center',
+  },
+  passwordRequirements: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  requirement: {
+    color: 'grey',
+  },
+  requirementMet: {
+    color: 'green', // Highlight met requirements in green
   },
 });
 
