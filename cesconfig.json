@@ -1,6 +1,6 @@
 {
   "cesVersion": "2.11.17",
-  "projectName": "rps-mobile",
+  "projectName": "rps shootout!",
   "packages": [
     {
       "name": "react-navigation",

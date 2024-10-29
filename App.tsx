@@ -37,7 +37,6 @@ export default function App() {
       
       <AuthProvider>
         <PaperProvider theme={theme}>
-        <Header></Header>
         <RootStack />
         </PaperProvider>
       </AuthProvider>
