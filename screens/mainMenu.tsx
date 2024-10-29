@@ -50,7 +50,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     console.log('Latest Tournament retrieved.')
 
     console.log(tournament)
-    setRefreshing(false)
+    setTimeout(()=>setRefreshing(false), 5000)
 
     if (tournament.status == 200) {setTournamentData(tournament.data); return tournament.data};
     setTournamentData(null)
@@ -182,7 +182,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 return (
   <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
     <Image
-        source={require(`../assets/rps-bracket0.png`)} 
+        source={require(`../assets/rps-bracket.png`)} 
         style={styles.imageBackground} 
         resizeMode="cover" 
     />
@@ -216,8 +216,11 @@ return (
                             <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
                                 # Players: {tournamentData.numPlayersRegistered}
                             </Text>
+                            {tournamentData.cash && tournamentData.cash > 0 && 
+                            <View>
                             <Text style={{ marginTop: 25, color: theme.colors.onSurface }}>Cash Prize:</Text>
-                            <Text style={{ color: 'green', fontSize: 48 }}>$--</Text>
+                            <Text style={{ color: 'green', fontSize: 48 }}>${tournamentData.cash}</Text>
+                            </View>}
                         </View>
                     )}
                     

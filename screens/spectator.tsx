@@ -41,6 +41,21 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
     } catch (error) {
       console.error('Error fetching matchups:', error);
     }
+    setTimeout(()=>setLoading(false),5000)
+  };
+
+  const fetchTournament = async () => {
+    setLoading(true)
+    try {
+      const response = await tournamentService.getTournament(tournament.tournamentId!);
+      if (response.status === 200 && response.data) {
+        setTourney(response.data);
+      } else {
+        console.error('Failed to load Tournament');
+      }
+    } catch (error) {
+      console.error('Error fetching Tournament:', error);
+    }
     setLoading(false)
   };
 
@@ -65,8 +80,14 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
     if (selectedTable)
     {
     fetchMatchups()
+    fetchTournament()
     }
     setTimeExpired(true)
+    setTimeout(fetchTournament, 10000)
+    setTimeout(fetchTournament, 30000)
+    setTimeout(() => props.navigation.replace('MainMenu'), 60000)
+
+
   }
 
   return (
@@ -74,7 +95,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       {
        tourney && tourney.currentRoundEndTs && !timeExpired && 
        <View style={styles.timerContainer}>
-      <TimerComponent initialTime={getSecondsUntilRoundEnd(tourney.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
+      {tournament.playersRemaining > 2 && <TimerComponent initialTime={getSecondsUntilRoundEnd(tourney.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>}
       </View>
     }
       
@@ -99,9 +120,9 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
   </Text>
 : 
 <Text style={styles.subTitle}>
-  <Text style={{ color: theme.colors.outline }}>Remaining Players: </Text>
+  <Text style={{ color: theme.colors.outline }}>Round of: </Text>
   <Text style={{ color: theme.colors.primary }}>
-    {tourney.playersRemaining}
+    {tourney.playersRemaining + tourney.playersRemaining % 2}
   </Text>
 </Text>}
 
@@ -147,7 +168,10 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
         <FAB icon="home" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('MainMenu')} disabled={loading}/>
       </View>
-      {timeExpired && !tourney.roundActiveFlag && !tourney.completeFlag && tourney.playersRemaining > 2 &&
+      {!timeExpired &&
+      <Text style={styles.lightTextSmall}>Waiting for all players to finish...</Text>
+}
+      {timeExpired && !tourney.roundActiveFlag && !tourney.completeFlag && tourney.playersRemaining >= 2 &&
       <View style={{position:'absolute', bottom: 10, left:80, zIndex: 10}}>
         <FAB icon="trophy" label="Next Round" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('WaitingScreen')} disabled={loading}/>
       </View>
@@ -199,6 +223,13 @@ const styles = StyleSheet.create({
   },
   unselectedFab: {
     backgroundColor: 'gray', // Normal button
+  },
+  lightTextSmall: {
+    color: 'lightgray',
+    fontSize: 11,
+    position: 'absolute',
+    right: 10,
+    bottom: 20
   },
   matchupContainer: {
     padding: 20,

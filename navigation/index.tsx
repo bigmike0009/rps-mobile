@@ -12,12 +12,15 @@ import FinalResultsScreen from 'screens/finalResultScreen';
 import SpectatorScreen from 'screens/spectator';
 import { navigationTheme, theme } from 'components/theme';
 import ProfileScreen from 'screens/profile';
+import Header from 'components/HeaderBar';
 
 const Stack = createStackNavigator<DefaultStackParamList>();
 
 export default function RootStack() {
   return (
     <NavigationContainer theme={navigationTheme} >
+      <Header></Header>
+
       <Stack.Navigator  initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
         <Stack.Screen name="AuthScreen" component={AuthScreen} />

@@ -237,7 +237,9 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       {
        tournament && tournament.currentRoundEndTs && 
        <View style={styles.timerContainer}>
-      <TimerComponent initialTime={getSecondsUntilRoundEnd(tournament.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
+      { tournament.playersRemaining > 2 &&
+        <TimerComponent initialTime={getSecondsUntilRoundEnd(tournament.currentRoundEndTs)} onClockExpires={timeExpires}></TimerComponent>
+      }
       </View>
     }
   
@@ -347,7 +349,17 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             style={styles.resImage} 
           />
         </View>
+        <FAB
+              label="Results"
+              onPress={() =>
+                navigation.replace(
+                  tournament.playersRemaining <= 2 ? 'FinalResultsScreen' : 'ResultsScreen',
+                  { tournament, matchup: matchup!, opponent: opponent!, player1or2 }
+                )
+              }
+            />
       </View>
+      
     )}
   </View>
 

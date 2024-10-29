@@ -185,33 +185,45 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
         </View>
       </View>
 
-      {/* Animated player names */}
-      {roundsOver ? (
-        <View>
-          <Text style={{color: theme.colors.onBackground}}>All players have completed the round.</Text>
-          <FAB label={winner === 'p' ? "Advance to next round" : "Return to Main Menu"} style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace(winner === 'p' ? 'WaitingScreen' : 'MainMenu')}/>
-        </View>
-      ) : (
-        <View style={styles.bottomContainer}>
-          <Text style={styles.redText}>Pour one out for the fallen players</Text>
-          <Animated.View
-            style={[
-              styles.playerName,
-              {
-                opacity: fadeAnim,
-                transform: [{ translateY: translateAnim }],
-              },
-            ]}
-          >
-            <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
-          </Animated.View>
-          <Text style={styles.lightTextSmall}>Waiting for all players to finish...</Text>
 
-        </View>
-      )}
+      <View style={styles.resultContainer}>
+              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player?.playerID === matchup.player_1_id ? matchup?.player_1_choice : matchup?.player_2_choice}-sprite.png` }} style={styles.resImage} />
+              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player?.playerID === matchup.player_1_id ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite.png` }} style={styles.resImage} />
+      </View>
+
+      <FAB label="Spectate Bracket" style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournament})}/>
+
+
+
+      
     </View>
   );
 };
+
+{/* Animated player names */}
+// {roundsOver ? (
+//   <View>
+//     <Text style={{color: theme.colors.onBackground}}>All players have completed the round.</Text>
+//     <FAB label={winner === 'p' ? "Advance to next round" : "Return to Main Menu"} style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace(winner === 'p' ? 'WaitingScreen' : 'MainMenu')}/>
+//   </View>
+// ) : (
+//   <View style={styles.bottomContainer}>
+//     <Text style={styles.redText}>Pour one out for the fallen players</Text>
+//     <Animated.View
+//       style={[
+//         styles.playerName,
+//         {
+//           opacity: fadeAnim,
+//           transform: [{ translateY: translateAnim }],
+//         },
+//       ]}
+//     >
+//       <Text style={styles.lightText}>{playerNames[currentPlayer]}</Text>
+//     </Animated.View>
+//     <Text style={styles.lightTextSmall}>Waiting for all players to finish...</Text>
+
+//   </View>
+// )}
 
 const styles = StyleSheet.create({
   container: {
@@ -263,6 +275,15 @@ const styles = StyleSheet.create({
   },
   playerName: {
     marginTop: 10,
+  },
+  resultContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  resImage: {
+    width: 100,
+    height: 100,
+    margin: 20,
   },
 });
 

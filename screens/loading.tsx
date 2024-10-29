@@ -38,10 +38,10 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       if (tournament.roundActiveFlag){
         if (isRoundExpired(tournament)){
           if (tournament.playersRemaining > 2){
-          return 'preparing for next round...'
+          return 'preparing for next round'
           }
           else{
-            return 'crowning the champion...'
+            return 'crowning the champion'
           }
         }
         else {
@@ -50,12 +50,12 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       }
       else
       {
-        return 'generating matchups...'
+        return 'generating matchups'
       }
 
     }
     else {
-      return 'loading...'
+      return 'loading'
     }
   }
 
@@ -91,6 +91,8 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
 
   useEffect(() => {
 
+    let intervalId: NodeJS.Timeout | null = null
+
     const checkMatchup = async (tourney: Tournament) => {
       
       console.log(`fetching matchup data for player ${player?.playerID} in tourney ${tourney.tournamentId}`)
@@ -105,13 +107,25 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
         }
         
         else {
+          if (intervalId) clearInterval(intervalId)
+
           navigation.replace('RockPaperScissors', {tournament: tourney, matchup: fetchedMatchup.data});
       }
     }
       
       else{
+        if (isRoundExpired(tourney)){
+          //navigation.replace('ResultsScreen', {tournament: tournament, matchup: fetchedMatchup.data});
+          console.log('This round has expired. Too late')
+
+        }
+        else {
         console.log('You are no longer active in this tournament. Have fun spectating')
+        if (intervalId) clearInterval(intervalId)
+        navigation.navigate('SpectatorScreen', {tournament: tourney})  // Start matchup if exists for player
+
         setPlayerEliminated(true)
+        }
 
       }
       // Determine opponent ID and fetch their data
@@ -126,7 +140,9 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
                 setTournament(response.data)
                 if (response.data.completeFlag) {
                   console.log('Tournament Complete')
-                  navigation.navigate('SpectatorScreen', {tournament: response.data})  // Start matchup if exists for player
+                  if (intervalId) clearInterval(intervalId)
+
+                  navigation.navigate('MainMenu')  // Start matchup if exists for player
                 }
                 if (response.data.roundActiveFlag && !isRoundExpired(response.data)) {
                     checkMatchup(response.data)  // Start matchup if exists for player
@@ -141,7 +157,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
     };
 
     // Set up periodic fetch every 5 seconds
-    const intervalId = setInterval(fetchTournament, 5000);
+    intervalId = setInterval(fetchTournament, 5000);
 
     return () => clearInterval(intervalId);  // Clean up the interval on unmount
   }, [navigation]);
@@ -182,12 +198,11 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
         <Text style={{ color: theme.colors.outline }}>Players: </Text>
         <Text style={{ color: theme.colors.primary }}>
           {(tournament.playersRemaining && tournament.playersRemaining) > 0
-            ? tournament.playersRemaining
-            : tournament.numPlayersRegistered!}
+            ? tournament.playersRemaining + tournament.playersRemaining % 2
+            : tournament.numPlayersRegistered + tournament.numPlayersRegistered % 2}
         </Text>
       </Text>
       
-      <Text style={styles.lightText}>{getRoundStatus()}</Text>
     </Card>
      :
       <Card style={[styles.topRight, {backgroundColor: theme.colors.surface}]}>
@@ -198,11 +213,11 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
       {/* Clever Phrase with Dot Animation */}
       <View style={styles.center}>
         <Text style={{color:theme.colors.primary}}>{currentPhrase}{dots}</Text>
-        <Text style={styles.lightText}>Generating bracket</Text>
+        <Text style={styles.lightText}>{getRoundStatus()}</Text>
 
       </View>
 
-      {['in progress!', 'crowning the champion...', 'preparing for next round...'].includes(getRoundStatus()) && tournament && playerEliminated  && 
+      {['in progress!', 'crowning the champion', 'preparing for next round'].includes(getRoundStatus()) && tournament && 
       <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
         <FAB icon="trophy" label="Spectate Bracket" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('SpectatorScreen', {tournament: tournament})}/>
       </View>

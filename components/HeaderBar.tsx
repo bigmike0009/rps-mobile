@@ -1,12 +1,30 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Appbar, Avatar, Button, useTheme, Text } from 'react-native-paper';
+import { Appbar, Avatar, Button, useTheme, Text, IconButton, Portal, Dialog, Paragraph } from 'react-native-paper';
 import { View, StyleSheet, TouchableOpacity, Image, Animated, Easing, Linking } from 'react-native';
 import { AuthContext } from 'auth/authProvider';
 import { navigationTheme } from './theme';
+import { useNavigationState } from '@react-navigation/native';
+
 
 export const Header = () => {
   const { player } = useContext(AuthContext)!; // Get player data from AuthContext
   const [dropdownVisible, setDropdownVisible] = useState(false); // Toggle for dropdown visibility
+  const [messageNum, setMessageNum] = useState(0)
+  const [visible, setVisible] = useState(false);
+
+  //const currentRoute = useNavigationState((state) => state.routes[state.index].name);
+
+  const showAlert = () => setVisible(true);
+  const hideAlert = () => setVisible(false);
+
+  const messages = [ 
+    'This is a tournament spin on the popular game rock paper scissors',
+    'Every night at 9PM Eastern, there will be a worldwide tournament for a CASH prize',
+    'This screen will show you a countdown until the next tournament starts',
+    'All you need to do is make an account, login, and hit the register for tournament button',
+    'Don\'t worry, we\'ll notify you when the tournament is getting ready to start!'
+  ]
+
   const dropdownAnim = useRef(new Animated.Value(0)).current; // Animation value for dropdown height
   const theme = useTheme();
 
@@ -36,45 +54,75 @@ export const Header = () => {
       {player ? 
       <Appbar.Header style={styles.header} theme={navigationTheme}>
         <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/rps_shootout')}>
-          <Image
-            source={require('../assets/Title-logo.png')} // Your logo image
-            style={[styles.logo, { backgroundColor: theme.colors.surface}]}
-            resizeMode="contain"
-          />
+        <IconButton
+                    style={[styles.logo, {backgroundColor: theme.colors.background}]}
+                    icon="instagram"
+                />
+          
         </TouchableOpacity>
         <Appbar.Content
           title={`${player?.fname} ${player?.lname[0]}`}
           titleStyle={styles.title}
           theme={navigationTheme}
         />
-        <TouchableOpacity onPress={handleToggleDropdown}>
+        <TouchableOpacity onPress={() => alert('Mike still has to make a profile screen')}>
           <Avatar.Image
-            size={40}
-            source={{ uri: `https://your-bucket/${player?.propic}` }} // Player's profile picture
+            size={36}
+            source={require('../assets/Question.png') } // Player's profile picture
             style={styles.avatar}
           />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={showAlert}>
+        <IconButton
+                    style={[styles.logo]}
+                    icon="help"
+                />
         </TouchableOpacity>
       </Appbar.Header>
       :
       <Appbar.Header style={styles.header} theme={navigationTheme}>
-        <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/rps_shootout')}>
-          <Image
-            source={require('../assets/Title-logo.png')} // Your logo image
-            style={[styles.logo, { backgroundColor: theme.colors.surface}]}
-            resizeMode="contain"
-          />
+       <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/rps_shootout')}>
+        <IconButton
+                    style={[styles.logo, {backgroundColor: theme.colors.background}]}
+                    icon="instagram"
+                />
+          
         </TouchableOpacity>
         <Appbar.Content
           title={`Shootout!`}
           titleStyle={styles.title}
           theme={navigationTheme}
         />
+         <TouchableOpacity onPress={showAlert}>
+        <IconButton
+                    style={[styles.logo]}
+                    icon="help"
+                />
+        </TouchableOpacity>
         
       </Appbar.Header>
 }
 
-      {dropdownVisible && (
-        <Animated.View
+ {/* Custom Alert Dialog */}
+ {visible && <Portal>
+          <Dialog style={{padding: 10}} visible={visible} onDismiss={hideAlert}>
+            <Dialog.Title>Welcome to RPS Shootout!</Dialog.Title>
+            <Dialog.Content>
+              <Paragraph>
+               {messages[messageNum]}
+              </Paragraph>
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Text> {messageNum + 1}/{messages.length}</Text>
+              <Button onPress={() => { if (messageNum < messages.length - 1) { setMessageNum(messageNum + 1) } else {setMessageNum(0); hideAlert();}}}>{messageNum < messages.length - 1 ? 'Next': 'Done'}</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+}
+
+{dropdownVisible && (        
+  <Portal>
+  <Animated.View
           style={[
             styles.dropdownContainer,
             {
@@ -99,7 +147,9 @@ export const Header = () => {
             Return
           </Button>
         </Animated.View>
-      )}
+        </Portal>
+)}
+
     </View>
   );
 };
@@ -118,6 +168,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 40,
     height: 40,
+    backgroundColor: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)"
   },
   dropdownContainer: {
     position: 'absolute',
@@ -128,6 +179,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 10,
+    height: 500
   },
   infoText: {
     fontSize: 16,

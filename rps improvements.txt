@@ -6,7 +6,8 @@ backend:
 
 -create a player dtl table
 (r/p/s % - tournaments played - tournaments won - ...)
-
+create matchup tables ahead of time if a certain amount of people register in a region (or at least create 
+30 seconds per round✓
 
 bugs:
 add player to tournament can take illegal player ids
@@ -17,6 +18,39 @@ Front end:
 Facebook auth
 Google Auth
 
+help button✓
+help based on screen
+
+give password suggestions✓
+fix lowercase password✓
+notifications:
+-new round is starting
+-tournament in an hour
+-tournament in 10 minutes
+
+app logo
+change the name
+
+final round unlimited time, 2/3
+show results immediately for player. Let them advance immediately✓
+add cash ✓
+standardized icon colors
+
 bugs:
 the writing on trophy didn't line up on ipad
-the choices are not centered
+the choices are not centered ✓
+if you are in the cleanup screen it cant go straight to a new tournament
+cant handle fake player right now✓
+
+
+
+spectate screen:
+make it cool & fun and more interesting ?
+more stuff to look at and click on
+fun facts? regional?
+
+make tournament championship visible to all (redesign)
+
+
+keep all images of a common theme
+
