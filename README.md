@@ -1,6 +1,7 @@
 # Rock Paper Scissors Mobile App
 
 Welcome to the **Rock Paper Scissors** mobile app! This app lets users play the classic game with a fresh twist...
+Beta Link: https://testflight.apple.com/join/a8Ezp18h
 
 ## 📱 Features
 
