@@ -4,7 +4,7 @@ import { Avatar, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
-import { tournamentService } from 'services/playerService';
+import { tournamentService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 import ConfettiCannon from 'react-native-confetti-cannon';

@@ -14,7 +14,7 @@ import { COGNITO_CONFIG } from 'cognitoConfig';
 //import { createUserProfile } from './dynamoUtils';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
-import { playerService } from 'services/playerService';
+import { playerService } from 'services/appServices';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 

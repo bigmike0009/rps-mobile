@@ -1,14 +1,15 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { getCurrentUserDetails } from './authFunctions';
+import { getCurrentUserDetails, logout } from './authFunctions';
 import { Player } from 'types/types';
-import { playerService } from 'services/playerService';
+import { playerService } from 'services/appServices';
 
 
 interface AuthContextType {
   email: string | null;
   isLoggedIn: boolean;
   setUser: (email: string | null) => void;
-  checkUser: () => void;
+  checkUser: () => Promise<Player | null>;
+  handleLogout: () => Promise<void>;
   player: Player | null
 }
 
@@ -27,8 +28,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchPlayer = async (email: string) => {
     const player = await playerService.getPlayer(email, 'email');
     console.log(player)
-    if (player.status == 200) setPlayer(player.data);
-    console.log('Player Data has returned!')
+    if (player.status == 200) {
+      setPlayer(player.data)
+      console.log('Player Data has returned!')
+      
+  };
+    if (player.data){
+    return player.data
+    }
+    else{
+    return null
+    }
 
   };
 
@@ -43,16 +53,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setEmail(email);
     setIsLoggedIn(!!email);
     if (!!email){
-      fetchPlayer(email!);
+      return fetchPlayer(email!);
     }
     else {
       setPlayer(null)
     }
+    return null
+  };
+
+  const handleLogout = async () => {
+      logout().then(()=>checkUser())
+    
+
   };
 
   return (
 
-    <AuthContext.Provider value={{ email, isLoggedIn, setUser, checkUser, player }}>
+    <AuthContext.Provider value={{ email, isLoggedIn, setUser, checkUser, handleLogout, player }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { Button, Card, FAB, IconButton, SegmentedButtons, useTheme } from 'react
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
 
-import { tournamentService } from 'services/playerService';
+import { tournamentService } from 'services/appServices';
 import { Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 

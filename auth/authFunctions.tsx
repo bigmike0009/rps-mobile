@@ -1,5 +1,6 @@
 import { CognitoUserPool, CognitoUserSession } from 'amazon-cognito-identity-js';
 import { COGNITO_CONFIG } from '../cognitoConfig';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getCurrentUser = () => {
   const userPool = new CognitoUserPool({
@@ -32,6 +33,20 @@ export const getCurrentUserDetails = (): Promise<{ email: string | null }> => {
       });
     }
   });
+};
+
+export const logout = async () => {
+  const userPool = new CognitoUserPool({
+    UserPoolId: COGNITO_CONFIG.UserPoolId,
+    ClientId: COGNITO_CONFIG.ClientId,
+  });
+
+  const currentUser = userPool.getCurrentUser();
+  if (currentUser) {
+    currentUser.signOut();
+  }
+  await AsyncStorage.removeItem('userId');
+  await AsyncStorage.removeItem('email');
 };
 
 

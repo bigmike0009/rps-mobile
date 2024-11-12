@@ -1,4 +1,6 @@
 import { DateTime } from "luxon";
+import * as Device from 'expo-device';
+
 
 export default function getSecondsUntilRoundEnd(ts: string) {
     let now = DateTime.now()
@@ -40,3 +42,17 @@ export default function getSecondsUntilRoundEnd(ts: string) {
     "Contacting David Wallace",
     "Signing a supermax with Staples"
   ];
+
+
+export async function getDeviceId() {
+  // Check if the device has a unique ID available
+  const deviceId = Device.osInternalBuildId ?? Device.modelId;
+
+  if (!deviceId) {
+    console.warn('Device ID not available on this platform.');
+    return null;
+  }
+
+  console.log('Device ID:', deviceId);
+  return deviceId;
+}

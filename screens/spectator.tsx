@@ -6,7 +6,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { FAB } from 'react-native-paper';
-import { tournamentService } from 'services/playerService';
+import { tournamentService } from 'services/appServices';
 import { MatchupDetail, Tournament } from 'types/types';
 import getSecondsUntilRoundEnd from 'utilities/common';
 

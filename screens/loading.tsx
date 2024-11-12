@@ -6,7 +6,7 @@ import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContex
 
 import { useNavigation } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native-paper';
-import { tournamentService, matchupService } from 'services/playerService';
+import { tournamentService, matchupService } from 'services/appServices';
 import { Matchup, Tournament } from 'types/types';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { StackScreenProps } from '@react-navigation/stack';

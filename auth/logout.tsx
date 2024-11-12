@@ -12,27 +12,11 @@ type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'L
 const LogoutButton: React.FC<AuthProps> = (props) => { 
 
   const authContext = useContext(AuthContext);
-  const { checkUser } = authContext!
+  const { checkUser, handleLogout } = authContext!
   const { colors } = useTheme()
 
   const { navigation } = props;
-  const handleLogout = async () => {
-    const userPool = new CognitoUserPool({
-      UserPoolId: COGNITO_CONFIG.UserPoolId,
-      ClientId: COGNITO_CONFIG.ClientId,
-    });
-
-    const currentUser = userPool.getCurrentUser();
-    if (currentUser) {
-      currentUser.signOut();
-    }
-    await AsyncStorage.removeItem('userId');
-    await AsyncStorage.removeItem('email');
-        if (authContext) 
-          {
-            checkUser()
-          };
-  };
+  
 
   return (
     <FAB style ={{padding: 0, margin: 10, backgroundColor: colors.tertiary}}

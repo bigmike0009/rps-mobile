@@ -4,7 +4,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
-import { playerService, matchupService } from 'services/playerService';
+import { playerService, matchupService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
 import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
 import { DateTime } from 'luxon';

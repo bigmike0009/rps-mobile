@@ -6,7 +6,7 @@ import { useNavigationState } from '@react-navigation/native';
 
 import { View, Text, Image, Animated, StyleSheet } from 'react-native';
 import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
-import { tournamentService } from 'services/playerService';
+import { tournamentService } from 'services/appServices';
 import { Matchup, Player } from 'types/types';
 import ConfettiCannon from 'react-native-confetti-cannon';
 

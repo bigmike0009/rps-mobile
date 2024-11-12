@@ -11,7 +11,7 @@ import { COGNITO_CONFIG } from 'cognitoConfig';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from './authProvider';
-import { registerForPushNotificationsAsync } from 'services/notificationService';
+import { registerForPushNotificationsAsync } from 'utilities/notificationUtils';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -19,7 +19,7 @@ const Login: React.FC<AuthProps> = (props) => {
   const authContext = useContext(AuthContext);
 
 
-  let { checkUser } = authContext!;
+  let { checkUser, player, handleLogout } = authContext!;
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,16 +46,28 @@ const Login: React.FC<AuthProps> = (props) => {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: async (result) => {
-        registerForPushNotificationsAsync()
 
         const userId = result.getIdToken().payload.sub;
         const email = result.getIdToken().payload.email;
 
-        await AsyncStorage.setItem('userId', userId);
-        await AsyncStorage.setItem('email', email);
         
         if (authContext) {
-          checkUser();
+          checkUser().then((playerData)=>{
+            if (playerData) {
+              console.log('registering player for push notifications!')
+              registerForPushNotificationsAsync(playerData)
+              AsyncStorage.setItem('userId', userId);
+              AsyncStorage.setItem('email', email);
+              }
+              else
+              {
+                console.log('no player data in the database. Issue with sign up process?')
+                handleLogout()
+                setError('Error fetching player data from Database. Contact 860-682-2090 for support.')
+              }
+          });
+          
+
         }
 
         // navigation.replace('MainMenu');

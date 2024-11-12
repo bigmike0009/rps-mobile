@@ -47,6 +47,8 @@ class PlayerService {
     return apiService.post<Player>('/player', playerData);
   }
 
+
+
   async getRandomPlayer():Promise<Player>{
     let res = await apiService.getBase<any>('https://randomuser.me/api/');
 
@@ -91,3 +93,14 @@ class MatchupService {
 }
 
 export const matchupService = new MatchupService();
+
+class TokenService {
+
+updateTokenForPlayer(playerID: number, token: string, deviceID: string):Promise<ApiResponse<Number>> {
+  const tokenData = { playerID, token, deviceID };
+  return apiService.post<Number>('/token', tokenData);
+}
+}
+
+export const tokenService = new TokenService();
+
