@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
       width: '100%',
       height: '100%',
       zIndex: -10,
-      opacity: 0.5,
+      opacity: 0.3,
       objectFit: 'contain',
   },
   tournamentContainer: {

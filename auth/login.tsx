@@ -11,6 +11,7 @@ import { COGNITO_CONFIG } from 'cognitoConfig';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from './authProvider';
+import { registerForPushNotificationsAsync } from 'services/notificationService';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -45,6 +46,8 @@ const Login: React.FC<AuthProps> = (props) => {
 
     cognitoUser.authenticateUser(authenticationDetails, {
       onSuccess: async (result) => {
+        registerForPushNotificationsAsync()
+
         const userId = result.getIdToken().payload.sub;
         const email = result.getIdToken().payload.email;
 

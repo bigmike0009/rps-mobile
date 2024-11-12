@@ -4,6 +4,7 @@ import { useTheme, ProgressBar } from 'react-native-paper';
 import { cleverPhrases } from 'utilities/common'; // Assuming your cleverPhrases array is imported from utilities
 import { LinearGradient } from 'expo-linear-gradient'; // If you plan to use gradient background
 import { theme } from 'components/theme';
+import { registerForPushNotificationsAsync } from 'services/notificationService';
 
 const LoadingScreen = () => {
   const [currentPhrase, setCurrentPhrase] = useState(cleverPhrases[0]);
@@ -14,6 +15,7 @@ const LoadingScreen = () => {
 
 
   useEffect(() => {
+
     // Dot animation updating every 500ms
     const dotInterval = setInterval(() => {
       if (dots.length === 3){
