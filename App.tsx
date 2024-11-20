@@ -10,35 +10,24 @@ import { MD3DarkTheme, Provider as PaperProvider } from 'react-native-paper';
 import { theme } from 'components/theme';
 import LoadingScreen from 'screens/loadingScreen';
 import { useEffect, useState } from 'react';
+import { AssetProvider } from 'utilities/assetProvider';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const loadResources = async () => {
-      // Simulate resource fetching
-      //await fetchSomeResources(); // Your resource fetching function
-      setTimeout(function() {
-        // Code to execute after the delay
-        setIsLoading(false);
-      }, 12000);
-      
-    };
-
-    loadResources();
-  }, []);
-
-  if (isLoading) {
-    return <LoadingScreen />;
+  const handleComplete = () => {
+    setIsLoading(false)
   }
-  else
+
   return (
     <SafeAreaProvider >
       
       <AuthProvider>
+        <AssetProvider>
         <PaperProvider theme={theme}>
-        <RootStack />
+        {isLoading ? <LoadingScreen onComplete={handleComplete} /> : <RootStack />}
         </PaperProvider>
+        </AssetProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

@@ -11,7 +11,6 @@ import {
 import { TextInput, Button, Text, HelperText, useTheme, FAB } from 'react-native-paper';
 import { CognitoUserPool, CognitoUserAttribute } from 'amazon-cognito-identity-js';
 import { COGNITO_CONFIG } from 'cognitoConfig';
-//import { createUserProfile } from './dynamoUtils';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { playerService } from 'services/appServices';

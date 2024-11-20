@@ -4,14 +4,11 @@ import { useTheme, ProgressBar } from 'react-native-paper';
 import { cleverPhrases } from 'utilities/common'; // Assuming your cleverPhrases array is imported from utilities
 import { LinearGradient } from 'expo-linear-gradient'; // If you plan to use gradient background
 import { theme } from 'components/theme';
+import DownloadContentScreen from 'utilities/downloadContent';
 
-const LoadingScreen = () => {
+const LoadingScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [currentPhrase, setCurrentPhrase] = useState(cleverPhrases[0]);
-  const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState<string>('');
-
-  const progressInterval = useRef<NodeJS.Timeout | null>(null);
-
 
   useEffect(() => {
 
@@ -70,11 +67,7 @@ const LoadingScreen = () => {
           {currentPhrase}{dots}
         </Text>
         
-        <ProgressBar
-          progress={progress}
-          color={theme.colors.primary}
-          style={styles.progressBar}
-        />
+        <DownloadContentScreen onComplete={onComplete}></DownloadContentScreen>
       </View>
       </View>
     </ImageBackground>

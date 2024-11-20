@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { AuthContext } from 'auth/authProvider';
+import { useAssets } from 'utilities/assetProvider';
+
 import { Button, Card, FAB, IconButton, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
 import SignUp from 'auth/signUp';
@@ -39,22 +41,33 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   // console.log(bgImage)
 
   const authContext = useContext(AuthContext);
+  
   const opacity = useRef(new Animated.Value(1)).current;
 
  
   const { email, isLoggedIn, player } = authContext!
 
+  const {assets} = useAssets()
+
+
   const getBgImage = () => {
+
     let num = Math.floor(Math.random() * 3)
-    if (num === 0){
-      return require(`../assets/rockBg.png`)
+    if(assets.rockBg && assets.paperBg && assets.scissorsBg){
+      if (num === 0){
+        return {uri: assets.rockBg}
+      }
+      else if (num === 1){
+        return {uri: assets.scissorsBg}
+      }
+      else {
+        return {uri: assets.paperBg}
+      }
     }
-    else if (num === 1){
-      return require(`../assets/paperBG.png`)
-    }
-    else {
-      return require(`../assets/scissorsBg.png`)
-    }
+
+    return require('../assets/rockBg.png')
+
+    
   }
 
 
@@ -131,6 +144,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     
     updatePageWithTournament()
     setBackground(getBgImage())
+
     
   }, []);
 
@@ -201,7 +215,9 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 return (
   <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
     <Image
-        source={background ? background : require(`../assets/rockBg.png`)} 
+        //source={{uri: 'file:///var/mobile/Containers/Data/Application/0D39D187-49F7-4035-9A4D-5D6452FB9AD7/Documents/ExponentExperienceData/@bigmike0009/rps-mobile/rock1'}} 
+                source={background ? background : require(`../assets/rockBg.png`)} 
+
         style={styles.imageBackground} 
         resizeMode="cover" 
     />
