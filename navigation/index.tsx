@@ -1,7 +1,6 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import { BackButton } from '../components/BackButton';
 import RockPaperScissors from '../screens/game';
 import MainMenu from '../screens/mainMenu';
 import AuthScreen from 'screens/authScreen';
@@ -19,7 +18,7 @@ const Stack = createStackNavigator<DefaultStackParamList>();
 export default function RootStack() {
   return (
     <NavigationContainer theme={navigationTheme} >
-      <Header></Header>
+      <DynamicHeader />
 
       <Stack.Navigator  initialRouteName="MainMenu" screenOptions={{headerShown: false, gestureEnabled: false, animationEnabled: true}}>
         <Stack.Screen name="MainMenu" component={MainMenu} />
@@ -41,4 +40,12 @@ export default function RootStack() {
       </Stack.Navigator>
     </NavigationContainer>
   );
+}
+
+function DynamicHeader() {
+  const routes = useNavigationState((state) => state?.routes);
+  console.log(routes)
+  const currentRouteName = routes ? routes[routes.length - 1]?.name : 'MainMenu';
+
+  return <Header currentRoute={currentRouteName} />;
 }

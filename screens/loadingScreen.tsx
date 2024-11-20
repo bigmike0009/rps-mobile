@@ -29,24 +29,24 @@ const LoadingScreen = () => {
   }, []);
 
   // Simulate loading progress
-  useEffect(() => {
-    progressInterval.current = setInterval(() => {
-      setProgress(prev => {
-        const next = prev + 0.01;
-        if (next >= 1) {
-          clearInterval(progressInterval.current!);
-          return 1;
-        }
-        return next;
-      });
-    }, 100);
+  // useEffect(() => {
+  //   progressInterval.current = setInterval(() => {
+  //     setProgress(prev => {
+  //       const next = prev + 0.01;
+  //       if (next >= 1) {
+  //         clearInterval(progressInterval.current!);
+  //         return 1;
+  //       }
+  //       return next;
+  //     });
+  //   }, 100);
 
-    return () => {
-      if (progressInterval.current) {
-        clearInterval(progressInterval.current);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (progressInterval.current) {
+  //       clearInterval(progressInterval.current);
+  //     }
+  //   };
+  // }, []);
 
   return (
     <ImageBackground

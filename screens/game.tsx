@@ -20,6 +20,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   let {player} = authContext!
 
   const tournament = props.route.params.tournament
+  const finalRound = tournament.playersRemaining <= 2
   
   const navigation = props.navigation
   const theme = useTheme()
@@ -160,7 +161,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     setResult(null);
     playSelectionAnimation();
 
-    const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2);
+    const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2, finalRound);
     if (updatedMatchup.data){
       console.log(updatedMatchup.data)
 
@@ -231,7 +232,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       {/* Title/Header */}
       <View style={styles.headerContainer}>
         <Text style={[styles.headerText, { color: theme.colors.onBackground }]}>
-          {tournament.playersRemaining <= 2 ? 'Final Round!' : `Round: ${tournament.currentRoundId}`}
+          {finalRound ? 'Final Round!' : `Round: ${tournament.currentRoundId}`}
         </Text>
       </View>
       {
@@ -353,7 +354,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
               label="Results"
               onPress={() =>
                 navigation.replace(
-                  tournament.playersRemaining <= 2 ? 'FinalResultsScreen' : 'ResultsScreen',
+                  finalRound ? 'FinalResultsScreen' : 'ResultsScreen',
                   { tournament, matchup: matchup!, opponent: opponent!, player1or2 }
                 )
               }
@@ -402,7 +403,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
               label="Results"
               onPress={() =>
                 navigation.replace(
-                  tournament.playersRemaining <= 2 ? 'FinalResultsScreen' : 'ResultsScreen',
+                  finalRound ? 'FinalResultsScreen' : 'ResultsScreen',
                   { tournament, matchup: matchup!, opponent: opponent!, player1or2 }
                 )
               }

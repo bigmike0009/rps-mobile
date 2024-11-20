@@ -77,6 +77,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative', // Needed for absolute positioning of text
+    width: 360,
+    height: 116
   },
   flippedImage: {
     transform: [{ scaleY: -1 }], // Flip the image vertically only

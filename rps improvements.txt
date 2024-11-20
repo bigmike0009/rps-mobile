@@ -28,10 +28,11 @@ notifications:
 -tournament in an hour
 -tournament in 10 minutes
 
-app logo
-change the name
+app logo✓
+change the name✓
 
-final round unlimited time, 2/3
+final round unlimited time✓
+, 2/3
 show results immediately for player. Let them advance immediately✓
 add cash ✓
 standardized icon colors
@@ -41,6 +42,7 @@ the writing on trophy didn't line up on ipad
 the choices are not centered ✓
 if you are in the cleanup screen it cant go straight to a new tournament
 cant handle fake player right now✓
+no winner for a computer match
 
 
 

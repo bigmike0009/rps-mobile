@@ -35,6 +35,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       const response = await tournamentService.getAllMatchups(selectedTable!);
       if (response.status === 200 && response.data) {
         setMatchups(response.data);
+
       } else {
         console.error('Failed to load matchups');
       }
@@ -131,7 +132,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
       {/* Matchup Tables */}
       <View style={styles.fabContainer}>
         {/* Render each region table as a FAB button */}
-        {tourney.matchupTables.map((tableName: string) => (
+        {tourney.matchupTablesByRound[Number(tournament.currentRoundId)].map((tableName: string) => (
           <FAB
             key={tableName}
             label={extractRegion(tableName)} // Display the extracted region

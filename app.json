@@ -2,6 +2,7 @@
   "expo": {
     "name": "rps shootout!",
     "slug": "rps-mobile",
+    "newArchEnabled":true,
     "version": "1.0.0",
     "extra": {
       "facebookAppId": "365748306442104",

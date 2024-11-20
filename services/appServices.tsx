@@ -86,8 +86,8 @@ class MatchupService {
   }
 
   // POST create player (takes email, first name, last name)
-   updateMatchup(tableName: string, matchupID: number, selection: string, player: number):Promise<ApiResponse<Matchup>> {
-    const playerData = { tableName, matchupID, player, selection };
+   updateMatchup(tableName: string, matchupID: number, selection: string, player: number, final: boolean):Promise<ApiResponse<Matchup>> {
+    const playerData = { tableName, matchupID, player, selection, final };
     return apiService.put<Matchup>('/matchup', playerData);
   }
 }

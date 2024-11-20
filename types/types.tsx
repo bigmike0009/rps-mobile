@@ -25,7 +25,7 @@ export interface Player {
     registrationOpenTs: string;  // Timestamp
     rounds: number[];            // Array of round IDs
     roundActiveFlag: boolean
-    matchupTables: string[];
+    matchupTablesByRound: Record<number, string[]>;
     completeFlag: boolean;
     cash: number;
   }

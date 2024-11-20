@@ -13,8 +13,6 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
 import { ScrollView } from 'react-native-gesture-handler';
-import { getRandomBytes } from 'expo-random';
-
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -31,6 +29,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const [selected, setSelected] = useState<string>('login');
   const [registered, setRegistered] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [background, setBackground] = useState(null);
+
 
   const theme = useTheme();
   // const bg = Math.floor(Math.random() * (2 - 0 + 1))
@@ -44,8 +44,26 @@ const MainMenu: React.FC<AuthProps> = (props) => {
  
   const { email, isLoggedIn, player } = authContext!
 
+  const getBgImage = () => {
+    let num = Math.floor(Math.random() * 3)
+    if (num === 0){
+      return require(`../assets/rockBg.png`)
+    }
+    else if (num === 1){
+      return require(`../assets/paperBG.png`)
+    }
+    else {
+      return require(`../assets/scissorsBg.png`)
+    }
+  }
+
+
+
+
   const fetchTournament = async () => {
     setRefreshing(true)
+    setTournamentCleanup(false)
+    setTournamentStarted(false)
     const tournament = await tournamentService.getLatestTournament();
     console.log('Latest Tournament retrieved.')
 
@@ -112,6 +130,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   useEffect(() => {
     
     updatePageWithTournament()
+    setBackground(getBgImage())
     
   }, []);
 
@@ -182,7 +201,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 return (
   <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
     <Image
-        source={require(`../assets/rps-bracket.png`)} 
+        source={background ? background : require(`../assets/rockBg.png`)} 
         style={styles.imageBackground} 
         resizeMode="cover" 
     />
@@ -315,16 +334,20 @@ const styles = StyleSheet.create({
   container: {
       flex: 1,
       justifyContent: 'space-between',
+      borderWidth: 1
   },
   imageBackground: {
       position: 'absolute',
       bottom: 0,
       width: '100%',
       height: '100%',
-      zIndex: -10,
-      opacity: 0.3,
+      zIndex: 0,
+      opacity: .3,
       objectFit: 'contain',
-  },
+      borderRadius: 10, // Optional: Add rounded corners
+      borderWidth: 10,
+      overflow: 'hidden'
+    },
   tournamentContainer: {
       alignItems: 'flex-start',
       padding: 10,

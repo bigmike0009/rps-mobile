@@ -1,29 +1,48 @@
 import React, { useContext, useRef, useState } from 'react';
 import { Appbar, Avatar, Button, useTheme, Text, IconButton, Portal, Dialog, Paragraph } from 'react-native-paper';
-import { View, StyleSheet, TouchableOpacity, Image, Animated, Easing, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, Animated, Easing, Linking,   Modal,
+  TouchableWithoutFeedback, } from 'react-native';
 import { AuthContext } from 'auth/authProvider';
 import { navigationTheme } from './theme';
-import { useNavigationState } from '@react-navigation/native';
+import DropdownMenu from './dropDown';
+
+type HeaderProps = {
+  currentRoute: string;
+};
 
 
-export const Header = () => {
+export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   const { player } = useContext(AuthContext)!; // Get player data from AuthContext
   const [dropdownVisible, setDropdownVisible] = useState(false); // Toggle for dropdown visibility
   const [messageNum, setMessageNum] = useState(0)
   const [visible, setVisible] = useState(false);
+
+  const [isMenuVisible, setMenuVisible] = useState(false);
+
+  const toggleMenu = () => setMenuVisible(!isMenuVisible);
+
+  const closeMenu = () => setMenuVisible(false);
 
   //const currentRoute = useNavigationState((state) => state.routes[state.index].name);
 
   const showAlert = () => setVisible(true);
   const hideAlert = () => setVisible(false);
 
-  const messages = [ 
-    'This is a tournament spin on the popular game rock paper scissors',
-    'Every night at 9PM Eastern, there will be a worldwide tournament for a CASH prize',
-    'This screen will show you a countdown until the next tournament starts',
-    'All you need to do is make an account, login, and hit the register for tournament button',
-    'Don\'t worry, we\'ll notify you when the tournament is getting ready to start!'
-  ]
+
+  const getMessages = (route: string) =>{
+    if (route === 'MainMenu'){
+      return [ 
+        'This is a tournament spin on the popular game rock paper scissors',
+        'Every night at 9PM Eastern, there will be a worldwide tournament for a CASH prize',
+        'This screen will show you a countdown until the next tournament starts',
+        'All you need to do is make an account, login, and hit the register for tournament button',
+        'Don\'t worry, we\'ll notify you when the tournament is getting ready to start!'
+      ]
+    }
+    else {
+      return ['How many times are you going to press the help button in a rock paper scissors game?', currentRoute]
+    }
+  }
 
   const dropdownAnim = useRef(new Animated.Value(0)).current; // Animation value for dropdown height
   const theme = useTheme();
@@ -65,7 +84,7 @@ export const Header = () => {
           titleStyle={styles.title}
           theme={navigationTheme}
         />
-        <TouchableOpacity onPress={() => alert('Mike still has to make a profile screen')}>
+        <TouchableOpacity onPress={toggleMenu}>
           <Avatar.Image
             size={36}
             source={require('../assets/Question.png') } // Player's profile picture
@@ -109,46 +128,20 @@ export const Header = () => {
             <Dialog.Title>Welcome to RPS Shootout!</Dialog.Title>
             <Dialog.Content>
               <Paragraph>
-               {messages[messageNum]}
+               {getMessages(currentRoute)[messageNum]}
               </Paragraph>
             </Dialog.Content>
             <Dialog.Actions>
-              <Text> {messageNum + 1}/{messages.length}</Text>
-              <Button onPress={() => { if (messageNum < messages.length - 1) { setMessageNum(messageNum + 1) } else {setMessageNum(0); hideAlert();}}}>{messageNum < messages.length - 1 ? 'Next': 'Done'}</Button>
+              <Text> {messageNum + 1}/{getMessages(currentRoute).length}</Text>
+              <Button onPress={() => { if (messageNum < getMessages(currentRoute).length - 1) { setMessageNum(messageNum + 1) } else {setMessageNum(0); hideAlert();}}}>{messageNum < getMessages(currentRoute).length - 1 ? 'Next': 'Done'}</Button>
             </Dialog.Actions>
           </Dialog>
         </Portal>
 }
+{player &&
+<DropdownMenu isVisible={isMenuVisible} onClose={() => setMenuVisible(false)} player={player} />
+}
 
-{dropdownVisible && (        
-  <Portal>
-  <Animated.View
-          style={[
-            styles.dropdownContainer,
-            {
-              height: dropdownAnim.interpolate({
-                inputRange: [0, 0.6],
-                outputRange: [0, 0.6],
-              }),
-              backgroundColor: theme.colors.surface,
-            },
-          ]}
-        >
-          <Text style={styles.infoText}>First Name: {player?.fname}</Text>
-          <Text style={styles.infoText}>Last Name: {player?.lname}</Text>
-          <Text style={styles.infoText}>Email: {player?.email}</Text>
-          <Text style={styles.infoText}>Region: {player?.region}</Text>
-          <Button
-            mode="contained"
-            onPress={handleToggleDropdown}
-            style={styles.returnButton}
-            theme={navigationTheme}
-          >
-            Return
-          </Button>
-        </Animated.View>
-        </Portal>
-)}
 
     </View>
   );
@@ -170,17 +163,6 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: "linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)"
   },
-  dropdownContainer: {
-    position: 'absolute',
-    top: 70, // Position dropdown below the header
-    left: 0,
-    right: 0,
-    overflow: 'hidden', // Hide overflow for clean animation
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderRadius: 10,
-    height: 500
-  },
   infoText: {
     fontSize: 16,
     marginVertical: 5,
@@ -190,6 +172,60 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignSelf: 'center',
   },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 130, // Adjust for header height
+  },
+  dropdownMenu: {
+    width: '90%',
+    padding: 10,
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 5,
+    marginRight: 10,
+  },
+  dropdownItem: {
+    padding: 10,
+    fontSize: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
 });
 
 export default Header;
+
+// {dropdownVisible && (        
+//   <Portal>
+//   <Animated.View
+//           style={[
+//             styles.dropdownContainer,
+//             {
+//               height: dropdownAnim.interpolate({
+//                 inputRange: [0, 0.6],
+//                 outputRange: [0, 0.6],
+//               }),
+//               backgroundColor: theme.colors.surface,
+//             },
+//           ]}
+//         >
+//           <Text style={styles.infoText}>First Name: {player?.fname}</Text>
+//           <Text style={styles.infoText}>Last Name: {player?.lname}</Text>
+//           <Text style={styles.infoText}>Email: {player?.email}</Text>
+//           <Text style={styles.infoText}>Region: {player?.region}</Text>
+//           <Button
+//             mode="contained"
+//             onPress={handleToggleDropdown}
+//             style={styles.returnButton}
+//             theme={navigationTheme}
+//           >
+//             Return
+//           </Button>
+//         </Animated.View>
+//         </Portal>
+// )}
