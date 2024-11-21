@@ -348,7 +348,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             style={styles.resImage} 
           />
           <Image 
-            source={{ uri: retrieveAsset('Question') }} 
+            source={{ uri: retrieveAsset('Help') }} 
             style={styles.resImage} 
           />
         </View>

@@ -19,14 +19,18 @@ Facebook auth
 Google Auth
 
 help button✓
-help based on screen
+help based on screen✓
+
+question is Mixed with profile picture are confused✓
+scissorsw is mixed up with rock-sprite✓
+I got booted out of waitingScreen between round1 and round2✓
 
 give password suggestions✓
 fix lowercase password✓
 notifications:
--new round is starting
--tournament in an hour
--tournament in 10 minutes
+-new round is starting✓
+-tournament created
+-tournament in 10 minutes✓
 
 app logo✓
 change the name✓
@@ -42,9 +46,7 @@ the writing on trophy didn't line up on ipad
 the choices are not centered ✓
 if you are in the cleanup screen it cant go straight to a new tournament
 cant handle fake player right now✓
-no winner for a computer match
-
-
+no winner for a computer match✓
 
 spectate screen:
 make it cool & fun and more interesting ?
@@ -55,4 +57,6 @@ make tournament championship visible to all (redesign)
 
 
 keep all images of a common theme
+
+
 

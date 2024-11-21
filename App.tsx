@@ -11,6 +11,7 @@ import { theme } from 'components/theme';
 import LoadingScreen from 'screens/loadingScreen';
 import { useEffect, useState } from 'react';
 import { AssetProvider } from 'utilities/assetProvider';
+import { TournamentProvider } from 'utilities/tournamentProvider';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -24,9 +25,12 @@ export default function App() {
       
       <AuthProvider>
         <AssetProvider>
+        <TournamentProvider>
         <PaperProvider theme={theme}>
         {isLoading ? <LoadingScreen onComplete={handleComplete} /> : <RootStack />}
         </PaperProvider>
+        </TournamentProvider>
+
         </AssetProvider>
       </AuthProvider>
     </SafeAreaProvider>

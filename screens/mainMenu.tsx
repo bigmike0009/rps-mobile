@@ -15,17 +15,17 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useTournament } from 'utilities/tournamentProvider';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
 const MainMenu: React.FC<AuthProps> = (props) => { 
 
   const { navigation } = props;
+  const {tournament, fetchNewTournament, fetchTournament} = useTournament()
 
-  const [tournamentData, setTournamentData] = useState<Tournament | null>(null);
   const [tournamentStarted, setTournamentStarted] = useState(false)
   const [tournamentCleanup, setTournamentCleanup] = useState(false)
-
 
   const [timeUntilNextGame, setTimeUntilNextGame] = useState<string>(getTimeUntilNextGame());
   const [selected, setSelected] = useState<string>('login');
@@ -71,23 +71,21 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
 
 
-  const fetchTournament = async () => {
+  const refreshTournament = async () => {
     setRefreshing(true)
-    setTournamentCleanup(false)
-    setTournamentStarted(false)
-    const tournament = await tournamentService.getLatestTournament();
+
+    const response = await fetchNewTournament();
     console.log('Latest Tournament retrieved.')
 
-    console.log(tournament)
+    console.log(response)
     setTimeout(()=>setRefreshing(false), 5000)
 
-    if (tournament.status == 200) {setTournamentData(tournament.data); return tournament.data};
-    setTournamentData(null)
+    if (response) {return response};
     return null
   };
 
   const updatePageWithTournament = async () => {
-    let tourneyData = fetchTournament();
+    let tourneyData = refreshTournament();
     tourneyData.then((tourney)=>{
       if (tourney) {
         if (tourney.completeFlag){
@@ -110,7 +108,6 @@ const MainMenu: React.FC<AuthProps> = (props) => {
       return () => clearInterval(interval);
     }}
   else {
-    setTournamentData(null)
     setRegistered(false)
     setTournamentCleanup(false)
     setTournamentStarted(false)
@@ -118,7 +115,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   }
 
   const joinTournament = async () => {
-    const tourneyID = tournamentData?.tournamentId!
+    const tourneyID = tournament?.tournamentId!
     const response = await tournamentService.addPlayerToTournament(tourneyID, player?.playerID!, player?.region!);
     console.log('Latest Tournament retrieved.')
 
@@ -126,6 +123,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
     if (response.status == 200) {
       setRegistered(true)
+      fetchTournament()
     }
     else if (response.status == 409){
       console.log('Player is already registered for this tournament')
@@ -177,10 +175,10 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     const now = DateTime.local().setZone('America/New_York'); // Get the current time in the machine's local time, but set it to Eastern Time
 
     if (!tourney) {
-        if (!tournamentData) {
+        if (!tournament) {
             return '00:00:00';
         }
-        tourney = tournamentData;
+        tourney = tournament;
     }
 
     const regCloseTs = tourney?.registrationCloseTs;
@@ -219,8 +217,8 @@ return (
         resizeMode="cover" 
     />
         <View style={[styles.tournamentContainer, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness, }]}>
-            {tournamentData ? <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, textAlign:'center' }]}>
-                    Tournament #{tournamentData.tournamentId}
+            {tournament ? <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, textAlign:'center' }]}>
+                    Tournament #{tournament.tournamentId}
                 </Text>
             : (
                 <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, fontSize: 15, margin: 10 }]}>
@@ -232,7 +230,7 @@ return (
                       Tournament in progress...
                     </Text>}
             {/* Tournament Information */}
-            {(tournamentData && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && (
+            {(tournament && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && (
                 <Card style={[styles.tournamentCard, {backgroundColor: theme.colors.background}]}>
                     <View style={[styles.countdownContainer, { borderRadius: theme.roundness }]}>
                         <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
@@ -246,12 +244,12 @@ return (
                     {isLoggedIn && (
                         <View>
                             <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
-                                # Players: {tournamentData.numPlayersRegistered}
+                                # Players: {tournament.numPlayersRegistered}
                             </Text>
-                            {tournamentData.cash && tournamentData.cash > 0 && 
+                            {tournament.cash && tournament.cash > 0 && 
                             <View>
                             <Text style={{ marginTop: 25, color: theme.colors.onSurface }}>Cash Prize:</Text>
-                            <Text style={{ color: 'green', fontSize: 48 }}>${tournamentData.cash}</Text>
+                            <Text style={{ color: 'green', fontSize: 48 }}>${tournament.cash}</Text>
                             </View>}
                         </View>
                     )}
@@ -301,7 +299,7 @@ return (
             },
           ]}
           disabled={!isLoggedIn}
-          onPress={() => tournamentData?.roundActiveFlag ? navigation.replace('SpectatorScreen', {tournament: tournamentData}) : navigation.replace('WaitingScreen')}
+          onPress={() => tournament?.roundActiveFlag ? navigation.replace('SpectatorScreen', {tournament: tournament}) : navigation.replace('WaitingScreen')}
           label={registered ? 'Join Tournament' : 'View Tournament'}
         />
       </Animated.View>
@@ -310,7 +308,7 @@ return (
                 <FAB
                     label="Register for Tournament"
                     onPress={joinTournament}
-                    disabled={!tournamentData || registered || tournamentStarted || tournamentCleanup}
+                    disabled={!tournament || registered || tournamentStarted || tournamentCleanup}
                     style={styles.fabButton}
                 />
                 {/* <LogoutButton {...props} /> */}

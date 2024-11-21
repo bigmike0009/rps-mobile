@@ -11,6 +11,7 @@ import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
 import { tournamentService } from 'services/appServices';
 import { Matchup, Player } from 'types/types';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { useTournament } from 'utilities/tournamentProvider';
 
 
 
@@ -20,14 +21,14 @@ type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>
 const playerNames = ["Alice A.", "Bob B.", "Cindy C.", "David D.", "Eva E."];
 
 const ResultsScreen: React.FC<ResultProps> = (props) => {
-  const [currentPlayer, setCurrentPlayer] = useState(0);
-  const [roundsOver, setRoundsOver] = useState(false);
+
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const translateAnim = useRef(new Animated.Value(0)).current;
 
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
   const {retrieveAsset}=useAssets()
+  const {fetchTournament}=useTournament()
 
   const theme = useTheme();
   
@@ -66,14 +67,13 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 
       const fetchData = async () => {
         console.log('fetching');
-        let updated_tourney = await tournamentService.getTournament(tourneyID);
+        let updated_tourney = await fetchTournament()
 
-        if (updated_tourney.data) {
-          console.log(updated_tourney.data);
+        if (updated_tourney) {
+          console.log(updated_tourney);
 
-          if (!updated_tourney.data.roundActiveFlag) {
+          if (!updated_tourney.roundActiveFlag) {
             console.log('its over!');
-            setRoundsOver(true);
 
             // Clear any existing timeout since the round is over
             if (timeoutId.current) clearTimeout(timeoutId.current);
@@ -136,7 +136,6 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
         duration: 500,
         useNativeDriver: true,
       }).start(() => {
-        setCurrentPlayer((prev) => (prev + 1) % playerNames.length);
         fadeAnim.setValue(1);
         translateAnim.setValue(30);
         Animated.timing(translateAnim, {

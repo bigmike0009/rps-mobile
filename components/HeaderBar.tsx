@@ -87,13 +87,13 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
           titleStyle={styles.title}
           theme={navigationTheme}
         />
-        <TouchableOpacity onPress={toggleMenu}>
+        {!['RockPaperScissors', 'ResultsScreen', 'FinalResultsScreen', 'WaitingScreen'].includes(currentRoute) && <TouchableOpacity onPress={toggleMenu}>
           <Avatar.Image
             size={36}
             source={{uri: retrieveAsset('Question')} } // Player's profile picture
             style={styles.avatar}
           />
-        </TouchableOpacity>
+        </TouchableOpacity>}
         <TouchableOpacity onPress={showAlert}>
         <IconButton
                     style={[styles.logo]}

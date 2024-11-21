@@ -12,6 +12,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DateTime } from 'luxon';
 import { cleverPhrases } from 'utilities/common';
+import { useTournament } from 'utilities/tournamentProvider';
 
 
 // Clever phrases for the waiting screen
@@ -21,7 +22,10 @@ type GameProps = StackScreenProps<DefaultStackParamList, 'WaitingScreen'>;
 
 
 const WaitingScreen: React.FC<GameProps> = (props) => {
-  const [tournament, setTournament] = useState<Tournament | null>(null);
+  //const [tournament, setTournament] = useState<Tournament | null>(null);
+
+  const { tournament, fetchTournament } = useTournament();
+
   const [currentPhrase, setCurrentPhrase] = useState<string>(cleverPhrases[0]);
   const [dots, setDots] = useState<string>('');
   const [playerEliminated, setPlayerEliminated] = useState(false)
@@ -122,7 +126,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
         else {
         console.log('You are no longer active in this tournament. Have fun spectating')
         if (intervalId) clearInterval(intervalId)
-        navigation.navigate('SpectatorScreen', {tournament: tourney})  // Start matchup if exists for player
+        navigation.replace('SpectatorScreen', {tournament: tourney})  // Start matchup if exists for player
 
         setPlayerEliminated(true)
         }
@@ -132,20 +136,18 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
 
       
     };
-    // Mock API call for fetching tournament data
-    const fetchTournament = async () => {
+    const refreshTournament = async () => {
         try {
-            const response = await tournamentService.getLatestTournament();  // Call to the actual API
-            if (response.data){
-                setTournament(response.data)
-                if (response.data.completeFlag) {
+            const response = await fetchTournament()  // Call to the actual API
+            if (response){
+                if (response.completeFlag || !response.activeFlag) {
                   console.log('Tournament Complete')
                   if (intervalId) clearInterval(intervalId)
 
-                  navigation.navigate('MainMenu')  // Start matchup if exists for player
+                  navigation.replace('MainMenu')  // Start matchup if exists for player
                 }
-                if (response.data.roundActiveFlag && !isRoundExpired(response.data)) {
-                    checkMatchup(response.data)  // Start matchup if exists for player
+                if (response.roundActiveFlag && !isRoundExpired(response)) {
+                    checkMatchup(response)  // Start matchup if exists for player
                   }
             }
       
@@ -157,7 +159,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
     };
 
     // Set up periodic fetch every 5 seconds
-    intervalId = setInterval(fetchTournament, 5000);
+    intervalId = setInterval(refreshTournament, 5000);
 
     return () => clearInterval(intervalId);  // Clean up the interval on unmount
   }, [navigation]);
@@ -219,7 +221,7 @@ const WaitingScreen: React.FC<GameProps> = (props) => {
 
       {['in progress!', 'crowning the champion', 'preparing for next round'].includes(getRoundStatus()) && tournament && 
       <View style={{position:'absolute', bottom: 10, left:10, zIndex: 10}}>
-        <FAB icon="trophy" label="Spectate Bracket" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('SpectatorScreen', {tournament: tournament})}/>
+        <FAB icon="trophy" label="Spectate Bracket" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('SpectatorScreen', {tournament: tournament})}/>
       </View>
       } 
     </View>

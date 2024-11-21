@@ -28,13 +28,17 @@ const iconMapping: Record<string, string> = {
 const DropdownMenu: React.FC<DropdownMenuProps> = ({ isVisible, onClose, player}) => {
   const [selectedOption, setSelectedOption] = useState<'profile' | 'stats' | 'trophy' | 'characters'>('profile');
 
+  const handleSelectedOption = (option: 'profile' | 'stats' | 'trophy' | 'characters') => {
+    setSelectedOption(option)
+  }
+
   
 
   const renderContent = () => {
     switch (selectedOption) {
       case 'profile':
         return (
-          <ProfileComponent/>
+          <ProfileComponent switchTab={handleSelectedOption}/>
         );
       case 'stats':
         return <Text style={styles.infoText}>Stats Component Placeholder</Text>;

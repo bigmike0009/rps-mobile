@@ -31,7 +31,7 @@ export const AssetProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     if (assets.hasOwnProperty(name)) {
         return assets[name]
     }
-    return 'https://zak-rentals.s3.us-east-1.amazonaws.com/Question.png'
+    return 'https://zak-rentals.s3.us-east-1.amazonaws.com/Help.png'
   };
 
   return (

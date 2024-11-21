@@ -9,6 +9,7 @@ import { tournamentService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { useTournament } from 'utilities/tournamentProvider';
 
 
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>;
@@ -19,9 +20,10 @@ const FinalResultsScreen: React.FC<ResultProps> = (props) => {
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
   const { retrieveAsset} = useAssets()
+  const {fetchTournament} = useTournament()
   
   const { tournament, matchup, opponent } = props.route.params;
-  const { width } = Dimensions.get('window');
+  const { width, height } = Dimensions.get('window');
   const explosion = useRef<ConfettiCannon | null>(null); // Create a ref for the confetti
 
   const theme = useTheme()
@@ -82,13 +84,13 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
 
       const fetchData = async () => {
         console.log('fetching');
-        let updated_tourney = await tournamentService.getTournament(tourneyID);
+        let updated_tourney = await fetchTournament();
 
-        if (updated_tourney.data) {
-          console.log(updated_tourney.data);
+        if (updated_tourney) {
+          console.log(updated_tourney);
 
           // If tournament is complete, stop fetching and clear timeout
-          if (updated_tourney.data.completeFlag) {
+          if (updated_tourney.completeFlag) {
             setCleanupComplete(true);
 
             if (timeoutId.current) {
@@ -146,7 +148,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       {/* Trophy with player's name and date */}
       {winner === 'p' && (
         <View style={styles.trophyContainer}>
-          <Image source={{uri: retrieveAsset('gold')}} style={[styles.trophyImage, { width: width * 0.8 }]} />
+          <Image source={{uri: retrieveAsset('gold')}} style={[styles.trophyImage, { width: width * 0.8, height: height * .3 }]} />
           <View style={styles.trophyOverlay}>
             <Text style={styles.trophyText}>{player?.fname}</Text>
             <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
@@ -155,7 +157,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       )}
       {winner === 'o' && (
         <View style={styles.trophyContainer}>
-          <Image source={{uri: retrieveAsset('silver')}} style={[styles.trophyImage, { width: width * 0.8 }]} />
+          <Image source={{uri: retrieveAsset('silver')}} style={[styles.trophyImage, { width: width * 0.8, height: height * .3 }]} />
           <View style={styles.trophyOverlay}>
             <Text style={styles.trophyText}>{player?.fname}</Text>
             <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
@@ -221,7 +223,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       </Card>
 
       {/* Go to Home button */}
-      <FAB label="Return to Menu" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.navigate('MainMenu')} loading={!cleanupComplete} disabled={!cleanupComplete}/>
+      <FAB label="Return to Menu" style={{margin:5,marginBottom:5, padding:0}} onPress={() => props.navigation.replace('MainMenu')} loading={!cleanupComplete} disabled={!cleanupComplete}/>
       <ConfettiCannon
         count={500}
         origin={{ x: -10, y: 0 }}
