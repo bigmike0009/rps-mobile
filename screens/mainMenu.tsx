@@ -301,7 +301,7 @@ return (
             },
           ]}
           disabled={!isLoggedIn}
-          onPress={() => navigation.replace('WaitingScreen')}
+          onPress={() => tournamentData?.roundActiveFlag ? navigation.replace('SpectatorScreen', {tournament: tournamentData}) : navigation.replace('WaitingScreen')}
           label={registered ? 'Join Tournament' : 'View Tournament'}
         />
       </Animated.View>
@@ -313,7 +313,7 @@ return (
                     disabled={!tournamentData || registered || tournamentStarted || tournamentCleanup}
                     style={styles.fabButton}
                 />
-                <LogoutButton {...props} />
+                {/* <LogoutButton {...props} /> */}
             </View>
         )}
 
