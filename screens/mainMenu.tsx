@@ -31,7 +31,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const [selected, setSelected] = useState<string>('login');
   const [registered, setRegistered] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [background, setBackground] = useState(null);
+  const [background, setBackground] = useState({uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/Question.png'});
 
 
   const theme = useTheme();
@@ -47,25 +47,23 @@ const MainMenu: React.FC<AuthProps> = (props) => {
  
   const { email, isLoggedIn, player } = authContext!
 
-  const {assets} = useAssets()
+  const {assets, retrieveAsset} = useAssets()
 
 
   const getBgImage = () => {
 
     let num = Math.floor(Math.random() * 3)
-    if(assets.rockBg && assets.paperBg && assets.scissorsBg){
+    
       if (num === 0){
-        return {uri: assets.rockBg}
+        return {uri: retrieveAsset('rockBg')}
       }
       else if (num === 1){
-        return {uri: assets.scissorsBg}
+        return {uri: retrieveAsset('scissorsBg')}
       }
       else {
-        return {uri: assets.paperBg}
+        return {uri: retrieveAsset('paperBg')}
       }
-    }
 
-    return require('../assets/rockBg.png')
 
     
   }
@@ -145,7 +143,6 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     updatePageWithTournament()
     setBackground(getBgImage())
 
-    
   }, []);
 
   useEffect(() => {
@@ -216,7 +213,7 @@ return (
   <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
     <Image
         //source={{uri: 'file:///var/mobile/Containers/Data/Application/0D39D187-49F7-4035-9A4D-5D6452FB9AD7/Documents/ExponentExperienceData/@bigmike0009/rps-mobile/rock1'}} 
-                source={background ? background : require(`../assets/rockBg.png`)} 
+                source={background} 
 
         style={styles.imageBackground} 
         resizeMode="cover" 

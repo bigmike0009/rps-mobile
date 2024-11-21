@@ -2,11 +2,14 @@ import React, { useContext, useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { Menu, Button, Divider } from 'react-native-paper';
 import { AuthContext } from 'auth/authProvider';
+import { useAssets } from 'utilities/assetProvider';
 import { theme } from 'components/theme';
 
 const ProfileComponent: React.FC = () => {
   // Fetch player data from playerProvider
   const { player } = useContext(AuthContext)!; // Get player data from AuthContext
+const {retrieveAsset} = useAssets()
+
   const [selectedRegion, setSelectedRegion] = useState(player?.region || 'us-east-1');
   const [menuVisible, setMenuVisible] = useState(false);
   const [isChanged, setIsChanged] = useState(false);
@@ -28,7 +31,7 @@ const ProfileComponent: React.FC = () => {
     <View style={styles.container}>
       {/* Profile Picture */}
       <Image
-        source={{ uri: player?.propic || "https://zak-rentals.s3.amazonaws.com/Question.png" }}
+        source={{ uri: player?.propic || retrieveAsset('Question') }}
         style={styles.profilePicture}
       />
       <Text style={styles.name}>{player?.fname} {player?.lname}</Text>
@@ -37,15 +40,15 @@ const ProfileComponent: React.FC = () => {
       <View style={styles.avatarsContainer}>
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Rock:</Text>
-          <Image source={require('assets/rock1.png')} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset('rock1')}} style={styles.avatarImage} />
         </View>
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Paper:</Text>
-          <Image source={require('assets/paper1.png')} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset('paper1')}} style={styles.avatarImage} />
         </View>
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Scissors:</Text>
-          <Image source={require('assets/scissors1.png')} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset('scissors1')}} style={styles.avatarImage} />
         </View>
       </View>
 

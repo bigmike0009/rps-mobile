@@ -3,6 +3,7 @@ import { Appbar, Avatar, Button, useTheme, Text, IconButton, Portal, Dialog, Par
 import { View, StyleSheet, TouchableOpacity, Image, Animated, Easing, Linking,   Modal,
   TouchableWithoutFeedback, } from 'react-native';
 import { AuthContext } from 'auth/authProvider';
+import { useAssets } from 'utilities/assetProvider';
 import { navigationTheme } from './theme';
 import DropdownMenu from './dropDown';
 
@@ -13,6 +14,8 @@ type HeaderProps = {
 
 export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
   const { player } = useContext(AuthContext)!; // Get player data from AuthContext
+  const {retrieveAsset} = useAssets()
+
   const [dropdownVisible, setDropdownVisible] = useState(false); // Toggle for dropdown visibility
   const [messageNum, setMessageNum] = useState(0)
   const [visible, setVisible] = useState(false);
@@ -87,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
         <TouchableOpacity onPress={toggleMenu}>
           <Avatar.Image
             size={36}
-            source={require('../assets/Question.png') } // Player's profile picture
+            source={{uri: retrieveAsset('Question')} } // Player's profile picture
             style={styles.avatar}
           />
         </TouchableOpacity>

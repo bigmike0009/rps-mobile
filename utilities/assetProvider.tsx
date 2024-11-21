@@ -4,12 +4,15 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 interface AssetContextType {
   assets: Record<string, string>; // Mapping of asset names to local URIs
   addAsset: (name: string, localUri: string) => void;
+  retrieveAsset: (name: string) => string;
+
 }
 
 // Default value for the context
 const defaultValue: AssetContextType = {
   assets: {},
   addAsset: () => {}, // Default as a no-op function
+  retrieveAsset: () => ''
 };
 
 // Create the context with a default value
@@ -24,8 +27,15 @@ export const AssetProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setAssets((prev) => ({ ...prev, [name]: localUri }));
   };
 
+  const retrieveAsset = (name: string) => {
+    if (assets.hasOwnProperty(name)) {
+        return assets[name]
+    }
+    return 'https://zak-rentals.s3.us-east-1.amazonaws.com/Question.png'
+  };
+
   return (
-    <AssetContext.Provider value={{ assets, addAsset }}>
+    <AssetContext.Provider value={{ assets, addAsset, retrieveAsset }}>
       {children}
     </AssetContext.Provider>
   );

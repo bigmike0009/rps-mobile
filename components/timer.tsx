@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, Text, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { useAssets } from 'utilities/assetProvider';
 
 interface TimerProps {
   initialTime: number; // in seconds
@@ -13,6 +14,7 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
   const [expired, setExpired] = useState(false);
 
   const theme = useTheme()
+  const {retrieveAsset} = useAssets()
 
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const TimerComponent: React.FC<TimerProps> = ({ initialTime, onClockExpires }) =
 
   
 
-  return <ImageBackground source={{ uri: `https://zak-rentals.s3.amazonaws.com/alarm_clock_icon_white.png` }} style={styles.timerBackground} resizeMode="contain">
+  return <ImageBackground source={{ uri: retrieveAsset('alarm_clock_icon_white') }} style={styles.timerBackground} resizeMode="contain">
             <Text style={[styles.timerText, {color: timeLeft > 10 ? theme.colors.onBackground : theme.colors.error}]}>{timeLeft}</Text>
          </ImageBackground>;
 };

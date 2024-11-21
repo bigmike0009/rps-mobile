@@ -4,6 +4,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
+import { useAssets } from 'utilities/assetProvider';
 import { playerService, matchupService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
 import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
@@ -18,6 +19,7 @@ type RpsProps = StackScreenProps<DefaultStackParamList, 'RockPaperScissors'>
 const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const authContext = useContext(AuthContext);
   let {player} = authContext!
+  const {retrieveAsset} = useAssets()
 
   const tournament = props.route.params.tournament
   const finalRound = tournament.playersRemaining <= 2
@@ -251,7 +253,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             <View style={styles.playerInfo}>
               <Avatar.Image
                 size={40}
-                source={player ? { uri: player.propic } : require('../assets/Question.png')}
+                source={player ? { uri: player.propic } : {uri: retrieveAsset('Question')}}
                 style={[styles.avatar, { borderColor: theme.colors.outline }]}
               />
               <Text style={{ color: theme.colors.onSurface }}>{player ? player.fname : 'Loading Player Data...'}</Text>
@@ -260,7 +262,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             <View style={styles.playerInfo}>
               <Avatar.Image
                 size={40}
-                source={opponent ? { uri: opponent.propic } : require('../assets/Question.png')}
+                source={opponent ? { uri: opponent.propic } : {uri: retrieveAsset('Question')}}
                 style={styles.avatar}
               />
               <Text style={{ color: theme.colors.onSurface }}>{opponent ? `${opponent.fname} ${opponent.lname[0]}.` : 'Loading Opponent Data...'}</Text>
@@ -284,7 +286,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
           >
             <Image
               tintColor={'#2d3436'}
-              source={{ uri: `https://zak-rentals.s3.amazonaws.com/${choice}-sprite.png` }}
+              source={{ uri: retrieveAsset(`${choice}-sprite`) }}
               style={styles.choiceImage}
             />
           </TouchableHighlight>
@@ -300,7 +302,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
             ]}
           >
             <Image
-              source={{ uri: `https://zak-rentals.s3.amazonaws.com/${choice}-sprite.png` }}
+              source={{ uri: retrieveAsset(`${choice}-sprite`) }}
               style={styles.choiceImage}
             />
           </TouchableHighlight>
@@ -311,7 +313,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
       {(result !== 'tie' && waiting && !timeExpired) && 
     <View style={styles.resultContainer}>
       <Animated.Image
-        source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}-sprite.png` }} 
+        source={{ uri: retrieveAsset(`${playerChoice}-sprite`) }} 
         style={[
           styles.choiceImage,
           styles.choiceImage,
@@ -342,11 +344,11 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
         </Text>
         <View style={{flexDirection: 'row'}}>
           <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}-sprite.png` }} 
+            source={{ uri: retrieveAsset(`${playerChoice}-sprite`) }} 
             style={styles.resImage} 
           />
           <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/Question.png` }} 
+            source={{ uri: retrieveAsset('Question') }} 
             style={styles.resImage} 
           />
         </View>
@@ -373,11 +375,11 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
         </Text>
         <View style={{flexDirection: 'row'}}>
           <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${tieChoice}-sprite.png` }} 
+            source={{ uri: retrieveAsset(`${tieChoice}-sprite`) }} 
             style={styles.resImage} 
           />
           <Image 
-            source={{ uri: `https://zak-rentals.s3.amazonaws.com/${tieChoice}-sprite.png` }} 
+            source={{ uri: retrieveAsset(`${tieChoice}-sprite`) }} 
             style={styles.resImage} 
           />
         </View>
@@ -396,8 +398,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
               </Text>
             )}
             <View style={{ flexDirection: 'row' }}>
-              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${playerChoice}-sprite.png` }} style={styles.resImage} />
-              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite.png` }} style={styles.resImage} />
+              <Image source={{ uri: retrieveAsset(`${playerChoice}-sprite`)}} style={styles.resImage} />
+              <Image source={{ uri: retrieveAsset(`${player1or2 === 1 ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite`)}} style={styles.resImage} />
             </View>
             <FAB
               label="Results"

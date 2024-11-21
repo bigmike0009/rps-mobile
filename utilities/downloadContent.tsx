@@ -9,9 +9,9 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
   const { addAsset } = useAssets();
 
   const remoteFiles = [
-    { name: 'alarm_clock_icon.png', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/alarm_clock_icon.png', type: '.png' },
-    { name: 'alarm_clock_icon_white.png', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/alarm_clock_icon_white.png', type: '.png' },
-    { name: 'Question.png', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/alarm_clock_icon_white.png', type: '.png' },
+    { name: 'alarm_clock_icon', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/alarm_clock_icon.png', type: '.png' },
+    { name: 'alarm_clock_icon_white', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/alarm_clock_icon_white.png', type: '.png' },
+    { name: 'Question', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/Question.png', type: '.png' },
     { name: 'bronze', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/bronze.png', type: '.png' },
     { name: 'silver', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/silver.png', type: '.png' },
     { name: 'gold', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/gold.png', type: '.png' },
@@ -29,8 +29,8 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
     { name: 'scissors', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissors.png', type: '.png' },
     { name: 'scissors-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissors-sprite.png', type: '.png' },
 
-    { name: 'rock-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsW.png', type: '.png' },
-    { name: 'rock-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsW.png', type: '.png' },
+    { name: 'rock-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock-gray.png', type: '.png' },
+    { name: 'rock-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock-sprite.png', type: '.png' },
     { name: 'rockW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsW.png', type: '.png' },
     { name: 'rock', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock1.png', type: '.png' },
     { name: 'rock1', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock1.png', type: '.png' },
@@ -40,14 +40,9 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
     { name: 'paper2', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper2.png', type: '.png' },
     { name: 'paper3', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper3.png', type: '.png' },
 
-    { name: 'paper-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper1.png', type: '.png' },
-    { name: 'paper-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper1.png', type: '.png' },
+    { name: 'paper-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper-gray.png', type: '.png' },
+    { name: 'paper-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper-sprite.png', type: '.png' },
     { name: 'paperW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper1.png', type: '.png' },
-
-
-    
-
-
 
     { name: 'scissorsBg', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsBg.png', type: '.png' },
     { name: 'rockBg', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rockBg.png', type: '.png' },

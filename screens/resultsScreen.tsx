@@ -1,5 +1,7 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
+import { useAssets } from 'utilities/assetProvider';
+
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigationState } from '@react-navigation/native';
@@ -25,6 +27,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
+  const {retrieveAsset}=useAssets()
+
   const theme = useTheme();
   
   const { tournament, matchup, opponent } = props.route.params;
@@ -147,7 +151,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
   }, [fadeAnim, translateAnim]);
 
   function get_image_url(player: Player | null) {
-    return player && player.propic ? player.propic : "https://zak-rentals.s3.amazonaws.com/Question.png";
+    return player && player.propic ? player.propic : retrieveAsset('Question');
   }
 
   return (
@@ -171,7 +175,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
           <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
           <Text style={{color: theme.colors.onBackground}}>{player?.fname}</Text>
           {winner === 'p' && (
-            <Image source={require('../assets/crown.png')} style={styles.crown} />
+            <Image source={{uri: retrieveAsset('crown')}} style={styles.crown} />
           )}
         </View>
 
@@ -180,15 +184,15 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
           <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
           <Text style={{color: theme.colors.onBackground}}>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
           {winner === 'o' && (
-            <Image source={require('../assets/crown.png')} style={styles.crown} />
+            <Image source={{uri: retrieveAsset('crown')}} style={styles.crown} />
           )}
         </View>
       </View>
 
 
       <View style={styles.resultContainer}>
-              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player?.playerID === matchup.player_1_id ? matchup?.player_1_choice : matchup?.player_2_choice}-sprite.png` }} style={styles.resImage} />
-              <Image source={{ uri: `https://zak-rentals.s3.amazonaws.com/${player?.playerID === matchup.player_1_id ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite.png` }} style={styles.resImage} />
+              <Image source={{ uri: retrieveAsset(`${player?.playerID === matchup.player_1_id ? matchup?.player_1_choice : matchup?.player_2_choice}-sprite`)}} style={styles.resImage} />
+              <Image source={{ uri: retrieveAsset(`${player?.playerID === matchup.player_1_id ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite`) }} style={styles.resImage} />
       </View>
 
       <FAB label="Spectate Bracket" style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournament})}/>

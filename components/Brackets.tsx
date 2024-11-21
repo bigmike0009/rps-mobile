@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Player } from 'types/types';
+import { useAssets } from 'utilities/assetProvider';
 
 interface BracketProps {
   player1: Player;
@@ -13,6 +14,7 @@ interface BracketProps {
 
 const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, flipped, timeExpired }) => {
   const [dots, setDots] = useState<string>('');
+  const {retrieveAsset} = useAssets()
 
   const theme = useTheme()
 
@@ -29,7 +31,7 @@ const MatchupComponent: React.FC<BracketProps> = ({ player1, player2, winner, fl
   return (
     <View style={[styles.container]}>
       <ImageBackground
-        source={require('../assets/bracket.png')} // Single matchup background
+        source={{uri: retrieveAsset('bracket')}} // Single matchup background
         style={styles.background}
         imageStyle={flipped ? styles.flippedImage : undefined} // Flip only the image, not the text
       >

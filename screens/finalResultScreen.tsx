@@ -3,6 +3,7 @@ import { View, Text, Image, Animated, StyleSheet, Dimensions } from 'react-nativ
 import { Avatar, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
 import { AuthContext } from 'auth/authProvider';
+import { useAssets } from 'utilities/assetProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { tournamentService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
@@ -17,6 +18,7 @@ const FinalResultsScreen: React.FC<ResultProps> = (props) => {
 
   const authContext = useContext(AuthContext);
   const { player } = authContext!;
+  const { retrieveAsset} = useAssets()
   
   const { tournament, matchup, opponent } = props.route.params;
   const { width } = Dimensions.get('window');
@@ -130,7 +132,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
   },[])
 
   function get_image_url(player: Player | null) {
-    return player && player.propic ? player.propic : "https://zak-rentals.s3.amazonaws.com/Question.png";
+    return player && player.propic ? player.propic : retrieveAsset('Question');
   }
 
   return (
@@ -144,7 +146,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       {/* Trophy with player's name and date */}
       {winner === 'p' && (
         <View style={styles.trophyContainer}>
-          <Image source={require('../assets/gold.png')} style={[styles.trophyImage, { width: width * 0.8 }]} />
+          <Image source={{uri: retrieveAsset('gold')}} style={[styles.trophyImage, { width: width * 0.8 }]} />
           <View style={styles.trophyOverlay}>
             <Text style={styles.trophyText}>{player?.fname}</Text>
             <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
@@ -153,7 +155,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
       )}
       {winner === 'o' && (
         <View style={styles.trophyContainer}>
-          <Image source={require('../assets/silver.png')} style={[styles.trophyImage, { width: width * 0.8 }]} />
+          <Image source={{uri: retrieveAsset('silver')}} style={[styles.trophyImage, { width: width * 0.8 }]} />
           <View style={styles.trophyOverlay}>
             <Text style={styles.trophyText}>{player?.fname}</Text>
             <Text style={styles.trophyDate}>{new Date().toLocaleDateString()}</Text>
@@ -168,7 +170,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
             <Avatar.Image source={{ uri: get_image_url(player) }} size={80} />
             <Text style={{color:theme.colors.onBackground}}>{player?.fname}</Text>
             {winner === 'p' && (
-            <Image source={require('../assets/crown.png')} style={styles.crown} />
+            <Image source={{uri: retrieveAsset('crown')}} style={styles.crown} />
           )}
           </View>
         
@@ -177,7 +179,7 @@ const endDate = DateTime.fromFormat(endTs, 'MM-dd-yyyy:HH:mm:ss', { zone: 'Ameri
             <Avatar.Image source={{ uri: get_image_url(opponent) }} size={80} />
             <Text style={{color:theme.colors.onBackground}}>{`${opponent.fname} ${opponent.lname[0]}.`}</Text>
             {winner === 'o' && (
-            <Image source={require('../assets/crown.png')} style={styles.crown} />
+            <Image source={{uri: retrieveAsset('crown')}} style={styles.crown} />
           )}
           </View>
         
