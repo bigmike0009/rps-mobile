@@ -39,6 +39,8 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
   const explosion = useRef<ConfettiCannon | null>(null); // Create a ref for the confetti
   const timeoutId = useRef<NodeJS.Timeout | null>(null); // Store the timeout ID
 
+  const [loading, setLoading] = useState<boolean>(false)
+
 
 
   const calculateResult = (matchup: Matchup) => {
@@ -108,9 +110,12 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
 
   useEffect(() => {
     // Only fetch if the winner is 'p'
+    setLoading(true)
     if (winner === 'p') {
       explosion.current?.start();
     }
+    setTimeout(()=>setLoading(false), 5000)
+
   }, [])
 
   useEffect(() => {
@@ -194,7 +199,7 @@ const ResultsScreen: React.FC<ResultProps> = (props) => {
               <Image source={{ uri: retrieveAsset(`${player?.playerID === matchup.player_1_id ? matchup?.player_2_choice : matchup?.player_1_choice}-sprite`) }} style={styles.resImage} />
       </View>
 
-      <FAB label="Spectate Bracket" style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournament})}/>
+      <FAB label="Spectate Bracket" loading={loading} disabled={loading} style={{margin: 10, padding: 0, backgroundColor: theme.colors.primary}} onPress={() => navigation.replace('SpectatorScreen', {tournament: tournament})}/>
 
 
 

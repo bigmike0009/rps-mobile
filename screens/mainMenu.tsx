@@ -311,6 +311,13 @@ return (
                     disabled={!tournament || registered || tournamentStarted || tournamentCleanup}
                     style={styles.fabButton}
                 />
+                {tournament &&
+                <FAB
+                    label="Test"
+                    onPress={()=>navigation.replace('SpectatorScreen',{tournament: tournament})}
+                    style={styles.fabButton}
+                />
+              }
                 {/* <LogoutButton {...props} /> */}
             </View>
         )}

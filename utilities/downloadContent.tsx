@@ -73,9 +73,10 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
         // Update progress
         setProgress((i + 1) / remoteFiles.length);
       }
+      
 
       // Notify when complete
-      onComplete();
+      setTimeout(()=>onComplete(), 1000);
     };
 
     downloadContent();

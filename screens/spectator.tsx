@@ -23,8 +23,8 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
   // Function to extract the region from the full table name
   const extractRegion = (tableName: string) => {
     const parts = tableName.split('_');
-    const region = parts[parts.length - 2]; // Extracts the region part
-    const round = parts[parts.length - 3]
+    const region = parts[parts.length - 3]; // Extracts the region part
+    const round = parts[parts.length - 4]
     return `R${round}: ${region}`
 
   };
@@ -189,7 +189,7 @@ const SpectatorScreen: React.FC<GameProps> = (props) => {
     return (
     <View style={[styles.screenContainer, {backgroundColor: theme.colors.background}]}>
       <View style={{flexDirection: 'column', justifyContent: 'center', alignItems:'center', marginLeft: 20}}>
-      <Text style={styles.title}>
+      <Text style={[styles.title, {color: theme.colors.onSurface}]}>
       Current round has ended.
       </Text>
 

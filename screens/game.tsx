@@ -39,6 +39,7 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
   const [result, setResult] = useState<string | null>(null);
   const [waiting, setWaiting] = useState<boolean>(false);
   const [timeExpired, setTimeExpired] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false)
   //const [timer, setTimer] = useState<number>(getSecondsUntilRoundEnd(tournament.currentRoundEndTs!));
   //const [timer, setTimer] = useState<number>(30);
 
@@ -162,8 +163,11 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
     setPlayerChoice(choice);
     setResult(null);
     playSelectionAnimation();
+    setLoading(true)
 
     const updatedMatchup = await matchupService.updateMatchup(matchup!.table, matchup!.matchupID,  choice, player1or2, finalRound);
+    setTimeout(()=>setLoading(false), 3000)
+    
     if (updatedMatchup.data){
       console.log(updatedMatchup.data)
 
@@ -354,6 +358,8 @@ const RockPaperScissors: React.FC<RpsProps> = (props) => {
         </View>
         <FAB
               label="Results"
+              loading={loading}
+              disabled={loading}
               onPress={() =>
                 navigation.replace(
                   finalRound ? 'FinalResultsScreen' : 'ResultsScreen',
