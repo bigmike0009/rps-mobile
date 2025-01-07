@@ -16,14 +16,6 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "plugins": [
-      [
-        "expo-dev-launcher",
-        {
-          "launchMode": "most-recent"
-        }
-      ]
-    ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -39,12 +31,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.bigmike0009.rpsmobile"
     },
+    
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.bigmike0009.rpsmobile"
-    }
+    },
+    "scheme":["rps-mobile", "fb1119639173020972"]
   }
 }

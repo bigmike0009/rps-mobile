@@ -12,7 +12,7 @@ export const getCurrentUser = () => {
 };
 
 
-export const getCurrentUserDetails = (): Promise<{ email: string | null }> => {
+export const getCurrentUserDetails = (): Promise<{ email: string | null, sub: string | null }> => {
   return new Promise((resolve, reject) => {
     const userPool = new CognitoUserPool({
       UserPoolId: COGNITO_CONFIG.UserPoolId,
@@ -21,14 +21,16 @@ export const getCurrentUserDetails = (): Promise<{ email: string | null }> => {
     const cognitoUser = userPool.getCurrentUser();
 
     if (!cognitoUser) {
-      resolve({ email: null });
+      resolve({ email: null, sub: null });
     } else {
       cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
         if (err) {
           reject(err);
         } else {
           const email = session!.getIdToken().payload.email;
-          resolve({ email });
+          const sub = session!.getIdToken().payload.sub;
+
+          resolve({ email, sub });
         }
       });
     }

@@ -2,14 +2,44 @@
 export interface Player {
     playerID: number;
     email: string;
-    facebookID?: string;
     fname: string;
     lname: string;
     propic?: string;
     real: boolean;
     region: string;
-    tourneys: number[]; // Array of tournament IDs
-    wins: number[];     // Array of tournament IDs
+    avatars: {'r':string, 'p': string, 's': string}
+    stats?: PlayerStats; // Array of tournament IDs
+    tournaments?: PlayerTournaments,
+    tokenInfo?: TokenInfo;     // Array of tournament IDs
+    unlocked?: PlayerUnlocks
+    
+  }
+
+  export interface PlayerStats {
+    wins: number,
+    loss: number,
+    ties: number,
+    rocksThrown: number,
+    papersThrown: number,
+    scissorsThrown: number,
+
+  }
+
+  export interface TokenInfo {
+    notifToken: string,
+    deviceID: string
+
+  }
+
+  export interface PlayerTournaments {
+    played: number[],
+    trophies: Record<number, string[]>[]
+
+  }
+
+  export interface PlayerUnlocks {
+    bonusLives: number,
+    avatars: string[]
   }
   
   // Tournament object type

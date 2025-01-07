@@ -1,6 +1,7 @@
 import { apiService } from './apiService';
 import { Matchup, MatchupDetail, Player } from 'types/types';
 import { Tournament } from 'types/types';
+import { extractBasePlayerData, extractPlayerStats, extractPlayerTokenInfo, extractPlayerTournaments, extractPlayerUnlocks } from 'utilities/playerUtils';
 
 interface ApiResponse<T> {
   status: number;
@@ -34,16 +35,78 @@ class TournamentService {
 export const tournamentService = new TournamentService();
 
 class PlayerService {
-  // GET player by userID or email
-  async getPlayer(playerId: string, queryParam: 'userID' | 'email'): Promise<ApiResponse<Player>> {
-    const endpoint = `/player?${queryParam}=${playerId}`;
-    return await apiService.get<Player>(endpoint);
-    
+
+  async getPlayerData(playerId: string, queryParam: 'userID', endpoint: string): Promise<ApiResponse<Player>> {
+    const response = await apiService.get<any[]>(endpoint);
+    console.log(response)
+    let player: Player = {
+      playerID: 0,
+      email: '',
+      fname: '',
+      lname: '',
+      propic: '',
+      real: false,
+      region: '',
+      avatars: { r: '', p: '', s: '' }
+    };
+    if (response.data) {
+      console.log("DATAAAAA")
+      response.data.forEach(data => {
+        console.log('BURNNN')
+      const basePlayer = extractBasePlayerData(data, playerId);
+      console.log('BASEcally')
+      console.log(basePlayer)
+      if (basePlayer) {
+        player = { ...player, ...basePlayer };
+      }
+      console.log('MERGE')
+      console.log(player)
+  
+      const stats = extractPlayerStats(data, playerId);
+      if (stats) {
+        player.stats = stats;
+      }
+  
+      const tournaments = extractPlayerTournaments(data, playerId);
+      if (tournaments) {
+        player.tournaments = tournaments;
+      }
+  
+      const tokenInfo = extractPlayerTokenInfo(data, playerId);
+      if (tokenInfo) {
+        player.tokenInfo = tokenInfo;
+      }
+  
+      const unlocks = extractPlayerUnlocks(data, playerId);
+      if (unlocks) {
+        player.unlocked = unlocks;
+      }
+    });
+  
+    return { data: player, status: 200 };
+  }
+  return { data: player, status: 404 };
   }
 
-  // POST create player (takes email, first name, last name)
-   createPlayer(email: string, fname: string, lname: string):Promise<ApiResponse<Player>> {
-    const playerData = { email, fname, lname };
+  // GET player by userID or email
+  async getPlayer(playerId: string, queryParam: 'userID'): Promise<ApiResponse<Player>> {
+  const endpoint = `/player?${queryParam}=${playerId}`;
+  return await this.getPlayerData(playerId, queryParam, endpoint);
+}
+
+async getPlayerDtl(playerId: string, queryParam: 'userID'): Promise<ApiResponse<Player>> {
+  const endpoint = `/player/detail?${queryParam}=${playerId}`;
+  return await this.getPlayerData(playerId, queryParam, endpoint);
+}
+
+async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<Player>> {
+  const endpoint = `/player/all?${queryParam}=${playerId}`;
+  return await this.getPlayerData(playerId, queryParam, endpoint);
+}
+
+  // POST create player (takes userID, email, first name, last name)
+   createPlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1'):Promise<ApiResponse<Player>> {
+    const playerData = {userID,  email, fname, lname, region };
     return apiService.post<Player>('/player', playerData);
   }
 
@@ -55,14 +118,13 @@ class PlayerService {
     return {
       playerID: -1,
       email: res.data.results[0].email,
-      facebookID: "",
       fname: res.data.results[0].first,
       lname: res.data.results[0].last,
       propic: res.data.results[0].picture,
       real: false,
       region: 'us-east-1',
-      tourneys: [], // Array of tournament IDs
-      wins: [],     // Array of tournament IDs
+      avatars: {'r':'rock1', 'p':'paper1', 's': 'scissors1'}
+
     }
 
   }

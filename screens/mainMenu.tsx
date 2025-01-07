@@ -16,6 +16,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTournament } from 'utilities/tournamentProvider';
+import FacebookButton from 'auth/facebookAuth';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -216,6 +217,8 @@ return (
         style={styles.imageBackground} 
         resizeMode="cover" 
     />
+            {/* <FacebookButton></FacebookButton> */}
+
         <View style={[styles.tournamentContainer, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness, }]}>
             {tournament ? <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, textAlign:'center' }]}>
                     Tournament #{tournament.tournamentId}
@@ -321,7 +324,6 @@ return (
                 {/* <LogoutButton {...props} /> */}
             </View>
         )}
-
         {/* Login/Signup Box */}
         {!isLoggedIn && (
             <KeyboardAvoidingView

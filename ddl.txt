@@ -1,0 +1,5 @@
+pk: playerC(######)
+sk: base -- detail -- notif token -- tournaments -- unlocks
+
+id_type: cognito
+

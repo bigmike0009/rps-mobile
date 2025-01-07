@@ -50,8 +50,11 @@ const SignUp: React.FC<AuthProps> = (props) => {
         setError(err.message || JSON.stringify(err));
         return;
       }
+      if (result){
+      const cognitoUserSub = result?.userSub
 
-      const player = playerService.createPlayer(email.toLowerCase(), fname, lname);
+      const player = playerService.createPlayer('C' + cognitoUserSub, email.toLowerCase(), fname, lname);
+      
       player
         .then((res) => {
           if (res.status == 409) {
@@ -65,7 +68,9 @@ const SignUp: React.FC<AuthProps> = (props) => {
         .catch((res) => {
           setError('Failed to create player: ' + res.data);
         });
+      }
     });
+    
   };
 
   return (

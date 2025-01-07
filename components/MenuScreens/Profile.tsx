@@ -46,20 +46,20 @@ const {retrieveAsset} = useAssets()
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Rock:</Text>
           <TouchableOpacity onPress={()=>switchTab('characters')}>
-          <Image source={{uri: retrieveAsset('rock1')}} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset(player ? player.avatars.r: 'rock1')}} style={styles.avatarImage} />
           </TouchableOpacity>
         </View>
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Paper:</Text>
           <TouchableOpacity onPress={()=>switchTab('characters')}>
-          <Image source={{uri: retrieveAsset('paper1')}} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset(player ? player.avatars.p: 'paper1')}} style={styles.avatarImage} />
           </TouchableOpacity>
 
         </View>
         <View style={styles.avatarWrapper}>
           <Text style={styles.avatarLabel}>Scissors:</Text>
           <TouchableOpacity onPress={()=>switchTab('characters')}>
-          <Image source={{uri: retrieveAsset('scissors1')}} style={styles.avatarImage} />
+          <Image source={{uri: retrieveAsset(player ? player.avatars.s: 'scissors1')}} style={styles.avatarImage} />
           </TouchableOpacity>
 
         </View>
@@ -77,6 +77,7 @@ const {retrieveAsset} = useAssets()
               mode="outlined"
               onPress={() => setMenuVisible(true)}
               style={styles.dropdownButton}
+              disabled={true}
             >
               {selectedRegion}
             </Button>
