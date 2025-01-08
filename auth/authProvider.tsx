@@ -8,7 +8,7 @@ interface AuthContextType {
   email: string | null;
   isLoggedIn: boolean;
   setUser: (email: string | null) => void;
-  checkUser: () => Promise<Player | null>;
+  checkUser: (type:string) => Promise<Player | null>;
   handleLogout: () => Promise<void>;
   player: Player | null
 }
@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [email, setEmail] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [player, setPlayer] = useState<Player | null>(null)
+  let authType='C'
 
   useEffect(() => {
 
@@ -79,12 +80,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoggedIn(!!email);
   };
 
-  const checkUser = async () => {
+  const checkUser = async (type: string = 'base') => {
     const { email, sub } = await getCurrentUserDetails();
     setEmail(email);
     setIsLoggedIn(!!email);
     if (!!sub){
-      return fetchPlayer('C' + sub);
+      switch(type) {
+        case 'all':
+          // code block
+          return fetchPlayerAll(authType + sub)
+          break;
+        case 'detail':
+          // code block
+          console.log('THE DEVIL IS IN')
+          return fetchPlayerDetail(authType + sub);
+        default:
+          return fetchPlayer(authType + sub);
+      }
     }
     else {
       setPlayer(null)

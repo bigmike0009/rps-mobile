@@ -12,9 +12,9 @@ export function extractBasePlayerData(data: any, playerId: string): Player | nul
         propic: data.propic,
         region: data.region,
         avatars: {
-          r: data.avatars.r,
-          p: data.avatars.p,
-          s: data.avatars.s
+          r: data.avatars ? data.avatars.r : 'rock1',
+          p: data.avatars ? data.avatars.p : 'paper1',
+          s: data.avatars ? data.avatars.s : 'scissors1'
         },
         real: true  // Assuming 'real' is true for base player object
       };
@@ -30,7 +30,7 @@ export function extractPlayerStats(data: any, playerId: string): PlayerStats | n
     if (data.pk === `player#${playerId}` && data.sk.startsWith('dtl#stats')) {
       return {
         wins: data.wins || 0,
-        loss: data.loss || 0,
+        losses: data.losses || 0,
         ties: 0,  // Assuming ties are not provided, but can be added if available
         rocksThrown: data.rocksThrown || 0,
         papersThrown: data.papersThrown || 0,

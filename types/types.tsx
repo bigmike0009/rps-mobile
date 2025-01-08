@@ -17,7 +17,7 @@ export interface Player {
 
   export interface PlayerStats {
     wins: number,
-    loss: number,
+    losses: number,
     ties: number,
     rocksThrown: number,
     papersThrown: number,

@@ -37,6 +37,7 @@ export const tournamentService = new TournamentService();
 class PlayerService {
 
   async getPlayerData(playerId: string, queryParam: 'userID', endpoint: string): Promise<ApiResponse<Player>> {
+    console.log("WAAAAAAAAP")
     const response = await apiService.get<any[]>(endpoint);
     console.log(response)
     let player: Player = {

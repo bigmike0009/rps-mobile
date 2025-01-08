@@ -10,6 +10,7 @@ import { Button, IconButton } from 'react-native-paper';
 import { theme } from 'components/theme'; // Replace with your theme import
 import { Player } from 'types/types';
 import ProfileComponent from './MenuScreens/Profile';
+import PlayerStatsScreen from './MenuScreens/Stats';
 
 type DropdownMenuProps = {
   isVisible: boolean;
@@ -41,7 +42,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ isVisible, onClose, player}
           <ProfileComponent switchTab={handleSelectedOption}/>
         );
       case 'stats':
-        return <Text style={styles.infoText}>Stats Component Placeholder</Text>;
+        return           <PlayerStatsScreen/>
       case 'trophy':
         return <Text style={styles.infoText}>Trophy Room Component Placeholder</Text>;
       case 'characters':
