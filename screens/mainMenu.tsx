@@ -24,6 +24,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
   const { navigation } = props;
   const {tournament, fetchNewTournament, fetchTournament} = useTournament()
+  const [legacySignUp, setLegacySignUp] = useState(false)
+
 
   const [tournamentStarted, setTournamentStarted] = useState(false)
   const [tournamentCleanup, setTournamentCleanup] = useState(false)
@@ -46,9 +48,9 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
  
-  const { email, isLoggedIn, player } = authContext!
+  const { isLoggedIn, player } = authContext!
 
-  const {assets, retrieveAsset} = useAssets()
+  const {retrieveAsset} = useAssets()
 
 
   const getBgImage = () => {
@@ -325,11 +327,26 @@ return (
             </View>
         )}
         {/* Login/Signup Box */}
-        {!isLoggedIn && (
+        {!isLoggedIn && !legacySignUp && (
+          <View>
+          <FacebookButton></FacebookButton>
+          <FAB
+                    label="Login/Signup through shootout account"
+                    onPress={()=>setLegacySignUp(true)}
+                    style={styles.fabButton}
+                />
+          </View>
+        )}
+        {!isLoggedIn && legacySignUp && (
             <KeyboardAvoidingView
                 style={[styles.authContainer, { backgroundColor: theme.colors.backdrop }]}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
+              <FAB
+                    label="Other Ways to sign in"
+                    onPress={()=>setLegacySignUp(false)}
+                    style={styles.fabButton}
+                />
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.formContainer}>
                         {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}

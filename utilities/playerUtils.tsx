@@ -5,7 +5,7 @@ export function extractBasePlayerData(data: any, playerId: string): Player | nul
 
 
       const pdata = {
-        playerID: parseInt(data.pk.split('#')[1]),
+        playerID: data.pk.split('#')[1],
         email: data.email,
         fname: data.fname,
         lname: data.lname,
@@ -43,6 +43,8 @@ export function extractPlayerStats(data: any, playerId: string): PlayerStats | n
   // Function to extract player tournaments
 export function extractPlayerTournaments(data: any, playerId: string): PlayerTournaments | null {
     if (data.pk === `player#${playerId}` && data.sk.startsWith('dtl#tournaments')) {
+      console.log('WHERES MY SUPER SUIT')
+      console.log(data)
       return {
         played: data.played || [],
         trophies: data.trophies || []

@@ -19,7 +19,7 @@ const Login: React.FC<AuthProps> = (props) => {
   const authContext = useContext(AuthContext);
 
 
-  let { checkUser, player, handleLogout } = authContext!;
+  let { checkUser, setUser, handleLogout } = authContext!;
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -51,8 +51,10 @@ const Login: React.FC<AuthProps> = (props) => {
         const email = result.getIdToken().payload.email;
 
         
-        if (authContext) {
-          checkUser().then((playerData)=>{
+
+        
+        if (authContext && userId) {
+          setUser(`C${userId}`).then((playerData)=>{
             if (playerData) {
               console.log('registering player for push notifications!')
               registerForPushNotificationsAsync(playerData)
@@ -63,7 +65,7 @@ const Login: React.FC<AuthProps> = (props) => {
               {
                 console.log('no player data in the database. Issue with sign up process?')
                 handleLogout()
-                setError('Error fetching player data from Database. Contact 860-682-2090 for support.')
+                setError('Error fetching player data from Database. Contact +1-860-682-2090 for support.')
               }
           });
           

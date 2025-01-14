@@ -24,7 +24,7 @@ export async function registerForPushNotificationsAsync(player: Player) {
   return token;
 }
 
-async function sendTokenToBackend(playerID: number, token: string) {
+async function sendTokenToBackend(playerID: string, token: string) {
   // Logic to save the token in your backend, if necessary
   const deviceID = getDeviceId()
   deviceID.catch(

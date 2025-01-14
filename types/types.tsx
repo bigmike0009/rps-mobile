@@ -1,6 +1,6 @@
 // Player object type
 export interface Player {
-    playerID: number;
+    playerID: string;
     email: string;
     fname: string;
     lname: string;
@@ -31,11 +31,17 @@ export interface Player {
 
   }
 
+  type Trophy = {
+    tournamentId: number;
+    placements: string[];
+  };
+
   export interface PlayerTournaments {
     played: number[],
-    trophies: Record<number, string[]>[]
+    trophies: Trophy[]
 
   }
+  
 
   export interface PlayerUnlocks {
     bonusLives: number,

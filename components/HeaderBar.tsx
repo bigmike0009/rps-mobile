@@ -90,7 +90,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
         {!['RockPaperScissors', 'ResultsScreen', 'FinalResultsScreen', 'WaitingScreen'].includes(currentRoute) && <TouchableOpacity onPress={toggleMenu}>
           <Avatar.Image
             size={36}
-            source={{uri: retrieveAsset('Question')} } // Player's profile picture
+            source={player.propic? {uri: player.propic} : {uri: retrieveAsset('Question')} } // Player's profile picture
             style={styles.avatar}
           />
         </TouchableOpacity>}

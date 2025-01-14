@@ -25,7 +25,7 @@ class TournamentService {
   }
 
   // POST create a tournament (takes userID and region)
-  async addPlayerToTournament(tourneyID: number, userID: number, region: string): Promise<ApiResponse<Tournament>> {
+  async addPlayerToTournament(tourneyID: number, userID: string, region: string): Promise<ApiResponse<Tournament>> {
     const tournamentData = { tourneyID, userID, region };
     console.log(tournamentData)
     return await apiService.post<Tournament>('/tournament', tournamentData);
@@ -41,7 +41,7 @@ class PlayerService {
     const response = await apiService.get<any[]>(endpoint);
     console.log(response)
     let player: Player = {
-      playerID: 0,
+      playerID: 'player#C0',
       email: '',
       fname: '',
       lname: '',
@@ -83,6 +83,9 @@ class PlayerService {
         player.unlocked = unlocks;
       }
     });
+
+    console.log('FINAL PLAYER')
+    console.log(player)
   
     return { data: player, status: 200 };
   }
@@ -106,9 +109,14 @@ async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<
 }
 
   // POST create player (takes userID, email, first name, last name)
-   createPlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1'):Promise<ApiResponse<Player>> {
-    const playerData = {userID,  email, fname, lname, region };
+   createPlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1', propic: string = ''):Promise<ApiResponse<Player>> {
+    const playerData = {userID,  email, fname, lname, region, propic };
     return apiService.post<Player>('/player', playerData);
+  }
+
+  getOrCreatePlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1', propic: string = ''):Promise<ApiResponse<Player>> {
+    const playerData = {userID,  email, fname, lname, region, propic };
+    return apiService.put<Player>('/player', playerData);
   }
 
 
@@ -117,7 +125,7 @@ async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<
     let res = await apiService.getBase<any>('https://randomuser.me/api/');
 
     return {
-      playerID: -1,
+      playerID: 'player#-1',
       email: res.data.results[0].email,
       fname: res.data.results[0].first,
       lname: res.data.results[0].last,
@@ -159,7 +167,7 @@ export const matchupService = new MatchupService();
 
 class TokenService {
 
-updateTokenForPlayer(playerID: number, token: string, deviceID: string):Promise<ApiResponse<Number>> {
+updateTokenForPlayer(playerID: string, token: string, deviceID: string):Promise<ApiResponse<Number>> {
   const tokenData = { playerID, token, deviceID };
   return apiService.post<Number>('/token', tokenData);
 }

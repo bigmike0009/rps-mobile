@@ -5,9 +5,9 @@ import { playerService } from 'services/appServices';
 
 
 interface AuthContextType {
-  email: string | null;
+  userID: string | null;
   isLoggedIn: boolean;
-  setUser: (email: string | null) => void;
+  setUser: (userID: string) => Promise<Player | null>;
   checkUser: (type:string) => Promise<Player | null>;
   handleLogout: () => Promise<void>;
   player: Player | null
@@ -16,10 +16,9 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [email, setEmail] = useState<string | null>(null);
+  const [userID, setUserID] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [player, setPlayer] = useState<Player | null>(null)
-  let authType='C'
 
   useEffect(() => {
 
@@ -46,6 +45,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (player.status == 200 && player.data) {
       const { stats, tournaments } = player.data;
+      console.log('WHERE')
+      console.log(tournaments)
 
     // Update only the stats and tournaments in the state
     setPlayer((prevPlayer) => ({
@@ -68,6 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (player.status == 200) {
       setPlayer(player.data)
       console.log('Player Data has returned!')
+      console.log(player)
+
       
   };
     return player.data ? player.data : null
@@ -75,27 +78,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   };
 
-  const setUser = (email: string | null) => {
-    setEmail(email);
-    setIsLoggedIn(!!email);
+  const setUser = (userID: string) => {
+    setUserID(userID);
+    setIsLoggedIn(!!userID);
+    return fetchPlayer(userID);
+
+      
   };
 
   const checkUser = async (type: string = 'base') => {
-    const { email, sub } = await getCurrentUserDetails();
-    setEmail(email);
-    setIsLoggedIn(!!email);
-    if (!!sub){
+    //given the current userID state retrieve data from dynamo
+    
+    //const { email, sub } = await getCurrentUserDetails();
+    //setEmail(email);
+    setIsLoggedIn(!!userID);
+    if (!!userID){
       switch(type) {
         case 'all':
           // code block
-          return fetchPlayerAll(authType + sub)
-          break;
+          console.log('ALL RISE')
+          return fetchPlayerAll(userID)
         case 'detail':
           // code block
           console.log('THE DEVIL IS IN')
-          return fetchPlayerDetail(authType + sub);
+          return fetchPlayerDetail(userID);
         default:
-          return fetchPlayer(authType + sub);
+          return fetchPlayer(userID);
       }
     }
     else {
@@ -112,7 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
 
-    <AuthContext.Provider value={{ email, isLoggedIn, setUser, checkUser, handleLogout, player }}>
+    <AuthContext.Provider value={{ userID, isLoggedIn, setUser, checkUser, handleLogout, player }}>
       {children}
     </AuthContext.Provider>
   );

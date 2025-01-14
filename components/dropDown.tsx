@@ -11,6 +11,7 @@ import { theme } from 'components/theme'; // Replace with your theme import
 import { Player } from 'types/types';
 import ProfileComponent from './MenuScreens/Profile';
 import PlayerStatsScreen from './MenuScreens/Stats';
+import TrophyRoomComponent from './MenuScreens/trophyRoom';
 
 type DropdownMenuProps = {
   isVisible: boolean;
@@ -38,13 +39,11 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ isVisible, onClose, player}
   const renderContent = () => {
     switch (selectedOption) {
       case 'profile':
-        return (
-          <ProfileComponent switchTab={handleSelectedOption}/>
-        );
+        return <ProfileComponent switchTab={handleSelectedOption}/>
       case 'stats':
-        return           <PlayerStatsScreen/>
+        return <PlayerStatsScreen/>
       case 'trophy':
-        return <Text style={styles.infoText}>Trophy Room Component Placeholder</Text>;
+        return <TrophyRoomComponent/>;
       case 'characters':
         return <Text style={styles.infoText}>Characters Component Placeholder</Text>;
       default:
@@ -53,8 +52,13 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ isVisible, onClose, player}
   };
 
   return (
-    <Modal transparent visible={isVisible} animationType="fade">
-      <TouchableWithoutFeedback onPress={onClose}>
+    <Modal transparent visible={isVisible} animationType="fade" >
+      <TouchableWithoutFeedback onPress={(event) => {
+    // Check if the user tapped outside the dropdown menu
+    if (event.target === event.currentTarget) {
+      onClose();
+    }
+  }}>
         <View style={styles.overlay}>
           <View style={[styles.dropdownMenu, { backgroundColor: theme.colors.background }]}>
             {/* Close Button */}

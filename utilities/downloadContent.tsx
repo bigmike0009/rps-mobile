@@ -84,9 +84,9 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Downloading Content...</Text>
+      <Text style={{color: 'white'}}>Downloading Content...</Text>
       <Progress.Bar progress={progress} width={200} />
-      <Text>{Math.round(progress * 100)}%</Text>
+      <Text style={{color: 'white'}}>{Math.round(progress * 100)}%</Text>
     </View>
   );
 };

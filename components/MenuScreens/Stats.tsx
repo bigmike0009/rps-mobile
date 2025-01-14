@@ -90,33 +90,39 @@ const PlayerStatsScreen: React.FC = () => {
         <Text style={[styles.legendItem, { color: theme.colors.secondary }]}>Ties {0}%</Text>
       </Text>
 
+      <List.Section>
+        <List.Item title="Total Wins" description={wins.toString()} left={() => <List.Icon icon="trophy" />} />
+        <List.Item title="Total Losses" description={losses.toString()} left={() => <List.Icon icon="close" />} />
+        <List.Item title="Total Games" description={totalGames.toString()} left={() => <List.Icon icon="gamepad" />} />
+      </List.Section>
+
       {/* Pie Chart */}
       <Text variant="titleMedium" style={styles.sectionTitle}>
-        Rock, Paper, Scissors Breakdown
+        Throws Breakdown
       </Text>
       <PieChart
         data={[
           {
             name: 'Rock',
             count: rocksThrown,
-            color: theme.colors.tertiary || '#FF5722',
+            color: "#6A7B8B",
             legendFontColor: theme.colors.onSurface,
             legendFontSize: 14,
           },
           {
             name: 'Paper',
             count: papersThrown,
-            color: theme.colors.secondary || '#2196F3',
+            color: "#F4F4F4",
             legendFontColor: theme.colors.onSurface,
             legendFontSize: 14,
           },
           {
             name: 'Scissors',
             count: scissorsThrown,
-            color: theme.colors.primary || '#4CAF50',
+            color: "#FF914D",
             legendFontColor: theme.colors.onSurface,
             legendFontSize: 14,
-          },
+          }
         ]}
         width={Dimensions.get('window').width - 40}
         height={220}
@@ -126,6 +132,16 @@ const PlayerStatsScreen: React.FC = () => {
         style={styles.chart}
         yAxisLabel=""
         yAxisSuffix=" throws"
+        chartConfig = {{
+          backgroundGradientFrom: "#1E2923",
+          backgroundGradientFromOpacity: 0,
+          backgroundGradientTo: "#08130D",
+          backgroundGradientToOpacity: 0.5,
+          color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+          strokeWidth: 2, // optional, default 3
+          barPercentage: 0.5,
+          useShadowColorFromDataset: false // optional
+        }}
       />
 
       {/* Totals List */}
@@ -133,9 +149,6 @@ const PlayerStatsScreen: React.FC = () => {
         Totals
       </Text>
       <List.Section>
-        <List.Item title="Total Wins" description={wins.toString()} left={() => <List.Icon icon="trophy" />} />
-        <List.Item title="Total Losses" description={losses.toString()} left={() => <List.Icon icon="close" />} />
-        <List.Item title="Total Games" description={totalGames.toString()} left={() => <List.Icon icon="gamepad" />} />
         <List.Item title="Rocks Thrown" description={rocksThrown.toString()} left={() => <List.Icon icon="terrain" />} />
         <List.Item title="Papers Thrown" description={papersThrown.toString()} left={() => <List.Icon icon="receipt" />} />
         <List.Item title="Scissors Thrown" description={scissorsThrown.toString()} left={() => <List.Icon icon="content-cut" />} />
