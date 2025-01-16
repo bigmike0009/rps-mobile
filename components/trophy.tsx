@@ -29,7 +29,7 @@ const TrophyComponent: React.FC<TrophyProps> = ({ tournamentId, playerName, plac
     <View style={styles.container}>
       <Image source={trophyImage} style={styles.trophyImage} />
       <View style={styles.overlay}>
-        <Text style={styles.text}>{playerName}</Text>
+        <Text style={styles.text}>{playerName} </Text>
         <Text style={styles.text}>{tournamentId}</Text>
       </View>
     </View>
@@ -43,18 +43,19 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   trophyImage: {
-    width: 150,
-    height: 200,
+    width: 200,
+    height: 250,
     resizeMode: 'contain',
   },
   overlay: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 40,
     alignItems: 'center',
+    flexDirection: 'row'
   },
   text: {
-    color: 'white',
-    fontSize: 16,
+    color: 'black',
+    fontSize: 9,
     fontWeight: 'bold',
     textAlign: 'center',
   },

@@ -316,13 +316,13 @@ return (
                     disabled={!tournament || registered || tournamentStarted || tournamentCleanup}
                     style={styles.fabButton}
                 />
-                {tournament &&
+              
                 <FAB
                     label="Test"
-                    onPress={()=>navigation.replace('SpectatorScreen',{tournament: tournament})}
+                    onPress={()=>navigation.replace('TrophyRoom')}
                     style={styles.fabButton}
                 />
-              }
+              
                 {/* <LogoutButton {...props} /> */}
             </View>
         )}
@@ -331,7 +331,7 @@ return (
           <View>
           <FacebookButton></FacebookButton>
           <FAB
-                    label="Login/Signup through shootout account"
+                    label="Legacy Sign In"
                     onPress={()=>setLegacySignUp(true)}
                     style={styles.fabButton}
                 />

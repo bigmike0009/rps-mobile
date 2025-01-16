@@ -13,6 +13,7 @@ export type DefaultStackParamList = {
   ResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, player1or2: number};
   FinalResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, player1or2: number};
   SpectatorScreen: {tournament: Tournament};
+  TrophyRoom: undefined;
 
   MainMenu: undefined;
   WaitingScreen: undefined

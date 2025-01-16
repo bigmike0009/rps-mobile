@@ -18,6 +18,10 @@ class TournamentService {
     return await apiService.get<Tournament>(`/tournament?tournamentID=${tournamentID}`);
   }
 
+  async getAllTournamentsForPlayer(userID: string): Promise<ApiResponse<Record<number,Tournament>>> {
+    return await apiService.get<Record<number,Tournament>>(`/player/tournaments?userID=${userID}`);
+  }
+
   async getAllMatchups(tableName: string): Promise<ApiResponse<MatchupDetail[]>> {
     const endpoint = `/bracket?matchupTable=${tableName}`;
     return await apiService.get<MatchupDetail[]>(endpoint);
@@ -150,7 +154,7 @@ class MatchupService {
   }
 
 
-  async getMatchupFromPlayer(playerID: number, tournamentID: number): Promise<ApiResponse<Matchup>> {
+  async getMatchupFromPlayer(playerID: string, tournamentID: number): Promise<ApiResponse<Matchup>> {
     const endpoint = `/matchup?playerID=${playerID}&tournamentID=${tournamentID}`;
     return await apiService.get<Matchup>(endpoint);
     

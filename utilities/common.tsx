@@ -56,3 +56,16 @@ export async function getDeviceId() {
   console.log('Device ID:', deviceId);
   return deviceId;
 }
+
+export const formatDate = (timestamp: string) => {
+  const [date, time] = timestamp.split(':'); // Split into date and time
+  const [month, day, year] = date.split('-'); // Extract month, day, year
+
+  // Construct a readable format: "November 21, 2024"
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+  return `${monthNames[parseInt(month, 10) - 1]} ${parseInt(day, 10)}, ${year}`;
+};
+

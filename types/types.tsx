@@ -31,14 +31,9 @@ export interface Player {
 
   }
 
-  type Trophy = {
-    tournamentId: number;
-    placements: string[];
-  };
-
   export interface PlayerTournaments {
     played: number[],
-    trophies: Trophy[]
+    trophies: Record<string, string[]>;
 
   }
   

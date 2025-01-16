@@ -12,6 +12,7 @@ import { Player } from 'types/types';
 import ProfileComponent from './MenuScreens/Profile';
 import PlayerStatsScreen from './MenuScreens/Stats';
 import TrophyRoomComponent from './MenuScreens/trophyRoom';
+import CharacterUnlockScreen from './MenuScreens/unlockScreen';
 
 type DropdownMenuProps = {
   isVisible: boolean;
@@ -45,7 +46,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({ isVisible, onClose, player}
       case 'trophy':
         return <TrophyRoomComponent/>;
       case 'characters':
-        return <Text style={styles.infoText}>Characters Component Placeholder</Text>;
+        return <CharacterUnlockScreen/>;
       default:
         return null;
     }

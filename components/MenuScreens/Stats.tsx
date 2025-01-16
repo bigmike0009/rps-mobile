@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
-import { Text, useTheme, List, Button } from 'react-native-paper';
+import { Text, useTheme, List, Button, FAB } from 'react-native-paper';
 import { AuthContext } from 'auth/authProvider';
 import { ProgressBar } from 'react-native-paper';
 import { PieChart } from 'react-native-chart-kit';
@@ -42,9 +42,9 @@ const PlayerStatsScreen: React.FC = () => {
         <Text variant="headlineSmall" style={{ color: theme.colors.primary, marginBottom: 10 }}>
           No stats available.
         </Text>
-        <Button mode="contained" onPress={refreshPlayerStats}>
-          Refresh Stats
-        </Button>
+        <FAB label="Refresh Stats" icon="refresh" onPress={refreshPlayerStats}>
+          
+        </FAB>
       </View>
     );
   }

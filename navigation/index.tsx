@@ -11,6 +11,7 @@ import FinalResultsScreen from 'screens/finalResultScreen';
 import SpectatorScreen from 'screens/spectator';
 import { navigationTheme, theme } from 'components/theme';
 import Header from 'components/HeaderBar';
+import TrophyRoomComponent from 'components/MenuScreens/trophyRoom';
 
 const Stack = createStackNavigator<DefaultStackParamList>();
 
@@ -26,6 +27,8 @@ export default function RootStack() {
         <Stack.Screen name="ResultsScreen" component={ResultsScreen} />
         <Stack.Screen name="FinalResultsScreen" component={FinalResultsScreen} />
         <Stack.Screen name="SpectatorScreen" component={SpectatorScreen} />
+        <Stack.Screen name="TrophyRoom" component={TrophyRoomComponent} />
+
 
 
 
