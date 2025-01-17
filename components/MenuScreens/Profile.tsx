@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { Menu, Button, Divider } from 'react-native-paper';
+import { Menu, Button, Divider, FAB } from 'react-native-paper';
 import { AuthContext } from 'auth/authProvider';
 import { useAssets } from 'utilities/assetProvider';
 import { theme } from 'components/theme';
@@ -12,7 +12,7 @@ type ProfileProps = {
 
 const ProfileComponent: React.FC<ProfileProps> = ({switchTab}) => {
   // Fetch player data from playerProvider
-  const { player } = useContext(AuthContext)!; // Get player data from AuthContext
+  const { player, handleLogout } = useContext(AuthContext)!; // Get player data from AuthContext
 const {retrieveAsset} = useAssets()
 
   const [selectedRegion, setSelectedRegion] = useState(player?.region || 'us-east-1');
@@ -95,6 +95,12 @@ const {retrieveAsset} = useAssets()
             />
           ))}
         </Menu>
+        <FAB
+                    icon="logout"
+                    onPress={()=>handleLogout()}
+                    style={{width: 48, margin: 20, backgroundColor: theme.colors.onError}}
+            
+                />
       </View>
 
       {/* Save Button */}

@@ -1,7 +1,7 @@
 import { Player, PlayerStats, PlayerTournaments, PlayerUnlocks, TokenInfo } from "types/types";
 
 export function extractBasePlayerData(data: any, playerId: string): Player | null {
-    if (data.pk === `player#${playerId}`) {
+    if (data.sk === `base#data`) {
 
 
       const pdata = {
@@ -19,6 +19,8 @@ export function extractBasePlayerData(data: any, playerId: string): Player | nul
         real: true  // Assuming 'real' is true for base player object
       };
       console.log('smah')
+      console.log(pdata)
+
 
       return pdata
     }
@@ -66,7 +68,7 @@ export function extractPlayerTokenInfo(data: any, playerId: string): TokenInfo |
   
   // Function to extract player unlocks
 export function extractPlayerUnlocks(data: any, playerId: string): PlayerUnlocks | null {
-    if (data.pk === `player#${playerId}` && data.sk.startsWith('unlocks#avatars')) {
+    if (data.pk === `player#${playerId}` && data.sk.startsWith('dtl#avatars')) {
       return {
         bonusLives: data.bonusLives || 0,
         avatars: data.avatars.map((id: number) => String(id))  // Convert avatar IDs to strings

@@ -58,14 +58,14 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
         const file = remoteFiles[i];
         const localUri = `${FileSystem.documentDirectory}${file.name}${file.type}`;
         const fileInfo = await FileSystem.getInfoAsync(localUri);
-        console.log('loading file:')
+        //console.log('loading file:')
 
-        console.log(file.name)
+        //console.log(file.name)
 
         if (!fileInfo.exists) {
           await FileSystem.downloadAsync(file.uri, localUri);
         }
-        console.log('loaded file')
+        //console.log('loaded file')
 
         // Add to context
         addAsset(file.name, localUri);

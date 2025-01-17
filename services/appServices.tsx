@@ -40,32 +40,24 @@ export const tournamentService = new TournamentService();
 
 class PlayerService {
 
-  async getPlayerData(playerId: string, queryParam: 'userID', endpoint: string): Promise<ApiResponse<Player>> {
-    console.log("WAAAAAAAAP")
-    const response = await apiService.get<any[]>(endpoint);
-    console.log(response)
+  async unpackPlayerData(playerId: string, response: ApiResponse<any[]>) {
     let player: Player = {
-      playerID: 'player#C0',
+      playerID: 'player#' + playerId,
       email: '',
       fname: '',
       lname: '',
       propic: '',
-      real: false,
+      real: true,
       region: '',
       avatars: { r: '', p: '', s: '' }
     };
     if (response.data) {
-      console.log("DATAAAAA")
       response.data.forEach(data => {
-        console.log('BURNNN')
       const basePlayer = extractBasePlayerData(data, playerId);
-      console.log('BASEcally')
-      console.log(basePlayer)
       if (basePlayer) {
         player = { ...player, ...basePlayer };
+
       }
-      console.log('MERGE')
-      console.log(player)
   
       const stats = extractPlayerStats(data, playerId);
       if (stats) {
@@ -88,12 +80,17 @@ class PlayerService {
       }
     });
 
-    console.log('FINAL PLAYER')
     console.log(player)
   
     return { data: player, status: 200 };
   }
   return { data: player, status: 404 };
+  }
+
+  async getPlayerData(playerId: string, queryParam: 'userID', endpoint: string): Promise<ApiResponse<Player>> {
+    const response = await apiService.get<any[]>(endpoint);
+
+    return this.unpackPlayerData(playerId, response)
   }
 
   // GET player by userID or email
@@ -118,9 +115,18 @@ async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<
     return apiService.post<Player>('/player', playerData);
   }
 
-  getOrCreatePlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1', propic: string = ''):Promise<ApiResponse<Player>> {
+  async getOrCreatePlayer(userID: string, email: string, fname: string, lname: string, region: string = 'us-east-1', propic: string = ''):Promise<ApiResponse<Player>> {
     const playerData = {userID,  email, fname, lname, region, propic };
-    return apiService.put<Player>('/player', playerData);
+
+    const response = await apiService.put<any[]>('/player', playerData);
+    return this.unpackPlayerData(userID, response)
+  }
+
+  async updatePlayerAvatar(userID: string, avType: string, avatar: string):Promise<ApiResponse<Player>> {
+    const playerData = {userID, type: avType, avatar };
+
+    const response = await apiService.put<any[]>('/player/avatar', playerData);
+    return this.unpackPlayerData(userID, response)
   }
 
 

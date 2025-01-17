@@ -17,6 +17,7 @@ import LogoutButton from 'auth/logout';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useTournament } from 'utilities/tournamentProvider';
 import FacebookButton from 'auth/facebookAuth';
+import { registerForPushNotificationsAsync } from 'utilities/notificationUtils';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -48,7 +49,7 @@ const MainMenu: React.FC<AuthProps> = (props) => {
   const opacity = useRef(new Animated.Value(1)).current;
 
  
-  const { isLoggedIn, player } = authContext!
+  const { player, getOrCreatePlayer } = authContext!
 
   const {retrieveAsset} = useAssets()
 
@@ -173,6 +174,25 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     }
   }, [tournamentStarted]);
 
+  const testFunc = async () => {
+    getOrCreatePlayer('Facetest', 'test@hotmail.com', 'test', 'ing', 'us-east-1', 'http://').then(
+                (pdata)=>{
+                if (pdata) {
+    
+                  console.log('Player logged in:', pdata);
+    
+    
+                  console.log('registering player for push notifications!')
+                  registerForPushNotificationsAsync(pdata)
+                }
+                  else
+                  {
+                    console.log('no player data in the database. Issue with sign up process?')
+                  }
+                  
+    
+              }).catch((err)=>{console.log(err)});
+  }
 
   function getTimeUntilNextGame(tourney: Tournament|null = null) {
     const now = DateTime.local().setZone('America/New_York'); // Get the current time in the machine's local time, but set it to Eastern Time
@@ -246,7 +266,7 @@ return (
                         </Text>
                         {registered && <Text style={{ color: 'green', textAlign: 'center' }}>Player Registered!</Text>}
                     </View>
-                    {isLoggedIn && (
+                    {player && (
                         <View>
                             <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
                                 # Players: {tournament.numPlayersRegistered}
@@ -263,12 +283,12 @@ return (
             )}
 
             {/* FAB Button to Refresh Tournament */}
-            {isLoggedIn && (
+            {player && (
                 <IconButton
                     style={styles.refreshButton}
                     icon="refresh"
                     loading={refreshing}
-                    disabled={refreshing || !isLoggedIn}
+                    disabled={refreshing || !player}
                     onPress={updatePageWithTournament}
                 />
             )}
@@ -288,22 +308,22 @@ return (
         </View>
 
         {/* Buttons Section: Now a Separate Lower Container */}
-        {isLoggedIn && (
+        {player && (
             <View style={[styles.lowerButtonsContainer, {      backgroundColor: theme.colors.surface}]}>
               {tournamentStarted && !tournamentCleanup && (
               
                 
-      <Animated.View style={{ opacity: isLoggedIn ? opacity : 1 }}>
+      <Animated.View style={{ opacity: player ? opacity : 1 }}>
         <FAB
           style={[
             styles.fabButton,
             {
-              backgroundColor: isLoggedIn
+              backgroundColor: player
                 ? theme.colors.primary
                 : theme.colors.surfaceDisabled, // Gray when disabled
             },
           ]}
-          disabled={!isLoggedIn}
+          disabled={!player}
           onPress={() => tournament?.roundActiveFlag ? navigation.replace('SpectatorScreen', {tournament: tournament}) : navigation.replace('WaitingScreen')}
           label={registered ? 'Join Tournament' : 'View Tournament'}
         />
@@ -327,9 +347,15 @@ return (
             </View>
         )}
         {/* Login/Signup Box */}
-        {!isLoggedIn && !legacySignUp && (
+        {!player && !legacySignUp && (
           <View>
           <FacebookButton></FacebookButton>
+          <FAB
+                    label="Test"
+                    onPress={()=>testFunc()}
+                    style={styles.fabButton}
+                />
+        
           <FAB
                     label="Legacy Sign In"
                     onPress={()=>setLegacySignUp(true)}
@@ -337,21 +363,22 @@ return (
                 />
           </View>
         )}
-        {!isLoggedIn && legacySignUp && (
+        {!player && legacySignUp && (
             <KeyboardAvoidingView
                 style={[styles.authContainer, { backgroundColor: theme.colors.backdrop }]}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-              <FAB
-                    label="Other Ways to sign in"
-                    onPress={()=>setLegacySignUp(false)}
-                    style={styles.fabButton}
-                />
+              
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.formContainer}>
                         {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}
                     </View>
                 </ScrollView>
+                <FAB
+                    icon="undo"
+                    onPress={()=>setLegacySignUp(false)}
+                    style={{width:48, position:'absolute', left: 20}}
+                />
                 <SegmentedButtons
                     value={selected}
                     onValueChange={setSelected}

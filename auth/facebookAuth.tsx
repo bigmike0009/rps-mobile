@@ -18,24 +18,20 @@ export default function FacebookButton() {
 
   });
 
-  const [mess, setMess] = useState('Nunya')
 
 
   const { colors } = useTheme();
   const authContext = useContext(AuthContext);
   
-  let { setUser, checkUser, player, handleLogout } = authContext!;
+  let { player, handleLogout, getOrCreatePlayer } = authContext!;
 
   useEffect(() => {
     if (response?.type === 'success' && response.authentication) {
       (async () => {
         try {
-          setMess('fetching from facebook')
           const userInfoResponse = await fetch(`https://graph.facebook.com/me?access_token=${response.authentication?.accessToken}&fields=id,name,email,picture.type(large)`)
-          setMess('fetched from facebook')
 
           const userInfo = await userInfoResponse.json();
-          setMess(userInfo)
 
 
           const { id: facebookID, name, picture, email } = userInfo;
@@ -43,22 +39,24 @@ export default function FacebookButton() {
           const lastName = lastNameParts.join(' ');
 
           // Create or retrieve player data from your API
-          const player = playerService.getOrCreatePlayer('F' + facebookID, email.toLowerCase(), firstName, lastName, 'us-east-1', picture.data.url).then((pdata)=>{setMess('gotPdata')
+          getOrCreatePlayer('F' + facebookID, email.toLowerCase(), firstName, lastName, 'us-east-1', picture.data.url).then(
+            (pdata)=>{
             if (pdata) {
-              console.log('Player logged in:', player);
-              setUser(`F${facebookID}`).then((playerData)=>{
-                          if (playerData) {
-                            console.log('registering player for push notifications!')
-                            registerForPushNotificationsAsync(playerData)
-                          }
-                          else
-                          {
-                            console.log('no player data in the database. Issue with sign up process?')
-                            handleLogout()
-                          }})
-              }
 
-          }).catch((err)=>{setMess('err')});
+              console.log('Player logged in:', pdata);
+
+
+              console.log('registering player for push notifications!')
+              registerForPushNotificationsAsync(pdata)
+            }
+              else
+              {
+                console.log('no player data in the database. Issue with sign up process?')
+                handleLogout()
+              }
+              
+
+          }).catch((err)=>{console.error(err)});
           
 
         } catch (error) {
@@ -85,13 +83,12 @@ export default function FacebookButton() {
         <Text>Params 0: {response.params[0]}</Text>
         <Text>Error: {response.error?.description}</Text>
         <Text>Access token: {response.authentication.accessToken}</Text>
-        <Text>Mess: {mess}</Text>
         </View>}
       
       <FAB
       style={{
         margin: 10,
-        paddingHorizontal: 20,
+        paddingHorizontal: 5,
         backgroundColor: '#1877F2', // Facebook blue
         borderRadius: 25,
         height: 50,

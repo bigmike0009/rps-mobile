@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
   },
   dialog: {
     width: 120,
-    padding: 20,
+    padding: 5,
     backgroundColor: 'white',
     borderRadius: 8,
     shadowColor: '#000',

@@ -28,8 +28,6 @@ const TrophyRoomComponent: React.FC = () => {
   const [moveAnimOld] = useState(new Animated.Value(0)); // Old Trophy Move
   const [moveAnimNew] = useState(new Animated.Value(100)); // New Trophy Move
   const theme = useTheme();
-
-  useEffect
   
   useEffect(() => {
     refreshTrophyData()

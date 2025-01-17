@@ -10,8 +10,11 @@ interface AvatarCardProps {
   unlockRequirement: string;
   progress: number; // current progress out of 50
   isUnlocked: boolean;
+  inUse: boolean;
   isDialogVisible: boolean;
   onToggleDialog: () => void;
+  selectAvatar: () => void;
+
 
 }
 
@@ -21,7 +24,9 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
   progress,
   isUnlocked,
   isDialogVisible,
-  onToggleDialog
+  onToggleDialog,
+  inUse,
+  selectAvatar
 
 }) => {
   const [scale] = useState(new Animated.Value(1));
@@ -50,12 +55,12 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
 
   return (
     <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
-      <Animated.View style={[styles.card, { transform: [{ scale }] }]}>
+      <Animated.View style={[styles.card, { transform: [{ scale }] }, inUse ? {borderColor:'green', borderWidth: 1} : {}]}>
         <Image
           source={{ uri: useAssets().retrieveAsset(name.toLowerCase()) }}
           style={[styles.avatarImage, { opacity: isUnlocked ? 1 : 0.3 }]}
         />
-        <Text style={styles.avatarName}>{name}</Text>
+        
         {!isUnlocked && (
           <View style={styles.progressBarContainer}>
             <ProgressBar progress={progress / 50} color="green" style={styles.progressBar} />
@@ -64,18 +69,20 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
         )}
       </Animated.View>
       <CustomOverlayDialog visible={isDialogVisible} onClose={onToggleDialog}>
+      <Text style={styles.avatarName}>{name}</Text>
         <Text style={styles.popupText}>
-          {isUnlocked
-            ? `Use ${name} as your avatar?`
-            : `Unlock this avatar by ${unlockRequirement}.`}
+          {isUnlocked && !inUse
+            ? `Use?`
+            : `${inUse ? 'Unlocked' : 'Unlock'} by ${unlockRequirement}.`}
         </Text>
-        {isUnlocked && (
+        {isUnlocked && !inUse && (
           <IconButton
           mode="contained"
-          style={{ justifyContent: 'center' }}
+          style={{ alignSelf:'center' }}
           icon="check"
           onPress={() => {
             console.log(`Selected avatar: ${name}`);
+            selectAvatar()
             onToggleDialog();
           }}
         />
@@ -91,20 +98,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 10,
     padding: 10,
-    borderRadius: 8,
+    borderRadius: 20,
     elevation: 3,
     backgroundColor: theme.colors.surface,
+    height: 100
   },
   avatarImage: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: 10,
     marginBottom: 10,
   },
   avatarName: {
     fontSize: 12,
     fontWeight: 'bold',
     marginBottom: 8,
+    textAlign: 'center'
   },
   progressBarContainer: {
     position: 'relative',
@@ -113,7 +122,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   progressBar: {
-    width: 60,
+    width: '100%',
     borderRadius: 3,
     height: 6,
   },
@@ -129,13 +138,11 @@ const styles = StyleSheet.create({
   dialog: {
     backgroundColor: theme.colors.onBackground,
     borderRadius: 8,
-    padding: 10,
   },
   popupText: {
     fontSize: 14,
     color: '#333',
     textAlign: 'center',
-    marginBottom: 10,
   },
   popupActions: {
     flexDirection: 'row',
