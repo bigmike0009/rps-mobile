@@ -33,8 +33,13 @@ export interface Player {
 
   export interface PlayerTournaments {
     played: number[],
-    trophies: Record<string, string[]>;
+    trophies: TrophyData[];
 
+  }
+
+  export interface TrophyData {
+    trophy: string,
+    tournament: Tournament
   }
   
 
@@ -83,4 +88,24 @@ export interface Player {
     player_1_data:Player;
     player_2_data:Player;
     
+  }
+
+  export interface UnlockRequirement {
+    unlockType: 'pay' | 'amount' | 'percentage';
+    field : string;
+    amount : number;
+  }
+
+  export interface Avatar {
+    name: string;
+    image : string;
+    type : string;
+    unlockRequirement: UnlockRequirement
+  }
+
+  export interface UnlockProgress {
+    unlockable: boolean;
+    progressBarDisplay : string;
+    progressBarValue : number;
+    unlockMessage: string
   }

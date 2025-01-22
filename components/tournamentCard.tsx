@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 import { Text, Card, Title, Paragraph, Divider, ActivityIndicator } from 'react-native-paper';
-import { tournamentService } from 'services/appServices';
 import { Tournament } from 'types/types';
+import { theme } from './theme';
 
 // Interface for the tournament object
 
@@ -16,7 +16,7 @@ interface TournamentCardProps {
 const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType }) => {
   // Format timestamps for display
   const formatDate = (timestamp: string) => {
-    return formatDate(timestamp);
+    return timestamp.substring(0, 10);
   };
 
   return (
@@ -29,13 +29,13 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType 
 
         {/* Tournament Details */}
         <Paragraph>
-          <Text style={styles.label}>Date of Tournament: </Text>
+          <Text style={styles.label}>Tournament Date: </Text>
           {formatDate(tournament.registrationCloseTs)}
         </Paragraph>
-        <Paragraph>
+        {tournament.cash && <Paragraph>
           <Text style={styles.label}>Cash Prize: </Text>
           ${tournament.cash.toLocaleString()}
-        </Paragraph>
+        </Paragraph>}
         <Paragraph>
           <Text style={styles.label}>Players Registered: </Text>
           {tournament.numPlayersRegistered}
@@ -44,12 +44,12 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType 
           <Text style={styles.label}>Rounds: </Text>
           {tournament.rounds.length}
         </Paragraph>
-        <Paragraph>
+        {/* <Paragraph>
           <Text style={styles.label}>Current Round End Time: </Text>
           {formatDate(tournament.currentRoundEndTs)}
-        </Paragraph>
+        </Paragraph> */}
         <Paragraph>
-          <Text style={styles.label}>Trophy Type: </Text>
+          <Text style={styles.label}>Award: </Text>
           {trophyType}
         </Paragraph>
 
@@ -57,7 +57,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType 
         <Divider style={styles.divider} />
         <Paragraph style={styles.description}>
           {/* You can replace this text with descriptions depending on the trophy type */}
-          Description for the trophy type or additional details can go here.
+          Description  goes here.
         </Paragraph>
       </Card.Content>
     </Card>
@@ -66,10 +66,14 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType 
 
 const styles = StyleSheet.create({
   card: {
-    margin: 10,
-    padding: 10,
+    marginVertical: 10,
+    marginHorizontal: 2,
+    paddingHorizontal: 5,
+    position: 'absolute',
+    bottom: -15,
+    alignSelf: 'center',
     borderRadius: 8,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.surface,
   },
   center: {
     flex: 1,
@@ -78,17 +82,17 @@ const styles = StyleSheet.create({
   },
   tournamentId: {
     fontWeight: 'bold',
-    fontSize: 18,
-    marginBottom: 8,
+    fontSize: 14,
+    marginBottom: 4,
   },
   label: {
     fontWeight: '600',
   },
   divider: {
-    marginVertical: 10,
+    marginVertical: 8,
   },
   description: {
-    marginTop: 10,
+    marginTop: 8,
     fontStyle: 'italic',
     color: '#555',
   },

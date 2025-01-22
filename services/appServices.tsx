@@ -1,5 +1,5 @@
 import { apiService } from './apiService';
-import { Matchup, MatchupDetail, Player } from 'types/types';
+import { Matchup, MatchupDetail, Player, PlayerTournaments } from 'types/types';
 import { Tournament } from 'types/types';
 import { extractBasePlayerData, extractPlayerStats, extractPlayerTokenInfo, extractPlayerTournaments, extractPlayerUnlocks } from 'utilities/playerUtils';
 
@@ -39,6 +39,25 @@ class TournamentService {
 export const tournamentService = new TournamentService();
 
 class PlayerService {
+
+  async unpackTrophyData(playerId: string, response: ApiResponse<PlayerTournaments>){
+    let player: Player = {
+      playerID: 'player#' + playerId,
+      email: '',
+      fname: '',
+      lname: '',
+      propic: '',
+      real: true,
+      region: '',
+      avatars: { r: '', p: '', s: '' }
+    };
+
+    if (response.data) {
+      player.tournaments = response.data
+      return { data: player, status: 200 };
+    }
+    return { data: player, status: 404 };
+  }
 
   async unpackPlayerData(playerId: string, response: ApiResponse<any[]>) {
     let player: Player = {
@@ -104,6 +123,12 @@ async getPlayerDtl(playerId: string, queryParam: 'userID'): Promise<ApiResponse<
   return await this.getPlayerData(playerId, queryParam, endpoint);
 }
 
+async getPlayerTournaments(playerId: string, queryParam: 'userID'): Promise<ApiResponse<Player>> {
+  const endpoint = `/player/tournaments?${queryParam}=${playerId}`;
+  let res = await apiService.get<PlayerTournaments>(endpoint);
+  return await this.unpackTrophyData(playerId, res)
+}
+
 async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<Player>> {
   const endpoint = `/player/all?${queryParam}=${playerId}`;
   return await this.getPlayerData(playerId, queryParam, endpoint);
@@ -126,6 +151,13 @@ async getPlayerAll(playerId: string, queryParam: 'userID'): Promise<ApiResponse<
     const playerData = {userID, type: avType, avatar };
 
     const response = await apiService.put<any[]>('/player/avatar', playerData);
+    return this.unpackPlayerData(userID, response)
+  }
+
+  async unlockPlayerAvatar(userID: string, avatar: string):Promise<ApiResponse<Player>> {
+    const playerData = {userID, avatar };
+
+    const response = await apiService.post<any[]>('/player/avatar', playerData);
     return this.unpackPlayerData(userID, response)
   }
 

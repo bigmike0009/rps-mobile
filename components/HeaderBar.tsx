@@ -144,8 +144,6 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
 {player &&
 <DropdownMenu isVisible={isMenuVisible} onClose={() => setMenuVisible(false)} player={player} />
 }
-
-
     </View>
   );
 };

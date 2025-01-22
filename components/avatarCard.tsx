@@ -4,29 +4,31 @@ import { ProgressBar, Button, Dialog, Portal, IconButton } from 'react-native-pa
 import { useAssets } from 'utilities/assetProvider';
 import { theme } from './theme';
 import CustomOverlayDialog from './customDialog';
+import { Avatar, UnlockProgress } from 'types/types';
 
 interface AvatarCardProps {
-  name: string;
-  unlockRequirement: string;
-  progress: number; // current progress out of 50
+  avatar: Avatar;
+  unlockProgress: UnlockProgress;
   isUnlocked: boolean;
   inUse: boolean;
   isDialogVisible: boolean;
   onToggleDialog: () => void;
   selectAvatar: () => void;
+  unlockAvatar: () => void;
+
 
 
 }
 
 const AvatarCard: React.FC<AvatarCardProps> = ({
-  name,
-  unlockRequirement,
-  progress,
+  avatar,
+  unlockProgress,
   isUnlocked,
   isDialogVisible,
   onToggleDialog,
   inUse,
-  selectAvatar
+  selectAvatar,
+  unlockAvatar
 
 }) => {
   const [scale] = useState(new Animated.Value(1));
@@ -55,25 +57,26 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
 
   return (
     <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
-      <Animated.View style={[styles.card, { transform: [{ scale }] }, inUse ? {borderColor:'green', borderWidth: 1} : {}]}>
+      <Animated.View style={[styles.card, { transform: [{ scale }] }, unlockProgress.unlockable && !isUnlocked && styles.glowCard,inUse ? {borderColor:'green', borderWidth: 1} : {}]}>
         <Image
-          source={{ uri: useAssets().retrieveAsset(name.toLowerCase()) }}
-          style={[styles.avatarImage, { opacity: isUnlocked ? 1 : 0.3 }]}
+          source={{ uri: useAssets().retrieveAsset(avatar.image) }}
+          style={[styles.avatarImage, { opacity: isUnlocked || unlockProgress.unlockable ? 1 : 0.3 }]}
         />
         
         {!isUnlocked && (
           <View style={styles.progressBarContainer}>
-            <ProgressBar progress={progress / 50} color="green" style={styles.progressBar} />
-            <Text style={styles.progressText}>{`${progress}/50`}</Text>
+            <ProgressBar progress={unlockProgress.progressBarValue} color="green" style={styles.progressBar} />
+            <Text style={styles.progressText}>{unlockProgress.progressBarDisplay}</Text>
           </View>
         )}
       </Animated.View>
       <CustomOverlayDialog visible={isDialogVisible} onClose={onToggleDialog}>
-      <Text style={styles.avatarName}>{name}</Text>
+      <Text style={styles.avatarName}>{avatar.name}</Text>
         <Text style={styles.popupText}>
-          {isUnlocked && !inUse
-            ? `Use?`
-            : `${inUse ? 'Unlocked' : 'Unlock'} by ${unlockRequirement}.`}
+          {isUnlocked && !inUse && `Use?`}
+          {isUnlocked && inUse && `using ${avatar.name}`}
+          {!isUnlocked && !unlockProgress.unlockable && `${unlockProgress.unlockMessage}.`}
+          {!isUnlocked && unlockProgress.unlockable && `unlock ${avatar.name}.?`}
         </Text>
         {isUnlocked && !inUse && (
           <IconButton
@@ -81,8 +84,20 @@ const AvatarCard: React.FC<AvatarCardProps> = ({
           style={{ alignSelf:'center' }}
           icon="check"
           onPress={() => {
-            console.log(`Selected avatar: ${name}`);
+            console.log(`Selected avatar: ${avatar.name}`);
             selectAvatar()
+            onToggleDialog();
+          }}
+        />
+        )}
+        {!isUnlocked && unlockProgress.unlockable && (
+          <IconButton
+          mode="contained"
+          style={{ alignSelf:'center' }}
+          icon="lock"
+          onPress={() => {
+            console.log(`Selected avatar: ${avatar.name}`);
+            unlockAvatar()
             onToggleDialog();
           }}
         />
@@ -102,6 +117,20 @@ const styles = StyleSheet.create({
     elevation: 3,
     backgroundColor: theme.colors.surface,
     height: 100
+  },
+  glowCard: {
+    backgroundColor: '#1a1a1a',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // Gold border
+    borderWidth: 2,
+    borderColor: 'gold',
+    // Glow effect
+    shadowColor: 'gold',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 5,
+    elevation: 10, // for Android shadow
   },
   avatarImage: {
     width: 60,

@@ -3,29 +3,124 @@ import { ScrollView, View, StyleSheet, Text } from 'react-native';
 import AvatarCard from 'components/avatarCard';
 import { AuthContext } from 'auth/authProvider';
 import { FAB } from 'react-native-paper';
+import { avatars } from 'utilities/avatars';
+import { Avatar, Player, UnlockProgress } from 'types/types';
 
-const avatars = [
-  { name: 'rock1', type: 'r', unlockRequirement: 'Win 5 matches', progress: 20, isUnlocked: false },
-  { name: 'paper1', type: 'p', unlockRequirement: 'Score 50 points', progress: 50, isUnlocked: true },
-  { name: 'scissors1', type: 's', unlockRequirement: 'Win 3 matches in a row', progress: 10, isUnlocked: false },
-  { name: 'rock2', type: 'r', unlockRequirement: 'Win 5 matches', progress: 20, isUnlocked: false },
-  { name: 'paper2', type: 'p', unlockRequirement: 'Score 50 points', progress: 50, isUnlocked: true },
-  { name: 'scissors2', type: 's', unlockRequirement: 'Win 3 matches in a row', progress: 10, isUnlocked: false },
-  { name: 'rock3', type: 'r', unlockRequirement: 'Win 5 matches', progress: 20, isUnlocked: false },
-  { name: 'paper3', type: 'p', unlockRequirement: 'Score 50 points', progress: 50, isUnlocked: true },
-  { name: 'scissors3', type: 's', unlockRequirement: 'Win 3 matches in a row', progress: 10, isUnlocked: false },
-  // Add more avatars here
-];
+const calculatePercentageProgress = (avatar: Avatar, player: Player): UnlockProgress => {
+  if (!player || !player.stats || !player.tournaments){
+    return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `no player data at this time`}
+  }
+  if (avatar.unlockRequirement.field === 'thrown'){
+    const totalThrown = player.stats.rocksThrown + player.stats.papersThrown + player.stats.scissorsThrown;
+let percentage = 0;
+
+switch (avatar.type) {
+  case 'r':
+    percentage = (player.stats.rocksThrown / totalThrown) * 100;
+    break;
+  case 'p':
+    percentage = (player.stats.papersThrown / totalThrown) * 100;
+    break;
+  case 's':
+    percentage = (player.stats.scissorsThrown / totalThrown) * 100;
+    break;
+}
+
+// Round to 2 decimal places
+percentage = Math.round(percentage * 100) / 100;
+
+return {
+  unlockable: percentage >= avatar.unlockRequirement.amount * 100,
+  progressBarDisplay: `${percentage}%`,
+  progressBarValue: Math.min(1, Math.round(percentage / avatar.unlockRequirement.amount) / 100),
+  unlockMessage: `Need a ${avatar.type}% of ${avatar.unlockRequirement.amount * 100} to unlock`,
+};
+  }
+  return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `Bug! sned screenshot to 2022.allcen@gmail.com`}
+}
+
+
+const calculateAmountProgress = (avatar: Avatar, player: Player): UnlockProgress => {
+  if (!player || !player.stats || !player.tournaments){
+    return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `no player data at this time`}
+  }
+
+  let completed = 0
+  let moreToUnlockText = 'more to unlock'
+
+  switch (avatar.unlockRequirement.field){
+    case 'tourneysPlayed':
+      completed = player.tournaments.played.length
+      moreToUnlockText= 'more tourneys to unlock'
+    case 'gamesWon':
+      completed = player.stats.wins
+      moreToUnlockText= 'more opponents to unlock'
+    case 'tourneyWon':
+      return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `must win a tournament using ${avatar.type}`}
+    default: //amount thrown
+        switch (avatar.type){
+          case 'r':
+            completed = player.stats.rocksThrown
+            moreToUnlockText = 'more rock throws to unlock'
+            break 
+          case 'p':
+            completed = player.stats.papersThrown
+            moreToUnlockText = 'more paper throws to unlock'
+            break
+          case 's':
+            completed = player.stats.scissorsThrown
+            moreToUnlockText = 'more scissors throws to unlock'
+            break
+          
+        } 
+
+  }
+
+  
+
+  return {
+    unlockable: completed >= avatar.unlockRequirement.amount, 
+    progressBarDisplay : `${completed} / ${avatar.unlockRequirement.amount}`,
+    progressBarValue : Math.min(1, completed / avatar.unlockRequirement.amount), 
+    unlockMessage: `${avatar.unlockRequirement.amount - completed} ${moreToUnlockText}`
+  }
+
+}
+
 
 const CharacterUnlockScreen: React.FC = () => {
     const [popupVisibleCard, setPopupVisibleCard] = useState<string | null>(null);
 
-    const { player, updatePlayerAvatar, checkUser } = useContext(AuthContext)!; // Get player data from AuthContext
+    const { player, updatePlayerAvatar, unlockPlayerAvatar, checkUser } = useContext(AuthContext)!; // Get player data from AuthContext
     
     const togglePopup = (name: string | null) => {
         setPopupVisibleCard((prev) => (prev === name ? null : name));
 
     };
+
+
+    
+    const getUnlockProgress = (avatar: Avatar): UnlockProgress => {
+
+      if (!player || !player.stats || !player.tournaments){
+        return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `no player data at this time`}
+      }
+    
+      switch(avatar.unlockRequirement.unlockType) {
+        case 'percentage':
+          // code block
+          console.log('ALL RISE')
+          return calculatePercentageProgress(avatar, player)
+        case 'pay':
+          // code block
+          return {unlockable: false, progressBarValue: 0, progressBarDisplay : `${avatar.unlockRequirement.field}${avatar.unlockRequirement.amount}`, unlockMessage: `WIP: Contact 2022.allcen@gmail.com`}
+        default:
+          return calculateAmountProgress(avatar, player);
+      }
+    
+    }
+
+    
 
     //useEffect(() => {
     //    checkUser('all')
@@ -37,16 +132,17 @@ const CharacterUnlockScreen: React.FC = () => {
         {avatars.map((avatar, index) => (
           <AvatarCard
             key={index}
-            name={avatar.name}
-            unlockRequirement={avatar.unlockRequirement}
-            progress={avatar.progress}
+            avatar={avatar}
+            unlockProgress={getUnlockProgress(avatar)}
+            
+            
+            unlockAvatar={() => unlockPlayerAvatar(player!.playerID, avatar.name)}
+      
             inUse={ [player?.avatars.r,player?.avatars.p,player?.avatars.s].includes(avatar.name)}
             isUnlocked={player.unlocked!.avatars.includes(avatar.name)}
             isDialogVisible={popupVisibleCard === avatar.name}
             selectAvatar={() => updatePlayerAvatar(player!.playerID, avatar.type, avatar.name)}
-            onToggleDialog={() => togglePopup(avatar.name)
-
-            }
+            onToggleDialog={() => togglePopup(avatar.name)}
           />
         ))}
       </View>

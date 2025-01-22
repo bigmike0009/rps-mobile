@@ -4,19 +4,11 @@ import TrophyComponent from 'components/trophy';
 import { AuthContext } from 'auth/authProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FAB, useTheme } from 'react-native-paper';
-import { Tournament } from 'types/types';
-import { tournamentService } from 'services/appServices';
 import TournamentCard from 'components/tournamentCard';
 
-type SingleTrophy = {
-  tournamentId: number;
-  placement: string;
-};
 
 const TrophyRoomComponent: React.FC = () => {
   const { player, checkUser } = useContext(AuthContext)!;
-  const [trophies, setTrophies] = useState<SingleTrophy[]>([]);
-  const [tournaments, setTournaments] = useState<Record<number, Tournament> | null>()
   const [currentIndex, setCurrentIndex] = useState(0);
   const [oldIndex, setOldIndex] = useState(0);
 
@@ -29,10 +21,6 @@ const TrophyRoomComponent: React.FC = () => {
   const [moveAnimNew] = useState(new Animated.Value(100)); // New Trophy Move
   const theme = useTheme();
   
-  useEffect(() => {
-    refreshTrophyData()
-    refreshTournamentData()
-  }, []);
 
   //useEffect(() => {
   //  if (!player || ! player.tournaments) {refreshPlayerData()}
@@ -41,39 +29,14 @@ const TrophyRoomComponent: React.FC = () => {
 
   const refreshPlayerData = async () => {
     setLoading(true);
-    let data = await checkUser('detail'); // Attempt to refresh player data
+    let data = await checkUser('trophies'); // Attempt to refresh player data
     setLoading(false);
     return data
   };
 
-  const refreshTrophyData = async () => {
-    if (player && player.tournaments && player.tournaments.trophies) {
-      let allTrophies: SingleTrophy[] = [];
-      Object.entries(player.tournaments.trophies).forEach(([tournamentId, placements]) => {
-        placements.forEach((placement) => {
-          allTrophies.push({ tournamentId: parseInt(tournamentId), placement: placement });
-        });
-      });
-      setTrophies(allTrophies);
-      //refreshTournamentData(allTrophies[currentIndex].tournamentId)
-      return allTrophies
-    }
-    return []
-  }
-  const refreshTournamentData = async () => {
-    if (player && player.playerID) {
-      console.log("TOURNEY HUNTING")
-      console.log(player)
-      tournamentService.getAllTournamentsForPlayer(player.playerID
-        
-      ).then((tournData)=>tournData.data ? setTournaments(tournData.data) : setTournaments(null)
-    ).catch((err)=>      {console.log("TOURNEY ERROR");    console.log(err)}
-  ).finally(()=>setLoading(false))
-  }
-}
-
+  
   const handleNext = () => {
-    if (player?.tournaments?.trophies && currentIndex < trophies.length - 1) {
+    if (player?.tournaments?.trophies && currentIndex < player.tournaments.trophies.length - 1) {
       setOldIndex(currentIndex)
       setCurrentIndex(currentIndex + 1);
       //refreshTournamentData(trophies[currentIndex + 1].tournamentId)
@@ -92,6 +55,7 @@ const TrophyRoomComponent: React.FC = () => {
 
   const triggerAnimation = () => {
     // Reset animations so they play again when going back or forward
+    setTourneyDataLoading(true)
     fadeAnimOld.setValue(1);
     fadeAnimNew.setValue(0);
     moveAnimOld.setValue(0);
@@ -109,6 +73,7 @@ const TrophyRoomComponent: React.FC = () => {
         Animated.timing(moveAnimNew, { toValue: 0, duration: 300, useNativeDriver: true }), // Move to center
       ]),
     ]).start();
+    setTimeout(()=>setTourneyDataLoading(false),1000)
   };
 
   if (loading) {
@@ -136,7 +101,7 @@ const TrophyRoomComponent: React.FC = () => {
     );
   }
 
-  if (!trophies) {
+  if (!player.tournaments.trophies) {
     return (
       <View style={styles.center}>
         <Text style={styles.message}>You have not won any trophies yet!</Text>
@@ -149,7 +114,7 @@ const TrophyRoomComponent: React.FC = () => {
       <Text style={[styles.header, { color: theme.colors.onSurface }]}>
         Tournaments Played: {player.tournaments.played.length}
       </Text>
-      {trophies && trophies.length > 0 && (
+      {player.tournaments.trophies && player.tournaments.trophies.length > 0 && (
         <View style={styles.carouselContainer}>
           {currentIndex > 0 && (
             <TouchableOpacity disabled={tourneyDataLoading} onPress={handlePrevious} style={styles.arrowleft}>
@@ -168,10 +133,11 @@ const TrophyRoomComponent: React.FC = () => {
             }}
           >
             <TrophyComponent
-              tournamentId={trophies[currentIndex].tournamentId}
+              tournamentId={player.tournaments.trophies[currentIndex].tournament.tournamentId}
               playerName={player.fname || 'Player'}
-              placement={trophies[oldIndex].placement}
+              placement={player.tournaments.trophies[oldIndex].trophy}
             />
+            
           </Animated.View>
 
           {/* Displaying New Trophy */}
@@ -185,13 +151,15 @@ const TrophyRoomComponent: React.FC = () => {
             }}
           >
             <TrophyComponent
-              tournamentId={trophies[currentIndex + 1]?.tournamentId}
+              tournamentId={player.tournaments.trophies[currentIndex + 1]?.tournament.tournamentId}
               playerName={player.fname || 'Player'}
-              placement={trophies[currentIndex]?.placement}
+              placement={player.tournaments.trophies[currentIndex]?.trophy}
             />
           </Animated.View>
 
-          {currentIndex < trophies.length - 1 && (
+          
+
+          {currentIndex < player.tournaments.trophies.length - 1 && (
             <TouchableOpacity disabled={tourneyDataLoading} onPress={handleNext} style={styles.arrowright}>
               <MaterialIcons name="arrow-forward" size={36} color="#FFFFFF" />
             </TouchableOpacity>
@@ -202,12 +170,19 @@ const TrophyRoomComponent: React.FC = () => {
           
           
         </View>
+
+        
         
         
       )}
       {/* {trophies && trophies[currentIndex] && tournaments && !loading && !tourneyDataLoading ? 
       <TournamentCard tournament={tournaments[trophies[currentIndex].tournamentId]} trophyType={trophies[currentIndex].placement}/> :
       <ActivityIndicator size="large" color="#0000ff" />} */}
+    {player.tournaments.trophies && player.tournaments.trophies.length > 0 && 
+    <TournamentCard 
+            tournament={player.tournaments.trophies[currentIndex].tournament}
+            trophyType={player.tournaments.trophies[currentIndex].trophy}></TournamentCard>
+            }
     </View>
   );
 };
