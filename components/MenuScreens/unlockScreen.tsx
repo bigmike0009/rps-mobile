@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, View, StyleSheet, Text } from 'react-native';
 import AvatarCard from 'components/avatarCard';
-import { AuthContext } from 'auth/authProvider';
+import { AuthContext } from 'providers/authProvider';
 import { FAB } from 'react-native-paper';
 import { avatars } from 'utilities/avatars';
 import { Avatar, Player, UnlockProgress } from 'types/types';
@@ -52,11 +52,14 @@ const calculateAmountProgress = (avatar: Avatar, player: Player): UnlockProgress
     case 'tourneysPlayed':
       completed = player.tournaments.played.length
       moreToUnlockText= 'more tourneys to unlock'
+      break
     case 'gamesWon':
       completed = player.stats.wins
       moreToUnlockText= 'more opponents to unlock'
+      break
     case 'tourneyWon':
       return {unlockable: false, progressBarDisplay : `0 / 1`,progressBarValue : 0, unlockMessage: `must win a tournament using ${avatar.type}`}
+      
     default: //amount thrown
         switch (avatar.type){
           case 'r':

@@ -2,14 +2,14 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, Image, Animated, StyleSheet, Dimensions } from 'react-native';
 import { Avatar, Card, Button, FAB, useTheme } from 'react-native-paper';
 import { StackScreenProps } from '@react-navigation/stack';
-import { AuthContext } from 'auth/authProvider';
-import { useAssets } from 'utilities/assetProvider';
+import { AuthContext } from 'providers/authProvider';
+import { useAssets } from 'providers/assetProvider';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { tournamentService } from 'services/appServices';
 import { Matchup, Player, Tournament } from 'types/types';
 import { DateTime } from 'luxon';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { useTournament } from 'utilities/tournamentProvider';
+import { useTournament } from 'providers/tournamentProvider';
 
 
 type ResultProps = StackScreenProps<DefaultStackParamList, 'ResultsScreen'>;

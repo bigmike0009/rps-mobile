@@ -14,6 +14,7 @@ export type DefaultStackParamList = {
   FinalResultsScreen: {tournament: Tournament, matchup: Matchup, opponent: Player, player1or2: number};
   SpectatorScreen: {tournament: Tournament};
   TrophyRoom: undefined;
+  TestScreen: undefined;
 
   MainMenu: undefined;
   WaitingScreen: undefined

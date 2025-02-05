@@ -45,11 +45,16 @@ export function extractPlayerStats(data: any, playerId: string): PlayerStats | n
   // Function to extract player tournaments
 export function extractPlayerTournaments(data: any, playerId: string): PlayerTournaments | null {
     if (data.pk === `player#${playerId}` && data.sk.startsWith('dtl#tournaments')) {
-      console.log('WHERES MY SUPER SUIT')
-      console.log(data)
+
+      let trophyArray = Object.entries(data.trophies).flatMap(([tournamentId, placements]) =>
+        (placements as string[]).map(placement => ({
+          tournamentId: Number(tournamentId),
+          placement: placement
+        })))
+
       return {
         played: data.played || [],
-        trophies: data.trophies || []
+        trophies: trophyArray || []
       };
     }
     return null;

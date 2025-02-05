@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { ImageBackground, Text, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { useAssets } from 'utilities/assetProvider';
+import { useAssets } from 'providers/assetProvider';
 
 interface TimerProps {
   initialTime: number; // in seconds

@@ -3,15 +3,16 @@ import 'react-native-gesture-handler';
 import RootStack from './navigation';
 import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets   } from 'react-native-safe-area-context';
 
-import { AuthProvider } from 'auth/authProvider';
+import { AuthProvider } from 'providers/authProvider';
 import Header from 'components/HeaderBar';
 import { View } from 'react-native';
 import { MD3DarkTheme, Provider as PaperProvider } from 'react-native-paper';
 import { theme } from 'components/theme';
 import LoadingScreen from 'screens/loadingScreen';
 import { useEffect, useState } from 'react';
-import { AssetProvider } from 'utilities/assetProvider';
-import { TournamentProvider } from 'utilities/tournamentProvider';
+import { AssetProvider } from 'providers/assetProvider';
+import { TournamentProvider } from 'providers/tournamentProvider';
+import { OverlayProvider } from 'providers/animationProvider';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +28,9 @@ export default function App() {
         <AssetProvider>
         <TournamentProvider>
         <PaperProvider theme={theme}>
+          <OverlayProvider>
         {isLoading ? <LoadingScreen onComplete={handleComplete} /> : <RootStack />}
+        </OverlayProvider>
         </PaperProvider>
         </TournamentProvider>
 

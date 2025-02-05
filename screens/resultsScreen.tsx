@@ -1,6 +1,6 @@
 import { StackScreenProps } from '@react-navigation/stack';
-import { AuthContext } from 'auth/authProvider';
-import { useAssets } from 'utilities/assetProvider';
+import { AuthContext } from 'providers/authProvider';
+import { useAssets } from 'providers/assetProvider';
 
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import React, { useContext, useEffect, useRef, useState } from 'react';
@@ -11,7 +11,7 @@ import { Avatar, Button, FAB, useTheme } from 'react-native-paper';
 import { tournamentService } from 'services/appServices';
 import { Matchup, Player } from 'types/types';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { useTournament } from 'utilities/tournamentProvider';
+import { useTournament } from 'providers/tournamentProvider';
 
 
 

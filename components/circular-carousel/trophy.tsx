@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import { useAssets } from 'providers/assetProvider';
 
 type TrophyProps = {
   tournamentId: number;
@@ -9,24 +8,27 @@ type TrophyProps = {
 };
 
 const TrophyComponent: React.FC<TrophyProps> = ({ tournamentId, playerName, placement }) => {
-  const {retrieveAsset} = useAssets();
 
   let trophyImage = {
-    gold: {uri: retrieveAsset('gold')},
-    silver: {uri: retrieveAsset('silver')},
-    bronze: {uri: retrieveAsset('bronze')},
+    gold: {uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/gold.png'},
+    silver: {uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/silver.png'},
+    bronze: {uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/bronze.png'},
   }[placement];
 
   if (trophyImage === null || trophyImage === undefined){
-    trophyImage = {uri: retrieveAsset('bronze')}
+    trophyImage = {uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/bronze.png'}
   }
 
+  const getTrophyImage = (type: string) => {
+    return trophyImage
+  }
 
   return (
     <View style={styles.container}>
       <Image source={trophyImage} style={styles.trophyImage} />
       <View style={styles.overlay}>
         <Text style={styles.text}>{playerName} </Text>
+        <Text style={styles.text}>{tournamentId}</Text>
       </View>
     </View>
   );
@@ -36,21 +38,22 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
+    marginVertical: 20,
   },
   trophyImage: {
-    width: 150,
-    height: 200,
+    width: 200,
+    height: 250,
     resizeMode: 'contain',
   },
   overlay: {
     position: 'absolute',
-    bottom: 32,
+    bottom: 40,
     alignItems: 'center',
     flexDirection: 'row'
   },
   text: {
     color: 'black',
-    fontSize: 7,
+    fontSize: 9,
     fontWeight: 'bold',
     textAlign: 'center',
   },

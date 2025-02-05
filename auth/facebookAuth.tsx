@@ -2,7 +2,7 @@ import { useContext, useState, useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import * as Facebook from 'expo-auth-session/providers/facebook';
 import { FAB, Text, useTheme } from 'react-native-paper';
-import { AuthContext } from './authProvider'
+import { AuthContext } from '../providers/authProvider'
 import { playerService } from 'services/appServices';
 import { registerForPushNotificationsAsync } from 'utilities/notificationUtils';
 import { FontAwesome } from '@expo/vector-icons'; // Icon library for the Facebook "f"

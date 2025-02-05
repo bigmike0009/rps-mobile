@@ -33,14 +33,14 @@ export interface Player {
 
   export interface PlayerTournaments {
     played: number[],
-    trophies: TrophyData[];
+    trophies: Trophy[];
 
   }
 
-  export interface TrophyData {
-    trophy: string,
-    tournament: Tournament
-  }
+  type Trophy = {
+    tournamentId: number;
+    placement: string;
+  };
   
 
   export interface PlayerUnlocks {

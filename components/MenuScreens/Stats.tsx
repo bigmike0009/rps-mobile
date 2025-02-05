@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
 import { Text, useTheme, List, Button, FAB } from 'react-native-paper';
-import { AuthContext } from 'auth/authProvider';
-import { ProgressBar } from 'react-native-paper';
-import { PieChart } from 'react-native-chart-kit';
+import { AuthContext } from 'providers/authProvider';
+import { PieChart } from 'components/PieChart/components/BarChart';
+//import { PieChart } from 'react-native-chart-kit';
 
 const PlayerStatsScreen: React.FC = () => {
   const { player, checkUser } = useContext(AuthContext)!;
@@ -97,10 +97,8 @@ const PlayerStatsScreen: React.FC = () => {
       </List.Section>
 
       {/* Pie Chart */}
-      <Text variant="titleMedium" style={styles.sectionTitle}>
-        Throws Breakdown
-      </Text>
-      <PieChart
+
+      {/* <PieChart
         data={[
           {
             name: 'Rock',
@@ -142,7 +140,8 @@ const PlayerStatsScreen: React.FC = () => {
           barPercentage: 0.5,
           useShadowColorFromDataset: false // optional
         }}
-      />
+      /> */}
+      <PieChart></PieChart>
 
       {/* Totals List */}
       <Text variant="titleMedium" style={styles.sectionTitle}>

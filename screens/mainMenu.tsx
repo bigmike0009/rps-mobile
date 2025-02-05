@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { AuthContext } from 'auth/authProvider';
-import { useAssets } from 'utilities/assetProvider';
+import { AuthContext } from 'providers/authProvider';
+import { useAssets } from 'providers/assetProvider';
 
 import { Button, Card, FAB, IconButton, SegmentedButtons, useTheme } from 'react-native-paper';
 import Login from 'auth/login'
@@ -15,9 +15,10 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
 import LogoutButton from 'auth/logout';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useTournament } from 'utilities/tournamentProvider';
+import { useTournament } from 'providers/tournamentProvider';
 import FacebookButton from 'auth/facebookAuth';
 import { registerForPushNotificationsAsync } from 'utilities/notificationUtils';
+import { useOverlay } from 'providers/animationProvider';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -39,6 +40,8 @@ const MainMenu: React.FC<AuthProps> = (props) => {
 
 
   const theme = useTheme();
+  const { triggerAnimation} = useOverlay();
+
   // const bg = Math.floor(Math.random() * (2 - 0 + 1))
   // console.log(bg)
   // const bgImage = `../assets/rps-bracket${bg.toString()}.png`
@@ -352,7 +355,7 @@ return (
           <FacebookButton></FacebookButton>
           <FAB
                     label="Test"
-                    onPress={()=>testFunc()}
+                    onPress={()=>navigation.replace('TestScreen')}
                     style={styles.fabButton}
                 />
         

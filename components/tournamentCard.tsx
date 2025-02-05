@@ -26,7 +26,7 @@ const TournamentCard: React.FC<TournamentCardProps> = ({ tournament, trophyType 
         {/* Tournament ID */}
         <Title style={styles.tournamentId}>Tournament ID: {tournament.tournamentId}</Title>
         <Divider style={styles.divider} />
-
+        
         {/* Tournament Details */}
         <Paragraph>
           <Text style={styles.label}>Tournament Date: </Text>
@@ -69,8 +69,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     marginHorizontal: 2,
     paddingHorizontal: 5,
-    position: 'absolute',
-    bottom: -15,
     alignSelf: 'center',
     borderRadius: 8,
     backgroundColor: theme.colors.surface,

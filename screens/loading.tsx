@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card, FAB, useTheme } from 'react-native-paper';
-import { AuthContext } from 'auth/authProvider'; // Assuming you have AuthContext to get playerID
+import { AuthContext } from 'providers/authProvider'; // Assuming you have AuthContext to get playerID
 
 
 import { useNavigation } from '@react-navigation/native';
@@ -12,7 +12,7 @@ import { DefaultStackParamList } from 'navigation/navigationTypes';
 import { StackScreenProps } from '@react-navigation/stack';
 import { DateTime } from 'luxon';
 import { cleverPhrases } from 'utilities/common';
-import { useTournament } from 'utilities/tournamentProvider';
+import { useTournament } from 'providers/tournamentProvider';
 
 
 // Clever phrases for the waiting screen

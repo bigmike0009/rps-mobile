@@ -4,7 +4,7 @@ import { CognitoUserPool } from 'amazon-cognito-identity-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COGNITO_CONFIG } from 'cognitoConfig';import { StackScreenProps } from '@react-navigation/stack';
 import { DefaultStackParamList } from 'navigation/navigationTypes';
-import { AuthContext } from './authProvider';
+import { AuthContext } from '../providers/authProvider';
 
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;

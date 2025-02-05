@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Progress from 'react-native-progress'; // For cross-platform progress bar
-import { useAssets } from './assetProvider'; // Context hook
+import { useAssets } from '../providers/assetProvider'; // Context hook
 
 const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [progress, setProgress] = useState<number>(0);
@@ -35,7 +35,7 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
 
     { name: 'rock-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock-gray.png', type: '.png' },
     { name: 'rock-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock-sprite.png', type: '.png' },
-    { name: 'rockW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsW.png', type: '.png' },
+    { name: 'rockW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rockW.png', type: '.png' },
     { name: 'rock', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock1.png', type: '.png' },
     { name: 'rock1', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rock1.png', type: '.png' },
     { name: 'rockStar', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rockStar.png', type: '.png' },
@@ -51,13 +51,17 @@ const DownloadContentScreen: React.FC<{ onComplete: () => void }> = ({ onComplet
     { name: 'paper3', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper3.png', type: '.png' },
     { name: 'paper-gray', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper-gray.png', type: '.png' },
     { name: 'paper-sprite', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper-sprite.png', type: '.png' },
-    { name: 'paperW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper1.png', type: '.png' },
+    { name: 'paperW', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paperW.png', type: '.png' },
     { name: 'scissorsBg', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/scissorsBg.png', type: '.png' },
     { name: 'rockBg', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/rockBg.png', type: '.png' },
     { name: 'paperBg', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paperBG.png', type: '.png' },
     { name: 'paper100', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paper100.png', type: '.png' },
     { name: 'paperChasin', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paperChasin.png', type: '.png' },
     { name: 'cashKing', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/cashKing.png', type: '.png' },
+    { name: 'origamier', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/origamier.png', type: '.png' },
+    { name: 'b2-holepunch', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/b2HolePunch.PNG', type: '.png' },
+    { name: 'paperAirplane', uri: 'https://zak-rentals.s3.us-east-1.amazonaws.com/paperAirplane.png', type: '.png' },
+
 
     
 

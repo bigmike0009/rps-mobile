@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { getCurrentUserDetails, logout } from './authFunctions';
+import { getCurrentUserDetails, logout } from '../auth/authFunctions';
 import { Player, PlayerTournaments } from 'types/types';
 import { playerService } from 'services/appServices';
 
@@ -12,6 +12,7 @@ interface AuthContextType {
   getOrCreatePlayer : (userID: string, email: string, fname: string, lname: string, region: string, propic: string) => Promise<Player|null>
   updatePlayerAvatar : (userID: string, avType: string, avatar: string) => void;
   unlockPlayerAvatar : (userID: string, avatar: string) => void;
+  playerDataLoading: boolean
 
 }
 
@@ -245,7 +246,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
 
-    <AuthContext.Provider value={{ setUser, checkUser, handleLogout, player, getOrCreatePlayer, updatePlayerAvatar, unlockPlayerAvatar }}>
+    <AuthContext.Provider value={{ setUser, checkUser, handleLogout, player, getOrCreatePlayer, updatePlayerAvatar, unlockPlayerAvatar, playerDataLoading }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,80 +1,67 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import TrophyComponent from 'components/trophy';
-import { AuthContext } from 'auth/authProvider';
+import { AuthContext } from 'providers/authProvider';
 import { MaterialIcons } from '@expo/vector-icons';
 import { FAB, useTheme } from 'react-native-paper';
 import TournamentCard from 'components/tournamentCard';
+import { CircularCarousel } from 'components/circular-carousel/carousel';
+import { useAssets } from 'providers/assetProvider';
+import { tournamentService } from 'services/appServices';
+import { Tournament } from 'types/types';
+import TournamentCredits from 'components/tournamentCredits';
+
 
 
 const TrophyRoomComponent: React.FC = () => {
   const { player, checkUser } = useContext(AuthContext)!;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [oldIndex, setOldIndex] = useState(0);
+  const [tournamentList, setTournamentList]=useState<{ [key: number]: Tournament }>();
 
   const [loading, setLoading] = useState(false);
-  const [tourneyDataLoading, setTourneyDataLoading] = useState(false);
 
-  const [fadeAnimOld] = useState(new Animated.Value(1)); // Old Trophy Fade
-  const [fadeAnimNew] = useState(new Animated.Value(0)); // New Trophy Fade
-  const [moveAnimOld] = useState(new Animated.Value(0)); // Old Trophy Move
-  const [moveAnimNew] = useState(new Animated.Value(100)); // New Trophy Move
   const theme = useTheme();
+  const {retrieveAsset} = useAssets()
   
 
-  //useEffect(() => {
-  //  if (!player || ! player.tournaments) {refreshPlayerData()}
-  //}, []);
+  const addTournament = (id: number, tournament: Tournament) => {
+    setTournamentList(prevState => ({
+      ...prevState,
+      [id]: tournament
+    }));
+  };
+
+  useEffect(() => {
+    console.log('INDEX CHANGE')
+    console.log(tournamentList)
+    if (player && player.tournaments && (!tournamentList || !(currentIndex in tournamentList))){
+      tournamentService.getTournament(player.tournaments.trophies[currentIndex].tournamentId).then((response)=>{
+      if (response.status==200 && response.data && response.data.tournamentId) {
+        addTournament(currentIndex, response.data)  
+      }
+          
+    })
+      
+    }
+  }
+  , [currentIndex, player]);
+
+  const data = [
+    {uri: retrieveAsset('gold')},
+    {uri:retrieveAsset('silver')},
+      {uri:retrieveAsset('bronze')}
+  ]
 
 
   const refreshPlayerData = async () => {
     setLoading(true);
-    let data = await checkUser('trophies'); // Attempt to refresh player data
+    let data = await checkUser('detail'); // Attempt to refresh player data
     setLoading(false);
     return data
   };
 
   
-  const handleNext = () => {
-    if (player?.tournaments?.trophies && currentIndex < player.tournaments.trophies.length - 1) {
-      setOldIndex(currentIndex)
-      setCurrentIndex(currentIndex + 1);
-      //refreshTournamentData(trophies[currentIndex + 1].tournamentId)
-      triggerAnimation();
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentIndex > 0) {
-      setOldIndex(currentIndex)
-      setCurrentIndex(currentIndex - 1);
-      //refreshTournamentData(trophies[currentIndex - 1].tournamentId)
-      triggerAnimation();
-    }
-  };
-
-  const triggerAnimation = () => {
-    // Reset animations so they play again when going back or forward
-    setTourneyDataLoading(true)
-    fadeAnimOld.setValue(1);
-    fadeAnimNew.setValue(0);
-    moveAnimOld.setValue(0);
-    moveAnimNew.setValue(100);
-
-    Animated.sequence([
-      Animated.parallel([
-        // Animate the old trophy out
-        Animated.timing(fadeAnimOld, { toValue: 0, duration: 300, useNativeDriver: true }),
-        Animated.timing(moveAnimOld, { toValue: -100, duration: 300, useNativeDriver: true }), // Move out of screen
-      ]),
-      Animated.parallel([
-        // Animate the new trophy in
-        Animated.timing(fadeAnimNew, { toValue: 1, duration: 300, useNativeDriver: true }),
-        Animated.timing(moveAnimNew, { toValue: 0, duration: 300, useNativeDriver: true }), // Move to center
-      ]),
-    ]).start();
-    setTimeout(()=>setTourneyDataLoading(false),1000)
-  };
+  
 
   if (loading) {
     return (
@@ -114,77 +101,33 @@ const TrophyRoomComponent: React.FC = () => {
       <Text style={[styles.header, { color: theme.colors.onSurface }]}>
         Tournaments Played: {player.tournaments.played.length}
       </Text>
-      {player.tournaments.trophies && player.tournaments.trophies.length > 0 && (
-        <View style={styles.carouselContainer}>
-          {currentIndex > 0 && (
-            <TouchableOpacity disabled={tourneyDataLoading} onPress={handlePrevious} style={styles.arrowleft}>
-              <MaterialIcons name="arrow-back" size={36} color="#FFFFFF" />
-            </TouchableOpacity>
-          )}
-
-          {/* Displaying Old Trophy */}
-          <Animated.View
-            style={{
-              opacity: fadeAnimOld,
-              transform: [{ translateX: moveAnimOld }],
-              position: 'absolute', // Keep the old trophy in the same space
-              top: '60%', // Center the trophy vertically
-
-            }}
-          >
+  
+      <View style={styles.contentContainer}>
+        {player.tournaments.trophies && player.tournaments.trophies.length > 0 && tournamentList && currentIndex in tournamentList ? (
+          <View style={styles.tournamentContainer}>
             <TrophyComponent
-              tournamentId={player.tournaments.trophies[currentIndex].tournament.tournamentId}
+              tournamentId={player.tournaments.trophies[currentIndex].tournamentId}
               playerName={player.fname || 'Player'}
-              placement={player.tournaments.trophies[oldIndex].trophy}
+              placement={player.tournaments.trophies[currentIndex].placement}
             />
-            
-          </Animated.View>
-
-          {/* Displaying New Trophy */}
-          <Animated.View
-            style={{
-              opacity: fadeAnimNew,
-              transform: [{ translateX: moveAnimNew }],
-              position: 'absolute', // Keep the new trophy in the same space
-              top: '60%', // Center the trophy vertically
-
-            }}
-          >
-            <TrophyComponent
-              tournamentId={player.tournaments.trophies[currentIndex + 1]?.tournament.tournamentId}
-              playerName={player.fname || 'Player'}
-              placement={player.tournaments.trophies[currentIndex]?.trophy}
+            <TournamentCredits 
+              tournament={tournamentList[currentIndex]}
+              trophyType={player.tournaments.trophies[currentIndex].placement} 
             />
-          </Animated.View>
-
-          
-
-          {currentIndex < player.tournaments.trophies.length - 1 && (
-            <TouchableOpacity disabled={tourneyDataLoading} onPress={handleNext} style={styles.arrowright}>
-              <MaterialIcons name="arrow-forward" size={36} color="#FFFFFF" />
-            </TouchableOpacity>
-          )}
-
-
-
-          
-          
-        </View>
-
-        
-        
-        
-      )}
-      {/* {trophies && trophies[currentIndex] && tournaments && !loading && !tourneyDataLoading ? 
-      <TournamentCard tournament={tournaments[trophies[currentIndex].tournamentId]} trophyType={trophies[currentIndex].placement}/> :
-      <ActivityIndicator size="large" color="#0000ff" />} */}
-    {player.tournaments.trophies && player.tournaments.trophies.length > 0 && 
-    <TournamentCard 
-            tournament={player.tournaments.trophies[currentIndex].tournament}
-            trophyType={player.tournaments.trophies[currentIndex].trophy}></TournamentCard>
-            }
+          </View>
+        ) : (
+          <ActivityIndicator size="large" color="#0000ff" />
+        )}
+  
+        {player.tournaments.trophies && player.tournaments.trophies.length > 0 && (
+          <View style={styles.carouselContainer}>
+            <CircularCarousel data={player.tournaments.trophies.map((trophy)=>{return {uri: retrieveAsset(trophy.placement)}})} onCurrentIndexChange={setCurrentIndex} />
+          </View>
+        )}
+      </View>
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -208,13 +151,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-  carouselContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center', // Align arrows properly
+  contentContainer: {
+    flex: 1, // Takes up full height
+    justifyContent: 'space-between', // Spaces out TournamentCard and Carousel
+  },
+  tournamentContainer: {
+    flexGrow: 1, // Allows it to expand naturally
     alignItems: 'center',
-    position: 'relative', // To allow absolute positioning of trophies
-    marginBottom: 20, // Give some space for the arrows
-    paddingTop: 200
+  },
+  carouselContainer: {
+    alignItems: 'center',
+    marginBottom: 20, // Adds space at the bottom
   },
   arrowleft: {
     backgroundColor: 'rgba(0, 0, 0, 0.5)',

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ImageBackground, StyleSheet } from 'react-native';
 import { useTheme } from 'react-native-paper';
 import { Player } from 'types/types';
-import { useAssets } from 'utilities/assetProvider';
+import { useAssets } from 'providers/assetProvider';
 
 interface BracketProps {
   player1: Player;

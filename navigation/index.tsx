@@ -12,6 +12,7 @@ import SpectatorScreen from 'screens/spectator';
 import { navigationTheme, theme } from 'components/theme';
 import Header from 'components/HeaderBar';
 import TrophyRoomComponent from 'components/MenuScreens/trophyRoom';
+import { TestScreen } from 'screens/testScreen';
 
 const Stack = createStackNavigator<DefaultStackParamList>();
 
@@ -28,10 +29,7 @@ export default function RootStack() {
         <Stack.Screen name="FinalResultsScreen" component={FinalResultsScreen} />
         <Stack.Screen name="SpectatorScreen" component={SpectatorScreen} />
         <Stack.Screen name="TrophyRoom" component={TrophyRoomComponent} />
-
-
-
-
+        <Stack.Screen name="TestScreen" component={TestScreen} />
         
 
         <Stack.Screen

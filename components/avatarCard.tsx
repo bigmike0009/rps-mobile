@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, Image, StyleSheet, Animated, Pressable } from 'react-native';
 import { ProgressBar, Button, Dialog, Portal, IconButton } from 'react-native-paper';
-import { useAssets } from 'utilities/assetProvider';
+import { useAssets } from 'providers/assetProvider';
 import { theme } from './theme';
 import CustomOverlayDialog from './customDialog';
 import { Avatar, UnlockProgress } from 'types/types';

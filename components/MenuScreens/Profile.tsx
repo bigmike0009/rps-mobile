@@ -1,8 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Menu, Button, Divider, FAB } from 'react-native-paper';
-import { AuthContext } from 'auth/authProvider';
-import { useAssets } from 'utilities/assetProvider';
+import { AuthContext } from 'providers/authProvider';
+import { useAssets } from 'providers/assetProvider';
 import { theme } from 'components/theme';
 
 type ProfileProps = {

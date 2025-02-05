@@ -9,7 +9,7 @@ import { FAB } from 'react-native-paper';
 import { tournamentService } from 'services/appServices';
 import { MatchupDetail, Tournament } from 'types/types';
 import getSecondsUntilRoundEnd from 'utilities/common';
-import { useTournament } from 'utilities/tournamentProvider';
+import { useTournament } from 'providers/tournamentProvider';
 
 type GameProps = StackScreenProps<DefaultStackParamList, 'SpectatorScreen'>;
 

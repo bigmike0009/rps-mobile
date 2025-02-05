@@ -2,8 +2,8 @@ import React, { useContext, useRef, useState } from 'react';
 import { Appbar, Avatar, Button, useTheme, Text, IconButton, Portal, Dialog, Paragraph } from 'react-native-paper';
 import { View, StyleSheet, TouchableOpacity, Image, Animated, Easing, Linking,   Modal,
   TouchableWithoutFeedback, } from 'react-native';
-import { AuthContext } from 'auth/authProvider';
-import { useAssets } from 'utilities/assetProvider';
+import { AuthContext } from 'providers/authProvider';
+import { useAssets } from 'providers/assetProvider';
 import { navigationTheme } from './theme';
 import DropdownMenu from './dropDown';
 
