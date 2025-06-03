@@ -130,11 +130,17 @@ const styles = StyleSheet.create({
   },
   input: {
     marginBottom: 10,
-    width: 300,
-  },
+    width: '160%',
+    },
   fab: {
     marginTop: 20,
-    backgroundColor: '#6200ee', // Or any color you prefer
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#6200ee',
+    borderRadius: 16,
+    elevation: 0,
+    shadowOpacity: 0,
+    width: 250,
   },
   title: {
     fontSize: 24,

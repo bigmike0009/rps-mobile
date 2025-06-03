@@ -19,6 +19,7 @@ import { useTournament } from '../providers/tournamentProvider';
 import FacebookButton from '../auth/facebookAuth';
 import { registerForPushNotificationsAsync } from '../utilities/notificationUtils';
 import { useOverlay } from '../providers/animationProvider';
+import { theme } from '~/components/theme';
 
 type AuthProps = StackScreenProps<DefaultStackParamList, 'Login' | 'SignUp' | 'Logout'>;
 
@@ -233,168 +234,165 @@ const MainMenu: React.FC<AuthProps> = (props) => {
     return '00:00:00';
 }
 
+const getSurfaceRGBA = (hex: string, alpha: number = 0.85) => {
+  // Convert hex to rgba
+  const hexColor = hex.replace('#', '');
+  const bigint = parseInt(hexColor, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
 return (
-  <View style={[styles.container, {backgroundColor: theme.colors.background}]}>
-    <Image
-        //source={{uri: 'file:///var/mobile/Containers/Data/Application/0D39D187-49F7-4035-9A4D-5D6452FB9AD7/Documents/ExponentExperienceData/@bigmike0009/rps-mobile/rock1'}} 
-                source={background} 
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
+      <Image
+        source={background}
+        style={styles.imageBackground}
+        resizeMode="cover"
+      />
+      {/* Overlay for readability */}
+      <View style={styles.bgOverlay} pointerEvents="none" />
 
-        style={styles.imageBackground} 
-        resizeMode="cover" 
-    />
-            {/* <FacebookButton></FacebookButton> */}
-
-        <View style={[styles.tournamentContainer, { backgroundColor: theme.colors.surface, borderRadius: theme.roundness, }]}>
-            {tournament ? <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, textAlign:'center' }]}>
-                    Tournament #{tournament.tournamentId}
-                </Text>
-            : (
-                <Text style={[styles.countdownTimer, { color: theme.colors.onBackground, fontSize: 15, margin: 10 }]}>
-                    No tournaments scheduled
-                </Text>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+        <View style={styles.centeredContainer}>
+          <Card style={[
+            styles.tournamentCardModern,
+            {
+              backgroundColor: getSurfaceRGBA(theme.colors.surface, 0.85),
+              borderRadius: theme.roundness * 2,
+            },
+          ]}> 
+            {tournament ? (
+              <Text style={[styles.tournamentTitle, { color: theme.colors.primary }]}>Tournament #{tournament.tournamentId}</Text>
+            ) : (
+              <Text style={[styles.tournamentTitle, { color: theme.colors.onSurfaceVariant }]}>No tournaments scheduled</Text>
             )}
-            {tournamentStarted && !tournamentCleanup && 
-                    <Text style={[styles.countdownText, { color: theme.colors.primary }]}>
-                      Tournament in progress...
-                    </Text>}
-            {/* Tournament Information */}
+            {tournamentStarted && !tournamentCleanup && (
+              <Text style={[styles.tournamentStatus, { color: theme.colors.primary }]}>Tournament in progress...</Text>
+            )}
             {(tournament && timeUntilNextGame && !tournamentStarted && !tournamentCleanup) && (
-                <Card style={[styles.tournamentCard, {backgroundColor: theme.colors.background}]}>
-                    <View style={[styles.countdownContainer, { borderRadius: theme.roundness }]}>
-                        <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
-                            Time until next Tournament:
-                        </Text>
-                        <Text style={[styles.countdownTimer, { color: theme.colors.primary }]}>
-                            {timeUntilNextGame}
-                        </Text>
-                        {registered && <Text style={{ color: 'green', textAlign: 'center' }}>Player Registered!</Text>}
-                    </View>
-                    {player && (
-                        <View>
-                            <Text style={[styles.countdownText, { color: theme.colors.outline }]}>
-                                # Players: {tournament.numPlayersRegistered}
-                            </Text>
-                            {tournament.cash && tournament.cash > 0 && 
-                            <View>
-                            <Text style={{ marginTop: 25, color: theme.colors.onSurface }}>Cash Prize:</Text>
-                            <Text style={{ color: 'green', fontSize: 48 }}>${tournament.cash}</Text>
-                            </View>}
-                        </View>
+              <View style={styles.countdownContainerModern}>
+                <Text style={[styles.countdownLabel, { color: theme.colors.outline }]}>Time until next Tournament:</Text>
+                <Text style={[styles.countdownTimerModern, { color: theme.colors.primary }]}>{timeUntilNextGame}</Text>
+                {registered && <Text style={{ color: 'green', textAlign: 'center', marginTop: 4 }}>Player Registered!</Text>}
+                {player && (
+                  <View style={{ marginTop: 12 }}>
+                    <Text style={[styles.countdownLabel, { color: theme.colors.outline }]}># Players: {tournament.numPlayersRegistered}</Text>
+                    {tournament.cash && tournament.cash > 0 && (
+                      <View style={{ alignItems: 'center', marginTop: 16 }}>
+                        <Text style={{ color: theme.colors.onSurface, fontWeight: '600' }}>Cash Prize:</Text>
+                        <Text style={{ color: 'green', fontSize: 40, fontWeight: 'bold' }}>${tournament.cash}</Text>
+                      </View>
                     )}
-                    
-                </Card>
+                  </View>
+                )}
+              </View>
             )}
-
-            {/* FAB Button to Refresh Tournament */}
             {player && (
-                <IconButton
-                    style={styles.refreshButton}
-                    icon="refresh"
-                    loading={refreshing}
-                    disabled={refreshing || !player}
-                    onPress={updatePageWithTournament}
-                />
+              <IconButton
+                style={styles.refreshButtonModern}
+                icon="refresh"
+                loading={refreshing}
+                disabled={refreshing || !player}
+                onPress={updatePageWithTournament}
+                size={28}
+              />
             )}
-
-            {/* Tournament Status */}
-
-            {/* Tournament Cleanup */}
             {tournamentCleanup && (
-                <Text style={[styles.countdownTimer, { color: theme.colors.primary, fontSize: 15 }]}>
-                    Updating record books from today’s tournament...
-                </Text>
+              <Text style={[styles.tournamentStatus, { color: theme.colors.primary, fontSize: 15 }]}>Updating record books from today’s tournament...</Text>
             )}
-
-            {/* No Tournament Scheduled */}
-            
-
+          </Card>
         </View>
 
-        {/* Buttons Section: Now a Separate Lower Container */}
+        {/* Modernized Button Section */}
         {player && (
-            <View style={[styles.lowerButtonsContainer, {      backgroundColor: theme.colors.surface}]}>
-              {tournamentStarted && !tournamentCleanup && (
-              
-                
-      <Animated.View style={{ opacity: player ? opacity : 1 }}>
-        <FAB
-          style={[
-            styles.fabButton,
-            {
-              backgroundColor: player
-                ? theme.colors.primary
-                : theme.colors.surfaceDisabled, // Gray when disabled
-            },
-          ]}
-          disabled={!player}
-          onPress={() => tournament?.roundActiveFlag ? navigation.replace('SpectatorScreen', {tournament: tournament}) : navigation.replace('WaitingScreen')}
-          label={registered ? 'Join Tournament' : 'View Tournament'}
-        />
-      </Animated.View>
-          
-              )}
+          <View style={styles.lowerButtonsModern}>
+            {tournamentStarted && !tournamentCleanup && (
+              <Animated.View style={{ opacity: player ? opacity : 1, width: '100%' }}>
                 <FAB
-                    label="Register for Tournament"
-                    onPress={joinTournament}
-                    disabled={!tournament || registered || tournamentStarted || tournamentCleanup}
-                    style={styles.fabButton}
+                  style={styles.fabOutlined}
+                  label={registered ? 'Join Tournament' : 'View Tournament'}
+                  disabled={!player}
+                  onPress={() => tournament?.roundActiveFlag ? navigation.replace('SpectatorScreen', { tournament }) : navigation.replace('WaitingScreen')}
+                  color={'white'}
                 />
-              
-                <FAB
-                    label="Test"
-                    onPress={()=>navigation.replace('TrophyRoom')}
-                    style={styles.fabButton}
-                />
-              
-                {/* <LogoutButton {...props} /> */}
-            </View>
+              </Animated.View>
+            )}
+            <FAB
+              label="Register for Tournament"
+              style={styles.fabOutlined}
+              onPress={joinTournament}
+              disabled={!tournament || registered || tournamentStarted || tournamentCleanup}
+              color={'white'}
+            />
+            <FAB
+              label="Trophy Room"
+              style={styles.fabOutlined}
+              onPress={() => navigation.replace('TrophyRoom')}
+              color={'white'}
+            />
+          </View>
         )}
-        {/* Login/Signup Box */}
+
+        {/* Modernized Login/Signup Section */}
         {!player && !legacySignUp && (
-          <View>
-          <FacebookButton></FacebookButton>
-          <FAB
-                    label="Test"
-                    onPress={()=>navigation.replace('TestScreen')}
-                    style={styles.fabButton}
-                />
-        
-          <FAB
-                    label="Legacy Sign In"
-                    onPress={()=>setLegacySignUp(true)}
-                    style={styles.fabButton}
-                />
+          <View style={styles.authModernContainer}>
+            <Card style={[
+              styles.authModernCard,
+              { backgroundColor: getSurfaceRGBA(theme.colors.surface, 0.85), borderRadius: theme.roundness * 2 },
+            ]}> 
+              <FacebookButton />
+              <FAB
+                label="Test Screen"
+                style={styles.fabOutlined}
+                onPress={() => navigation.replace('TestScreen')}
+                color={'white'}
+              />
+              <FAB
+                label="Legacy Sign In"
+                style={styles.fabOutlined}
+                onPress={() => setLegacySignUp(true)}
+                color={'white'}
+              />
+            </Card>
           </View>
         )}
         {!player && legacySignUp && (
-            <KeyboardAvoidingView
-                style={[styles.authContainer, { backgroundColor: theme.colors.backdrop }]}
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            >
-              
-                <ScrollView contentContainerStyle={styles.scrollContainer}>
-                    <View style={styles.formContainer}>
-                        {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}
-                    </View>
-                </ScrollView>
-                <FAB
-                    icon="undo"
-                    onPress={()=>setLegacySignUp(false)}
-                    style={{width:48, position:'absolute', left: 20}}
-                />
-                <SegmentedButtons
-                    value={selected}
-                    onValueChange={setSelected}
-                    buttons={[
-                        { value: 'login', label: 'Login', style: selected === 'login' ? { backgroundColor: theme.colors.primary} : {} },
-                        { value: 'signup', label: 'Sign Up', style: selected === 'signup' ? { backgroundColor: theme.colors.primary} : {} },
-                    ]}
-                    style={styles.toggleButtons}
-                />
-            </KeyboardAvoidingView>
+          <KeyboardAvoidingView
+            style={styles.authModernContainer}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            <Card style={[
+              styles.authModernCard,
+              { backgroundColor: getSurfaceRGBA(theme.colors.surface, 0.85), borderRadius: theme.roundness * 2 },
+            ]}>
+              <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <View style={styles.formContainer}>
+                  {selected === 'login' ? <Login {...props} /> : <SignUp {...props} />}
+                </View>
+              </ScrollView>
+              <FAB
+                icon="undo"
+                style={[styles.fabOutlined, { width: 56, alignSelf: 'flex-start', marginTop: 8 }]}
+                onPress={() => setLegacySignUp(false)}
+                color={'white'}
+              />
+              <SegmentedButtons
+                value={selected}
+                onValueChange={setSelected}
+                buttons={[
+                  { value: 'login', label: 'Login', style: selected === 'login' ? { backgroundColor: theme.colors.primary } : {} },
+                  { value: 'signup', label: 'Sign Up', style: selected === 'signup' ? { backgroundColor: theme.colors.primary } : {} },
+                ]}
+                style={styles.toggleButtons}
+              />
+            </Card>
+          </KeyboardAvoidingView>
         )}
-</View>
-);
+      </ScrollView>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
@@ -404,71 +402,120 @@ const styles = StyleSheet.create({
       borderWidth: 1
   },
   imageBackground: {
-      position: 'absolute',
-      bottom: 0,
-      width: '100%',
-      height: '100%',
-      zIndex: 0,
-      opacity: .3,
-      objectFit: 'contain',
-      borderRadius: 10, // Optional: Add rounded corners
-      borderWidth: 10,
-      overflow: 'hidden'
-    },
-  tournamentContainer: {
-      alignItems: 'flex-start',
-      padding: 10,
-      marginTop: 10,
-      opacity: 0.95,
-      marginHorizontal: 5
+    position: 'absolute',
+    top: 10,
+    alignSelf: 'center',
+    width: '90%',
+    height: '80%',
+    zIndex: 0,
+    opacity: 0.18, // More subtle
+    borderRadius: 5,
+    borderWidth: 0,
+    overflow: 'hidden',
   },
-  tournamentCard: {
-      padding: 10,
-      margin: 10,
-      width: '80%',
-      justifyContent: 'center',
-      alignItems: 'center',
-  },
-  countdownContainer: {
-      padding: 10,
-  },
-  countdownText: {
-      fontSize: 16,
-      textAlign: 'center'
-  },
-  countdownTimer: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      textAlign: 'center'
-  },
-  fabButton: {
-      margin: 10,
-  },
-  refreshButton: {
-    margin: 0,
+  bgOverlay: {
     position: 'absolute',
     top: 0,
-    right: 0,
-    opacity: .7,
-
-    zIndex: 10
-},
-  lowerButtonsContainer: {
-      position: 'absolute',
-      bottom: 0,
-      width: '100%',
-      padding: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.18)',
+    zIndex: 1,
   },
-  authContainer: {
-      padding: 20,
-      position: 'absolute',
-      bottom: 0,
-      width: '100%',
-      
+  centeredContainer: {
+    opacity: 0.8,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 32,
+    marginBottom: 32,
+    zIndex: 2,
+  },
+  tournamentCardModern: {
+    width: '92%',
+    alignSelf: 'center',
+    padding: 24,
+    marginVertical: 12,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  tournamentTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  tournamentStatus: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 8,
+    fontWeight: '500',
+  },
+  countdownContainerModern: {
+    marginTop: 12,
+    alignItems: 'center',
+  },
+  countdownLabel: {
+    fontSize: 15,
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  countdownTimerModern: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 4,
+    letterSpacing: 1,
+  },
+  refreshButtonModern: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    zIndex: 10,
+    borderRadius: 24,
+  },
+  lowerButtonsModern: {
+    width: '100%',
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+    paddingTop: 8,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 3,
+  },
+  fabOutlined: {
+    backgroundColor: 'transparent',
+    
+    borderWidth: 2,
+    borderColor: theme.colors.primary, // Use theme color, not hardcoded
+    borderRadius: 16,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginVertical: 8,
+    width: '100%',
+  },
+  authModernContainer: {
+    opacity: .8,
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 32,
+    marginBottom: 32,
+    zIndex: 2,
+  },
+  authModernCard: {
+    width: 340,
+    maxWidth: '95%',
+    alignSelf: 'center',
+    padding: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
   scrollContainer: {
       padding: 20,
