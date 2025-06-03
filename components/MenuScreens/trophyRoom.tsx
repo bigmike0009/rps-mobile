@@ -2,9 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import TrophyComponent from 'components/trophy';
 import { AuthContext } from 'providers/authProvider';
-import { MaterialIcons } from '@expo/vector-icons';
 import { FAB, useTheme } from 'react-native-paper';
-import TournamentCard from 'components/tournamentCard';
 import { CircularCarousel } from 'components/circular-carousel/carousel';
 import { useAssets } from 'providers/assetProvider';
 import { tournamentService } from 'services/appServices';
@@ -45,12 +43,6 @@ const TrophyRoomComponent: React.FC = () => {
     }
   }
   , [currentIndex, player]);
-
-  const data = [
-    {uri: retrieveAsset('gold')},
-    {uri:retrieveAsset('silver')},
-      {uri:retrieveAsset('bronze')}
-  ]
 
 
   const refreshPlayerData = async () => {

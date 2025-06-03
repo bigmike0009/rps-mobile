@@ -51,19 +51,21 @@ export interface Player {
   // Tournament object type
   export interface Tournament {
     tournamentId: number;
-    activeFlag: boolean;
+    activeFlag: boolean; // is this the active tournament?
     currentRoundEndTs: string; // Timestamp
     currentRoundId: string;
     currentRoundStartTs: string; // Timestamp
     numPlayersRegistered: number;
-    playersRemaining: number;
+    remainingPlayers: number;
     registrationCloseTs: string; // Timestamp
     registrationOpenTs: string;  // Timestamp
-    rounds: number[];            // Array of round IDs
-    roundActiveFlag: boolean
-    matchupTablesByRound: Record<number, string[]>;
-    completeFlag: boolean;
+    roundActiveFlag: boolean; //are players actively submitting selections
+    roundCleaningFlag: boolean; // is a round currently waiting for the cleanup process to complete
+    completeFlag: boolean; //does the tournament have a winner? If this is active and the tournament is still active then we're waiting for the cleanup process
     cash: number;
+    activeCountByRegion: Record<string, number>;
+    last_updated_ts: string;
+    queueProcessing: boolean;
   }
 
   export interface Matchup {

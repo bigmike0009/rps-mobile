@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react';
 import { AssetProvider } from 'providers/assetProvider';
 import { TournamentProvider } from 'providers/tournamentProvider';
 import { OverlayProvider } from 'providers/animationProvider';
+import { NotificationProvider } from 'providers/notificationProvider';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,6 +27,7 @@ export default function App() {
       
       <AuthProvider>
         <AssetProvider>
+          <NotificationProvider>
         <TournamentProvider>
         <PaperProvider theme={theme}>
           <OverlayProvider>
@@ -33,7 +35,7 @@ export default function App() {
         </OverlayProvider>
         </PaperProvider>
         </TournamentProvider>
-
+        </NotificationProvider>
         </AssetProvider>
       </AuthProvider>
     </SafeAreaProvider>

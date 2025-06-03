@@ -1,5 +1,17 @@
+Player:
 pk: playerC(######)
 sk: base -- detail -- notif token -- tournaments -- unlocks
-
 id_type: cognito
+
+
+
+Tournament:
+No change (secondary process updating player count every few seconds?)
+
+ActivePlayers: (global)?
+pK: player(######) -- round(##)matchup(##)
+sk: alive - delete  -- 
+notifToken(?)
+bonusLifeUsed(?)
+global secondary search on winner?
 

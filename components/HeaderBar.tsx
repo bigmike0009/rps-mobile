@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute }) => {
           titleStyle={styles.title}
           theme={navigationTheme}
         />
-         <TouchableOpacity onPress={showAlert}>
+         <TouchableOpacity onPress={() => showAlert()}>
         <IconButton
                     style={[styles.logo]}
                     icon="help"
